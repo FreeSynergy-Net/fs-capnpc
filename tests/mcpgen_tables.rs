@@ -133,7 +133,7 @@ fn a_tool_name_is_1_to_128_characters_of_the_allowed_set() {
     assert!(check_name("task.create-2_x").is_ok());
     assert!(check_name(&"a".repeat(128)).is_ok());
     for bad in [
-        "".to_owned(),
+        String::new(),
         "a".repeat(129),
         "has space".to_owned(),
         "a,b".to_owned(),
