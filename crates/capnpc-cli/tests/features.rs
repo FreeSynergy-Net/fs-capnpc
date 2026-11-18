@@ -1,0 +1,98 @@
+//! T7: one fixture case per gap of the probe, as text of the generated file (the run-time round trip is in
+//! `capnpc-cli-fixtures`). Each assertion names the mutant it kills.
+
+mod common;
+
+fn text() -> String {
+    common::generated(&["features.capnp", "capnpc_cli.capnp"], "features_cli.rs")
+}
+
+fn row(t: &str, path: &str) -> String {
+    let needle = format!("Param {{ path: {path:?},");
+    t.lines()
+        .find(|l| l.contains(&needle))
+        .unwrap_or_else(|| panic!("no row for {path}"))
+        .to_owned()
+}
+
+#[test]
+fn secret_is_marked_and_only_that_one() {
+    // M9: `secret` handled as a normal parameter
+    let t = text();
+    assert!(row(&t, "password").contains("secret: true"));
+    assert!(row(&t, "user").contains("secret: false"));
+}
+
+#[test]
+fn union_members_know_their_union() {
+    // M3: two members of a union set silently
+    let t = text();
+    assert!(row(&t, "shape.circle").contains("union_of: Some(\"shape\")"));
+    assert!(row(&t, "shape.nothing").contains("ParamTy::Void"));
+    assert!(row(&t, "shape.label").contains("union_of: None"));
+    assert!(t.contains("CallError::union_twice(path)"));
+}
+
+#[test]
+fn groups_lists_and_defaults_are_rows_and_typed_setters() {
+    // M6: group written flat; M5: list written with one element only; M4: write only if not 0
+    let t = text();
+    assert!(row(&t, "line.from").contains("ParamTy::Struct"));
+    assert!(row(&t, "line.from.x").contains("ParamTy::Int { signed: true, bits: 32 }"));
+    assert!(row(&t, "line.width").contains("ParamTy::Int { signed: false, bits: 16 }"));
+    assert!(t.contains("b.reborrow().init_from()"));
+    assert!(t.contains("for i0 in 0..n {"));
+    assert!(t.contains("l.set(i0, u8::try_from(v)"));
+    assert!(t.contains("b.set_width(u16::try_from(v)"));
+    assert!(
+        !t.contains("!= 0"),
+        "a value of 0 is written like any other"
+    );
+    assert!(row(&t, "grid").contains("ParamTy::List"));
+    assert!(t.contains("l1.set(i1, i32::try_from(v)"));
+}
+
+#[test]
+fn any_pointer_is_listed_as_unreadable() {
+    // M12: AnyPointer dropped silently
+    let t = text();
+    let r = row(&t, "value");
+    assert!(r.contains("ParamTy::Unreadable") && r.contains("ty_name: \"any-pointer\""));
+}
+
+#[test]
+fn recursion_ends_and_is_listed() {
+    let t = text();
+    assert!(row(&t, "root.children").contains("ParamTy::List"));
+    assert!(t.contains("fn set_features_capnp_node("));
+}
+
+#[test]
+fn listener_server_answers_after_the_sink_and_never_with_an_error() {
+    // M7: answer before the sink took the line; M8: answer with an error
+    let t = text();
+    let line = t
+        .find("self.sink.borrow_mut().line(\"event\"")
+        .expect("event line");
+    let ready = t[line..]
+        .find("::core::future::ready(Ok(()))")
+        .expect("answer");
+    assert!(ready > 0);
+    assert!(!t.contains("ready(Err("));
+    assert!(t.contains("pub struct SinkLines<S: Sink>"));
+    assert!(t.contains("watch: true"));
+}
+
+#[test]
+fn risk_annotation_is_passed_on() {
+    let t = text();
+    assert!(t.contains("annotations: &[(0xf0a9fc9d3d3d3fb5, \"destructive\")],"));
+}
+
+#[test]
+fn reserved_word_is_an_error() {
+    let err = capnpc_cli::GenerationCommand::new()
+        .generate(&common::request(&["reserved.capnp"]))
+        .expect_err("collision");
+    assert!(err.to_string().contains("reserved word `version`"), "{err}");
+}
