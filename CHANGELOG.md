@@ -20,6 +20,10 @@
 - CI: a workflow `slim-lib` (runs on every push: no `capnpc` in the tree without default features, the fixtures crate on the slim library, both binaries in the package), the Windows
   workflow also builds the slim library; `release.yml` packages both binaries.
 
+- Added: the tool table generator `capnp_compiler::mcpgen` (`<name>_mcp.rs`: `TOOLS` with JSON Schemas as text, `LEFT`, switch off by
+  default, AI label in every tool; MCP revision 2026-07-28). Written for `fs-mcp`; no protocol and no run time in it.
+  (Deutsch: neu: Generator `mcpgen` fuer Tool-Tabellen aus einer Schnittstelle, standardmaessig aus, KI-Kennzeichnung je Tool.)
+
 ### Earlier entries of this unreleased section (before the move)
 
 - Workspace crate `capnpc-cli` (now the module `cligen`, see above; with the test crate `capnpc-cli-fixtures`, now `cligen-fixtures`): a Cap'n Proto generator plugin that
