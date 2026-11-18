@@ -62,5 +62,17 @@ fn compile(args: &super::args::CompileArgs) -> Result<(), String> {
             .run(&bytes[..])
             .map_err(|e| format!("cli generation failed: {e}"))?;
     }
+    if let Some(dir) = &args.mcp_dir {
+        std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+        crate::mcpgen::GenerationCommand::new()
+            .output_directory(dir)
+            .run(&bytes[..])
+            .map_err(|e| format!("mcp generation failed: {e}"))?;
+        if args.cli_dir.is_none() {
+            eprintln!(
+                "capnp-compiler: note: the tool tables call the command code (<name>_cli.rs); add --cli <dir> or run capnpc-cli so that it exists"
+            );
+        }
+    }
     Ok(())
 }

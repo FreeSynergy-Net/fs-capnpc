@@ -74,14 +74,20 @@ fn variant(value: &str) -> Option<&'static str> {
 }
 
 /// Is the command, the interface it belongs to, or a navigation method or interface on the way to it excluded?
-fn excluded(m: &Model, t: &Tree, c: &Command) -> bool {
-    if is_excluded(&c.method.annotations) || is_excluded(&m.interfaces[&c.iface].annotations) {
+fn excluded(m: &Model, marks: &dyn MarkSource, t: &Tree, c: &Command) -> bool {
+    if is_excluded(&c.method.annotations)
+        || is_excluded(&m.interfaces[&c.iface].annotations)
+        || marks.excluded(&c.key)
+    {
         return true;
     }
     t.groups
         .iter()
         .filter(|g| c.words.len() > g.words.len() && c.words[..g.words.len()] == g.words[..])
         .any(|g| {
+            if marks.excluded(&g.key) {
+                return true;
+            }
             let (file, rest) = g.key.split_once('/').unwrap_or(("", &g.key));
             let (owner, method) = rest.rsplit_once('.').unwrap_or((rest, ""));
             m.interfaces
@@ -96,12 +102,17 @@ fn excluded(m: &Model, t: &Tree, c: &Command) -> bool {
         })
 }
 
-/// The risk of a command: its own mark, else the mark of its interface.
-fn risk_of(m: &Model, c: &Command) -> Option<(&'static str, String)> {
-    let find = |a: &[Annotation]| a.iter().find(|x| x.id == RISK_ANNOTATION).cloned();
+/// The risk of a command: its own mark, else the mark of its interface, else the mark of the program.
+fn risk_of(m: &Model, marks: &dyn MarkSource, c: &Command) -> Option<(&'static str, String)> {
+    let find = |a: &[Annotation]| {
+        a.iter()
+            .find(|x| x.id == RISK_ANNOTATION)
+            .map(|x| x.value.clone())
+    };
     find(&c.method.annotations)
         .or_else(|| find(&m.interfaces[&c.iface].annotations))
-        .and_then(|a| variant(&a.value).map(|v| (v, a.value)))
+        .or_else(|| marks.risk(&c.key))
+        .and_then(|v| variant(&v).map(|d| (d, v)))
 }
 
 fn skip_reason(
@@ -116,7 +127,7 @@ fn skip_reason(
     if c.watch {
         return (Some("listener"), false);
     }
-    if excluded(m, t, c) {
+    if excluded(m, marks, t, c) {
         return (Some("excluded"), false);
     }
     let input = scan(m, marks, &c.key, c.method.params, true);
@@ -170,10 +181,12 @@ pub fn build(m: &Model, marks: &dyn MarkSource, t: &Tree, prefix: &str) -> capnp
         let output = Schema::new(m, marks, &c.key, false)
             .root(c.method.results, None)
             .text();
-        let (danger, risk_value) = risk_of(m, c).unzip();
+        let (danger, risk_value) = risk_of(m, marks, c).unzip();
         let doc = c.method.doc.trim();
         for member in members {
-            let mut name = format!("{prefix}.{}", c.words.join("."));
+            let mut name = marks
+                .tool_name(&c.key)
+                .unwrap_or_else(|| format!("{prefix}.{}", c.words.join(".")));
             if let Some(mb) = member {
                 name = format!("{name}.{}", kebab(mb));
             }

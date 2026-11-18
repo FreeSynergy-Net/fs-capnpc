@@ -126,3 +126,37 @@ fn the_marks_of_a_program_add_to_the_annotations() {
         .collect();
     assert!(t.contains("\"text\":{\"type\":\"string\",\"format\":\"email\"}"));
 }
+
+struct ProgramMarks;
+
+impl MarkSource for ProgramMarks {
+    fn risk(&self, key: &str) -> Option<String> {
+        (key == "mcp/Notes.count").then(|| "read".to_owned())
+    }
+    fn excluded(&self, key: &str) -> bool {
+        key == "mcp/Notes.wipe"
+    }
+    fn tool_name(&self, key: &str) -> Option<String> {
+        (key == "mcp/Notes.add").then(|| "note.add".to_owned())
+    }
+}
+
+#[test]
+fn a_program_can_mark_risk_exclude_and_name() {
+    let mut cmd = GenerationCommand::new();
+    cmd.marks(Box::new(ProgramMarks));
+    let t: String = cmd
+        .generate(&common::request(&["mcp.capnp", "capnpc_cli.capnp"]))
+        .unwrap()
+        .into_iter()
+        .map(|f| f.content)
+        .collect();
+    let names = values(&t, "name");
+    assert!(names.contains(&"\"note.add\"") && !names.contains(&"\"mcp.add\""));
+    assert!(!names.contains(&"\"mcp.wipe\""));
+    assert!(t.contains("(\"mcp/Notes.wipe\", \"excluded\")"));
+    // the mark of the program is the risk where the schema says nothing, the schema wins where it speaks
+    let risks = values(&t, "risk");
+    assert!(risks.contains(&"Some(Danger::Read)"));
+    assert!(risks.contains(&"Some(Danger::Add)"));
+}

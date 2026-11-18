@@ -18,7 +18,7 @@ resolver = "3"
 
 [features]
 default = ["cli"]
-# The command lines `capnp-compiler` and `capnpc-cli` (and the Rust code generator capnpc for `-o`).
+# The command lines `capnp-compiler`, `capnpc-cli` and `capnpc-mcp` (and the Rust code generator capnpc for `-o`).
 # Without it the library has no `capnpc`; `cligen` (the generator and its runtime part `rt`) is always there.
 cli = ["dep:capnpc"]
 
@@ -34,6 +34,11 @@ required-features = ["cli"]
 [[bin]]
 name = "capnpc-cli"
 path = "src/bin/capnpc-cli.rs"
+required-features = ["cli"]
+
+[[bin]]
+name = "capnpc-mcp"
+path = "src/bin/capnpc-mcp.rs"
 required-features = ["cli"]
 
 [dependencies]

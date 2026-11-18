@@ -11,6 +11,8 @@ pub struct CompileArgs {
     pub output_dir: Option<PathBuf>,
     /// Directory receiving the command line code (`<name>_cli.rs`, `--cli`).
     pub cli_dir: Option<PathBuf>,
+    /// Directory receiving the tool tables (`<name>_mcp.rs`, `--mcp`).
+    pub mcp_dir: Option<PathBuf>,
     /// Also write the raw `CodeGeneratorRequest` to this file (`--request`).
     pub request_file: Option<PathBuf>,
     /// Import search directories (`-I`).
@@ -45,6 +47,7 @@ OPTIONS:
     -o, --output <DIR>       write generated Rust (<name>_capnp.rs) into DIR
     -I, --import-path <DIR>  search DIR for absolute imports (repeatable)
         --cli <DIR>          write command line code (<name>_cli.rs, capnpc-cli) into DIR
+        --mcp <DIR>          write MCP tool tables (<name>_mcp.rs, capnpc-mcp) into DIR; they call <name>_cli.rs, so give --cli too
         --src-prefix <DIR>   strip DIR from file names (repeatable)
         --no-standard-import do not search the embedded /capnp/*.capnp files
         --request <FILE>     also write the raw CodeGeneratorRequest to FILE
@@ -77,6 +80,7 @@ pub fn parse_args(argv: impl IntoIterator<Item = String>) -> Result<Command, Str
             "-I" | "--import-path" => out.import_paths.push(value(&mut args, &a)?),
             "--src-prefix" => out.src_prefixes.push(value(&mut args, &a)?),
             "--cli" => out.cli_dir = Some(value(&mut args, &a)?),
+            "--mcp" => out.mcp_dir = Some(value(&mut args, &a)?),
             "--request" => out.request_file = Some(value(&mut args, &a)?),
             "--no-standard-import" => out.no_standard_import = true,
             "-h" | "--help" => return Ok(Command::Help),
@@ -87,8 +91,14 @@ pub fn parse_args(argv: impl IntoIterator<Item = String>) -> Result<Command, Str
     if out.files.is_empty() {
         return Err("no schema files given".into());
     }
-    if out.output_dir.is_none() && out.cli_dir.is_none() && out.request_file.is_none() {
-        return Err("nothing to do: give -o <dir>, --cli <dir> and/or --request <file>".into());
+    if out.output_dir.is_none()
+        && out.cli_dir.is_none()
+        && out.mcp_dir.is_none()
+        && out.request_file.is_none()
+    {
+        return Err(
+            "nothing to do: give -o <dir>, --cli <dir>, --mcp <dir> and/or --request <file>".into(),
+        );
     }
     Ok(Command::Compile(out))
 }

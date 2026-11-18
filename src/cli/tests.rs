@@ -40,6 +40,16 @@ fn cli_option_alone_is_valid_and_needs_a_value() {
 }
 
 #[test]
+fn mcp_option_alone_is_valid_and_needs_a_value() {
+    let Ok(Command::Compile(a)) = parse_args(argv("compile --mcp gen a.capnp")) else {
+        panic!("expected compile");
+    };
+    assert_eq!(a.mcp_dir.as_deref(), Some(std::path::Path::new("gen")));
+    assert!(a.output_dir.is_none() && a.cli_dir.is_none());
+    assert!(parse_args(argv("compile a.capnp --mcp")).is_err());
+}
+
+#[test]
 fn end_to_end_generates_rust() {
     let dir = std::env::temp_dir().join(format!("capnp-compiler-cli-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();

@@ -20,6 +20,21 @@ pub trait MarkSource {
     fn kind(&self, _key: &str, _path: &str) -> Option<String> {
         None
     }
+    /// The risk class of the command `key` (`read`, `add`, `change`, `destructive`, `actsInName`) if the program marks
+    /// it; the `risk` annotation of the schema comes first. Used by the tool generator `capnpc-mcp`.
+    fn risk(&self, _key: &str) -> Option<String> {
+        None
+    }
+    /// Is the command `key` (or the navigation method with that key) never a tool? Adds to `risk(excluded)` of the
+    /// schema; it never takes an exclusion away. Used by `capnpc-mcp`.
+    fn excluded(&self, _key: &str) -> bool {
+        false
+    }
+    /// A name for the tool of the command `key` instead of `<file>.<words>` (a capability id such as `task.create`).
+    /// Used by `capnpc-mcp`.
+    fn tool_name(&self, _key: &str) -> Option<String> {
+        None
+    }
 }
 
 /// No marks beyond the annotations.

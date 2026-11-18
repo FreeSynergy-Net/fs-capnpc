@@ -22,7 +22,10 @@
 
 - Added: the tool table generator `capnp_compiler::mcpgen` (`<name>_mcp.rs`: `TOOLS` with JSON Schemas as text, `LEFT`, switch off by
   default, AI label in every tool; MCP revision 2026-07-28). Written for `fs-mcp`; no protocol and no run time in it.
-  (Deutsch: neu: Generator `mcpgen` fuer Tool-Tabellen aus einer Schnittstelle, standardmaessig aus, KI-Kennzeichnung je Tool.)
+  Also the binary `capnpc-mcp` (plugin for `capnp compile -omcp:<dir>`, feature `cli` like `capnpc-cli`) and the option
+  `capnp-compiler compile --mcp <dir>`; `MarkSource` has the new methods `risk`, `excluded` and `tool_name` (default: none).
+  (Deutsch: neu: Generator `mcpgen` fuer Tool-Tabellen aus einer Schnittstelle, standardmaessig aus, KI-Kennzeichnung je Tool;
+  Binary `capnpc-mcp` und Option `compile --mcp <dir>`.)
 
 ### Earlier entries of this unreleased section (before the move)
 
