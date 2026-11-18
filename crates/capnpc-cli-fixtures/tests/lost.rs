@@ -164,7 +164,12 @@ fn watch_over_a_cable(cut: bool) -> (i32, Vec<String>) {
     let spawn = pool.spawner();
 
     let (sr, sw) = server_end.split();
-    let net = twoparty::VatNetwork::new(sr, sw, Side::Server, Default::default());
+    let net = twoparty::VatNetwork::new(
+        sr,
+        sw,
+        Side::Server,
+        capnp::message::ReaderOptions::default(),
+    );
     let boot = capnp_rpc::new_client::<features::Client, _>(fake).client;
     let server = RpcSystem::new(Box::new(net), Some(boot));
     spawn
@@ -174,7 +179,12 @@ fn watch_over_a_cable(cut: bool) -> (i32, Vec<String>) {
         .unwrap();
 
     let (cr, cw) = client_end.split();
-    let net = twoparty::VatNetwork::new(cr, cw, Side::Client, Default::default());
+    let net = twoparty::VatNetwork::new(
+        cr,
+        cw,
+        Side::Client,
+        capnp::message::ReaderOptions::default(),
+    );
     let mut rpc = RpcSystem::new(Box::new(net), None);
     let client: features::Client = rpc.bootstrap(Side::Server);
     let (ended, ended_rx) = futures::channel::oneshot::channel();
