@@ -128,7 +128,10 @@ pub fn generate(m: &Model, marks: &dyn MarkSource) -> capnp::Result<Vec<Generate
                     &format!("{}.{name}", f.stem),
                 )?;
                 let text = body(&table, &format!("{cli}::{name}"));
-                let _ = write!(content, "\npub mod {name} {{\n    #[allow(unused_imports)]\n    {USE}\n\n");
+                let _ = write!(
+                    content,
+                    "\npub mod {name} {{\n    #[allow(unused_imports)]\n    {USE}\n\n"
+                );
                 for line in text.lines() {
                     if !line.is_empty() {
                         content.push_str("    ");
