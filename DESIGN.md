@@ -78,7 +78,7 @@ One crate, two binaries (`capnpc-cli`), one model. The only dependency is `capnp
 ## Not in cligen
 
 Reading values (uuid, time), help, completion, exit codes, the coverage check: the program (fs-cli). The tool
-generator for MCP (AP4, open). No private capnp API is used.
+generator for MCP: `mcpgen` (below). No private capnp API is used.
 
 ## mcpgen (the generator of capnpc-mcp)
 
