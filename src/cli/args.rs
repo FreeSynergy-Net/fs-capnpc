@@ -27,6 +27,10 @@ pub struct CompileArgs {
 
 /// A parsed command line.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[allow(
+    clippy::large_enum_variant,
+    reason = "one value per process run; boxing would only change every pattern that reads the options"
+)]
 pub enum Command {
     /// Print the usage text.
     Help,
