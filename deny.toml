@@ -1,7 +1,7 @@
 # cargo-deny configuration (licences, sources, bans). Run: cargo deny check
 # Same policy as the FreeSynergy default (fs-release configs/deny.toml), narrowed to what this tree uses.
-# Dependency licences were read from `cargo metadata --locked` (see NOTICE); cargo-deny itself was not installed
-# when this file was written, so the file has not been run yet. The first `cargo deny check` is the check.
+# Dependency licences were read from `cargo metadata --locked` (see NOTICE). `cargo deny` 0.21.0 ran on this file
+# (licenses, bans, sources, advisories: ok, 18.11.2026, Opus review).
 
 [graph]
 all-features = true

@@ -36,6 +36,14 @@ jobs:
         run: |
           cargo tree -e normal --locked -p capnp-compiler-cligen-fixtures | tee fx.txt
           ! grep -q 'capnpc v' fx.txt
+      - name: the default features build the three binaries (cargo install capnp-compiler must install something)
+        run: |
+          rm -f target/debug/capnp-compiler target/debug/capnpc-cli target/debug/capnpc-mcp
+          cargo build --bins --locked
+          test -x target/debug/capnp-compiler
+          test -x target/debug/capnpc-cli
+          test -x target/debug/capnpc-mcp
+          target/debug/capnpc-cli --version
       - name: the plugin binaries and both generators are in the package
         run: |
           cargo package --locked --list --allow-dirty > package.list

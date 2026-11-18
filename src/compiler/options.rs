@@ -1,4 +1,4 @@
-//! Public option and output types of [`compile_files`](crate::compiler::compile_files).
+//! Public option and output types of [`compile_files`](crate::command::compile_files).
 //!
 //! Pattern: Builder — plain option struct filled by callers, plain output struct consumed by writers.
 
