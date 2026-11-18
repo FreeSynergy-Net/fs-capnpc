@@ -45,10 +45,22 @@ fn golden_tasks() {
 }
 
 #[test]
-fn golden_multi_root_and_reserved_words() {
+fn golden_several_roots() {
     check(&["multi.capnp"], "multi_mcp.rs");
+}
+
+#[test]
+fn golden_common() {
     check(&["common.capnp"], "common_mcp.rs");
+}
+
+#[test]
+fn golden_reserved_words() {
     check(&["reserved.capnp"], "reserved_mcp.rs");
+}
+
+#[test]
+fn golden_words() {
     check(&["words.capnp"], "words_mcp.rs");
 }
 
