@@ -128,6 +128,22 @@ fn a_file_on_another_drive_keeps_its_drive() {
 }
 
 #[test]
+fn a_prefix_or_the_cwd_on_another_drive_does_not_match_the_same_names() {
+    let all = vec!["a".to_string(), "repo".into(), "s".into(), "y.capnp".into()];
+    // same folder names, other drive than the cwd (D:)
+    let (dir, path) = split_source(r"C:\a\repo\s\y.capnp", &[], &win_cwd(), true);
+    assert_eq!((dir, path), (PathBuf::from("C:/"), all.clone()));
+    // same folder names, other drive than the source prefix
+    let (dir, path) = split_source(
+        r"C:\a\repo\s\y.capnp",
+        &[r"D:\a\repo".to_string()],
+        &AbsPath::parse(r"E:\w", true, &AbsPath::unix_root()),
+        true,
+    );
+    assert_eq!((dir, path), (PathBuf::from("C:/"), all));
+}
+
+#[test]
 fn the_longest_source_prefix_wins_and_a_file_is_never_its_own_prefix() {
     let prefixes = [
         "/w".to_string(),
