@@ -95,7 +95,6 @@ pub mod gamma {
             key: "multi/Gamma.third",
             member: None,
             words: &["third"],
-^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p capnp-compiler --test mcpgen_golden`
             input_schema: r#"{"type":"object","additionalProperties":false}"#,
             output_schema: r#"{"type":"object"}"#,
             meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"multi/Gamma.third","freeContent":false}}"#,
