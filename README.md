@@ -18,7 +18,7 @@ Published on crates.io: `capnp-compiler` 0.1.1 (2026-11-06). This tree is versio
 ## Install
 
 ```text
-cargo install capnp-compiler          # installs capnp-compiler and the plugin capnpc-cli
+cargo install capnp-compiler          # installs capnp-compiler and the plugins capnpc-cli and capnpc-mcp
 ```
 
 ## Command line code from an interface (capnpc-cli)
@@ -44,7 +44,24 @@ Contracts that import types from another crate (`/types.capnp` of `fs-types`): g
 gets, `GenerationCommand::new().crates_provide_map(HashMap::from([(types_file_id, "fs_types".into())]))`; the types are then
 named `::fs_types::types_capnp::...`.
 
-Open: an MCP tool generator (`capnpc-mcp`, AP4); it does not exist yet.
+## MCP tool tables from an interface (capnpc-mcp)
+
+The generator `capnp_compiler::mcpgen` writes `<name>_mcp.rs` from the same request: the table `TOOLS` (one MCP tool per
+command, with its input and output JSON Schema as text, a title and description from the doc comments, the risk class
+and an AI label in `_meta`), the list `LEFT` of what is no tool and why (a `secret`, a capability, a listener, an
+`AnyPointer`, `risk(excluded)`), and `runner`, which finds the command code in `<name>_cli.rs`. It speaks no protocol:
+the program that serves MCP reads the table. The generated code is off until the program switches it on
+(`ENABLED_BY_DEFAULT = false`, `tools(&Off)` is empty). Written for the MCP revision 2026-07-28 only.
+
+```text
+capnp-compiler compile -o src/gen --cli src/gen --mcp src/gen tasks.capnp
+# or, with the official C++ tool:  capnp compile -orust:src/gen -ocli:src/gen -omcp:src/gen tasks.capnp
+```
+
+`--mcp` without `--cli` works, but the tables then call `<name>_cli.rs`, which must come from somewhere: the tool says so
+on standard error. Both plugin binaries need the feature `cli` (as `capnpc-cli`): one switch decides which programs
+`cargo install` puts on the path. See [DESIGN.md](DESIGN.md), section "mcpgen", for the mapping and the specification.
+
 
 ## What is not there yet
 

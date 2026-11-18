@@ -13,10 +13,10 @@ jobs:
   release:
     uses: FreeSynergy/fs-release/.github/workflows/release.yml@v0.0.11
     with:
-      binaries: capnp-compiler,capnpc-cli
+      binaries: capnp-compiler,capnpc-cli,capnpc-mcp
       kind: cli
       app-id: net.freesynergy.CapnpCompiler
-      description: Cap'n Proto parser and compiler in Rust (schema to CodeGeneratorRequest) and the capnpc-cli plugin
+      description: Cap'n Proto parser and compiler in Rust (schema to CodeGeneratorRequest) and the capnpc-cli and capnpc-mcp plugins
     secrets:
       GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
       GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}

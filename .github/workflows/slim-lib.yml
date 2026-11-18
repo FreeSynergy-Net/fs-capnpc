@@ -1,5 +1,5 @@
 # The library without the default feature `cli` has no `capnpc` (generated command line code needs only the library),
-# and the package holds both binaries. Own workflow on every push (the `ci` workflow runs on main and pull requests only).
+# and the package holds the three binaries' sources. Own workflow on every push (the `ci` workflow runs on main and pull requests only).
 name: slim-lib
 on:
   push:
@@ -36,9 +36,10 @@ jobs:
         run: |
           cargo tree -e normal --locked -p capnp-compiler-cligen-fixtures | tee fx.txt
           ! grep -q 'capnpc v' fx.txt
-      - name: both binaries and the generator are in the package
+      - name: the plugin binaries and both generators are in the package
         run: |
           cargo package --locked --list --allow-dirty > package.list
           grep -qx 'src/bin/capnpc-cli.rs' package.list
           grep -qx 'src/cligen/capnpc_cli.capnp' package.list
-          ! grep -q 'capnpc-mcp' package.list
+          grep -qx 'src/bin/capnpc-mcp.rs' package.list
+          grep -qx 'src/mcpgen/mod.rs' package.list

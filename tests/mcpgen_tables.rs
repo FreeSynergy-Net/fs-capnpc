@@ -152,3 +152,96 @@ fn the_whole_table_is_hidden_from_the_docs() {
     let t = mcp();
     assert!(t.contains("#[doc(hidden)]\npub const TOOLS: &[ToolSpec]"));
 }
+
+struct ProgramMarks;
+
+impl MarkSource for ProgramMarks {
+    fn risk(&self, key: &str) -> Option<String> {
+        (key == "mcp/Notes.count").then(|| "read".to_owned())
+    }
+    fn excluded(&self, key: &str) -> bool {
+        key == "mcp/Notes.wipe"
+    }
+    fn tool_name(&self, key: &str) -> Option<String> {
+        (key == "mcp/Notes.add").then(|| "note.add".to_owned())
+    }
+}
+
+#[test]
+fn a_program_can_mark_risk_exclude_and_name() {
+    let mut cmd = GenerationCommand::new();
+    cmd.marks(Box::new(ProgramMarks));
+    let t: String = cmd
+        .generate(&common::request(&["mcp.capnp", "capnpc_cli.capnp"]))
+        .unwrap()
+        .into_iter()
+        .map(|f| f.content)
+        .collect();
+    let names = values(&t, "name");
+    assert!(names.contains(&"\"note.add\"") && !names.contains(&"\"mcp.add\""));
+    assert!(!names.contains(&"\"mcp.wipe\""));
+    assert!(t.contains("(\"mcp/Notes.wipe\", \"excluded\")"));
+    // the mark of the program is the risk where the schema says nothing, the schema wins where it speaks
+    let risks = values(&t, "risk");
+    assert!(risks.contains(&"Some(Danger::Read)"));
+    assert!(risks.contains(&"Some(Danger::Add)"));
+}
+
+/// A program that names the tool of `mcp/Notes.add` (and of `mcp/Notes.count` too, if `both`).
+struct Named {
+    name: String,
+    both: bool,
+}
+
+impl MarkSource for Named {
+    fn tool_name(&self, key: &str) -> Option<String> {
+        (key == "mcp/Notes.add" || (self.both && key == "mcp/Notes.count"))
+            .then(|| self.name.clone())
+    }
+}
+
+fn generate_named(
+    name: &str,
+    both: bool,
+) -> capnp::Result<Vec<capnp_compiler::mcpgen::GeneratedFile>> {
+    let mut cmd = GenerationCommand::new();
+    cmd.marks(Box::new(Named {
+        name: name.to_owned(),
+        both,
+    }));
+    cmd.generate(&common::request(&["mcp.capnp", "capnpc_cli.capnp"]))
+}
+
+#[test]
+fn a_tool_name_is_1_to_128_characters_of_the_allowed_set() {
+    assert!(generate_named(&"a".repeat(128), false).is_ok());
+    for bad in [
+        "a".repeat(129),
+        String::new(),
+        "has space".to_owned(),
+        "a,b".to_owned(),
+        "caf\u{e9}".to_owned(),
+        "a/b".to_owned(),
+    ] {
+        let Err(e) = generate_named(&bad, false) else {
+            panic!("`{bad}` must be an error");
+        };
+        assert!(e.to_string().contains("1 to 128"), "{e}");
+    }
+    assert!(capnp_compiler::mcpgen::check_name("task.create-2_x").is_ok());
+    assert!(capnp_compiler::mcpgen::check_name("").is_err());
+    assert!(capnp_compiler::mcpgen::check_name(&"a".repeat(129)).is_err());
+}
+
+#[test]
+fn two_tools_with_one_name_are_an_error() {
+    let Err(e) = generate_named("same.name", true) else {
+        panic!("two tools with one name must be an error");
+    };
+    assert!(
+        e.to_string().contains("two tools get the name `same.name`"),
+        "{e}"
+    );
+    assert!(generate_named("same.name", false).is_ok());
+}
+
