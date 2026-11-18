@@ -2,6 +2,7 @@
 //!
 //! Pattern: Facade — `GenerationCommand` hides the stages (model, tree, emitters) behind one builder.
 
+use std::collections::HashMap;
 use std::path::PathBuf;
 
 use super::ctx::{MarkSource, NoMarks};
@@ -27,6 +28,7 @@ pub struct GeneratedFile {
 pub struct GenerationCommand {
     output_directory: Option<PathBuf>,
     marks: Box<dyn MarkSource>,
+    provided: HashMap<u64, String>,
 }
 
 impl Default for GenerationCommand {
@@ -42,6 +44,7 @@ impl GenerationCommand {
         Self {
             output_directory: None,
             marks: Box::new(NoMarks),
+            provided: HashMap::new(),
         }
     }
 
@@ -57,13 +60,24 @@ impl GenerationCommand {
         self
     }
 
+    /// Files whose `capnpc` code lives in another crate: file id to crate name, the same map that is given to
+    /// `capnpc` as `crates_provide_map`. Types of such a file are named `::<crate>::<stem>_capnp::...` instead of
+    /// `crate::<stem>_capnp::...`, so the generated code compiles against `fs_types::types_capnp` and the like.
+    pub fn crates_provide_map(&mut self, map: HashMap<u64, String>) -> &mut Self {
+        self.provided = map;
+        self
+    }
+
     /// The files for a request, without writing anything.
     ///
     /// # Errors
     /// The request is malformed, or two commands get the same words (a method named like a reserved word is no error: its
     /// word gets the prefix `method-`).
     pub fn generate(&self, request: &[u8]) -> capnp::Result<Vec<GeneratedFile>> {
-        generate(&Model::from_request(request)?, &*self.marks)
+        generate(
+            &Model::from_request_with(request, &self.provided)?,
+            &*self.marks,
+        )
     }
 
     /// Read a request and write the files into the output directory.

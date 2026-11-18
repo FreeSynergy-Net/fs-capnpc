@@ -40,7 +40,11 @@ feature `cli` adds the two command lines and `capnpc`). The annotations the gene
 `src/cligen/capnpc_cli.capnp` (use `-I` on that folder). It targets the output of `capnpc` 0.27. See
 [DESIGN.md](DESIGN.md), section "cligen".
 
-Open: an MCP tool generator (`capnpc-mcp`, AP4) and the option `capnp_module` (A1). Neither exists yet.
+Contracts that import types from another crate (`/types.capnp` of `fs-types`): give the generator the same map that `capnpc`
+gets, `GenerationCommand::new().crates_provide_map(HashMap::from([(types_file_id, "fs_types".into())]))`; the types are then
+named `::fs_types::types_capnp::...`.
+
+Open: an MCP tool generator (`capnpc-mcp`, AP4); it does not exist yet.
 
 ## What is not there yet
 

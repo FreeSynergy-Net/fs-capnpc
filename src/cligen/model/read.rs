@@ -54,15 +54,27 @@ impl Model {
     /// # Errors
     /// The bytes are not a request, or a node is malformed.
     pub fn from_request(bytes: &[u8]) -> capnp::Result<Self> {
+        Self::from_request_with(bytes, &HashMap::new())
+    }
+
+    /// As `from_request`, with the files whose `capnpc` code lives in another crate (file id to crate name, the
+    /// `crates_provide_map` that was given to `capnpc`): their types are named `::<crate>::<stem>_capnp::...`.
+    ///
+    /// # Errors
+    /// The bytes are not a request, or a node is malformed.
+    pub fn from_request_with(bytes: &[u8], provided: &HashMap<u64, String>) -> capnp::Result<Self> {
         let opts = capnp::message::ReaderOptions {
             traversal_limit_in_words: None,
             nesting_limit: 128,
         };
         let msg = capnp::serialize::read_message(&mut &bytes[..], opts)?;
-        Self::from_reader(msg.get_root()?)
+        Self::from_reader(msg.get_root()?, provided)
     }
 
-    fn from_reader(req: code_generator_request::Reader<'_>) -> capnp::Result<Self> {
+    fn from_reader(
+        req: code_generator_request::Reader<'_>,
+        provided: &HashMap<u64, String>,
+    ) -> capnp::Result<Self> {
         let mut docs: HashMap<u64, (String, Vec<String>)> = HashMap::new();
         for info in req.get_source_info()? {
             let members = info
@@ -80,9 +92,15 @@ impl Model {
             let name = text(f.get_filename())?.replace('\\', "/");
             let stem = stem_of(&name);
             for imp in f.get_imports()? {
-                scopes.add_file(imp.get_id(), &stem_of(&text(imp.get_name())?))?;
+                let id = imp.get_id();
+                let by = provided.get(&id).map(String::as_str);
+                scopes.add_file(id, &stem_of(&text(imp.get_name())?), by)?;
             }
-            scopes.add_file(f.get_id(), &stem)?;
+            scopes.add_file(
+                f.get_id(),
+                &stem,
+                provided.get(&f.get_id()).map(String::as_str),
+            )?;
             m.files.push(RequestedFile {
                 id: f.get_id(),
                 name,

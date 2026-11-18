@@ -9,6 +9,13 @@
   also together with `-o`). The runtime part `cligen::rt` needs no feature.
   (Deutsch: neu: Generator `cligen` fuer Befehlszeilen-Code aus einer Schnittstelle, Binary `capnpc-cli` als capnp-Plugin
   und Option `compile --cli <dir>`; der Code ist aus dem Crate `capnpc-cli` umgezogen, Historie bleibt.)
+- Added (A1): `GenerationCommand::crates_provide_map(HashMap<u64, String>)`, the same map that is given to `capnpc`
+  (file id to crate name): the types of such a file are named `::<crate>::<stem>_capnp::...` instead of
+  `crate::<stem>_capnp::...`, so the command code of a contract that imports `/types.capnp` from `fs-types` compiles
+  (`fs-interfaces` passes `fs_types`). Tests: the text equals the plain one with only that path replaced, a golden file,
+  and the fixtures crate compiles the provided variant. The option `capnp_module` of the old plan is not needed.
+  (Deutsch: A1 erledigt: `crates_provide_map` wie bei `capnpc`; Typen einer Datei aus einem anderen Crate heissen
+  `::<crate>::<stem>_capnp::...`.)
 - Changed (breaking for `default-features = false`): the feature `cli` (default) holds the command lines and the
   dependency `capnpc`; `capnp-compiler = { default-features = false }` is the library without `capnpc`, and has no
   module `cli` any more. Hence 0.2.0.

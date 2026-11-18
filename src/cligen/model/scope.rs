@@ -39,13 +39,20 @@ impl<'a> Scopes<'a> {
         }
     }
 
-    /// Add a file (requested or imported): its root module is `<stem>_capnp` below `crate`.
+    /// Add a file (requested or imported): its root module is `<stem>_capnp` below `crate`, or below `::<name>` when
+    /// `provided_by` names the crate that holds the code `capnpc` wrote for this file (as `crates_provide_map` of `capnpc`).
     ///
     /// # Errors
     /// A node is malformed or uses an annotation the generator cannot follow.
-    pub fn add_file(&mut self, id: u64, stem: &str) -> capnp::Result<()> {
+    pub fn add_file(
+        &mut self,
+        id: u64,
+        stem: &str,
+        provided_by: Option<&str>,
+    ) -> capnp::Result<()> {
         let root = format!("{}_capnp", stem.replace('-', "_"));
-        self.walk(vec!["crate".to_owned()], root, NameKind::Verbatim, id)
+        let base = provided_by.map_or_else(|| "crate".to_owned(), |c| format!("::{c}"));
+        self.walk(vec![base], root, NameKind::Verbatim, id)
     }
 
     fn walk(

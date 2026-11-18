@@ -3,6 +3,9 @@
 //! Pattern: Facade — only modules that include what `build.rs` wrote; the tests in `tests/` run the commands.
 #![allow(clippy::all, clippy::pedantic, unused, missing_docs)]
 
+// `::fs_types` is this crate: it holds `types_capnp`, as the real `fs-types` does for `fs-interfaces`.
+extern crate self as fs_types;
+
 macro_rules! generated {
     ($($name:ident),*) => {$(
         pub mod $name { include!(concat!(env!("OUT_DIR"), "/", stringify!($name), ".rs")); }
@@ -23,6 +26,11 @@ generated!(
     words_capnp,
     words_cli
 );
+
+/// `tasks_cli.rs` generated with `crates_provide_map` (types of `types.capnp` named `::fs_types::types_capnp`).
+pub mod tasks_cli_provided {
+    include!(concat!(env!("OUT_DIR"), "/provided/tasks_cli.rs"));
+}
 
 /// The interface ids capnpc wrote (`pub(crate)` there), for the tests that check the tables against them.
 pub mod ids {

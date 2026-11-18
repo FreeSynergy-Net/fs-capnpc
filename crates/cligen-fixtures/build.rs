@@ -46,7 +46,28 @@ fn main() {
             .run(&request(commands)[..])
             .expect("capnpc-cli");
     }
+    provided(&root, &out);
     println!("cargo:rerun-if-changed=../../tests/cligen/fixtures");
     println!("cargo:rerun-if-changed=../../src/cligen/capnpc_cli.capnp");
     println!("cargo:rerun-if-changed=../../src/cligen");
+}
+
+/// `tasks.capnp` again, as `fs-interfaces` generates it: the code of `types.capnp` is in another crate (`fs_types`,
+/// here the test crate itself, see `extern crate self`), so the generated code must name `::fs_types::types_capnp`.
+fn provided(root: &std::path::Path, out: &std::path::Path) {
+    let fixtures = root.join("tests/cligen/fixtures");
+    let mut cmd = CompileCommand::new();
+    cmd.src_prefix(&fixtures);
+    cmd.file(fixtures.join("tasks.capnp"));
+    let request = cmd.run_bytes().expect("tasks compiles");
+    let dir = out.join("provided");
+    std::fs::create_dir_all(&dir).expect("create dir");
+    capnp_compiler::cligen::GenerationCommand::new()
+        .crates_provide_map(std::collections::HashMap::from([(
+            0x916f_ad50_f1c1_4440_u64,
+            "fs_types".to_owned(),
+        )]))
+        .output_directory(&dir)
+        .run(&request[..])
+        .expect("capnpc-cli with a provided crate");
 }
