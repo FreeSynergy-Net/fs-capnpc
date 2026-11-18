@@ -8,8 +8,32 @@ use capnpc_cli_fixtures::features_capnp::{Colour, features};
 
 pub type Log = Rc<RefCell<Vec<String>>>;
 
+/// What the fake does when it is asked to `watch`.
+#[derive(Clone, Copy)]
+pub enum Mode {
+    /// One event and one `done`.
+    Normal,
+    /// This many events, then `done`; the fake notes how many lines the sink had when `done` was answered.
+    Burst(u32),
+    /// An event and a `done` whose arguments are not what the method takes (a text where a struct belongs).
+    Malformed,
+}
+
 pub struct Fake {
     pub log: Log,
+    pub mode: Mode,
+    /// The lines of the sink, to check that the answer came after the sink took the line.
+    pub probe: Log,
+}
+
+impl Fake {
+    pub fn new(log: Log) -> Self {
+        Self {
+            log,
+            mode: Mode::Normal,
+            probe: Rc::default(),
+        }
+    }
 }
 
 fn done() -> impl Future<Output = Result<(), capnp::Error>> + 'static {
@@ -147,12 +171,49 @@ impl features::Server for Fake {
             .and_then(features::watch_params::Reader::get_sink);
         async move {
             let sink = sink?;
-            let mut ev = sink.event_request();
-            ev.get().init_shape().set_label("l");
-            ev.send().await?;
-            let mut d = sink.done_request();
-            d.get().set_why("bye");
-            d.send().promise.await?;
+            match self.mode {
+                Mode::Normal | Mode::Burst(_) => {
+                    let n = if let Mode::Burst(n) = self.mode { n } else { 1 };
+                    for i in 0..n {
+                        let mut ev = sink.event_request();
+                        let label = if n == 1 {
+                            "l".to_owned()
+                        } else {
+                            format!("e{i}")
+                        };
+                        ev.get().init_shape().set_label(label.as_str());
+                        ev.send().await?;
+                    }
+                    let mut d = sink.done_request();
+                    d.get().set_why(if n == 1 { "bye" } else { "end" });
+                    d.send().promise.await?;
+                    self.log.borrow_mut().push(format!(
+                        "after done: sink lines = {}",
+                        self.probe.borrow().len()
+                    ));
+                }
+                Mode::Malformed => {
+                    let mut ev = sink.client.new_streaming_call::<capnp::any_pointer::Owned>(
+                        capnpc_cli_fixtures::ids::SINK,
+                        0,
+                        None,
+                    );
+                    ev.get().set_as::<capnp::text::Owned>("not a struct")?;
+                    ev.send().await?;
+                    let mut d = sink
+                        .client
+                        .new_call::<capnp::any_pointer::Owned, capnp::any_pointer::Owned>(
+                            capnpc_cli_fixtures::ids::SINK,
+                            1,
+                            None,
+                        );
+                    d.get().set_as::<capnp::text::Owned>("not a struct")?;
+                    d.send().promise.await?;
+                    self.log
+                        .borrow_mut()
+                        .push("watch ended without an error answer".to_owned());
+                }
+            }
             Ok(())
         }
     }

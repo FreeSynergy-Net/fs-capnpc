@@ -30,6 +30,8 @@ pub mod ids {
     pub const FEATURES: u64 = crate::features_capnp::features::_private::TYPE_ID;
     /// `Details`.
     pub const DETAILS: u64 = crate::features_capnp::details::_private::TYPE_ID;
+    /// `Sink` (the listener of the feature fixture).
+    pub const SINK: u64 = crate::features_capnp::sink::_private::TYPE_ID;
     /// `Items` of tasks.
     pub const ITEMS: u64 = crate::tasks_capnp::items::_private::TYPE_ID;
 }

@@ -111,16 +111,26 @@ impl Sink for Lines {
         render: &mut dyn FnMut(&mut dyn Output) -> Result<(), CallError>,
     ) {
         let mut r = Rec::default();
-        let res = render(&mut r);
-        self.0.borrow_mut().push(format!(
-            "{kind}: {} {}",
-            r.lines.join(" "),
-            if res.is_ok() { "ok" } else { "ERR" }
-        ));
+        let line = match render(&mut r) {
+            Ok(()) => format!("{kind}: {} ok", r.lines.join(" ")),
+            Err(e) => format!("{kind}: ERR {e}"),
+        };
+        self.0.borrow_mut().push(line);
     }
 }
 
 /// Run a future on a local pool (the capnp-rpc servers of the tests are local).
 pub fn run<F: std::future::Future>(f: F) -> F::Output {
     futures::executor::LocalPool::new().run_until(f)
+}
+
+/// What a program does with the lines of a watch: any error line makes the exit code 3 (the program decides; the
+/// generated code only hands the error to the sink).
+#[must_use]
+pub fn exit_code(lines: &[String]) -> i32 {
+    if lines.iter().any(|l| l.contains(": ERR ")) {
+        3
+    } else {
+        0
+    }
 }

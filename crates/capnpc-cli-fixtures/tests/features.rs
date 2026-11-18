@@ -13,7 +13,7 @@ use support::{In, Rec, run};
 
 fn client() -> (features::Client, Log) {
     let log: Log = Rc::default();
-    (capnp_rpc::new_client(Fake { log: log.clone() }), log)
+    (capnp_rpc::new_client(Fake::new(log.clone())), log)
 }
 
 fn call(
