@@ -1219,7 +1219,7 @@ fn out_tasks_capnp_items_readiness_results(r: crate::tasks_capnp::items::readine
 #[allow(unused_variables, unused_mut)]
 fn out_tasks_capnp_readiness_report(r: crate::tasks_capnp::readiness_report::Reader<'_>, name: &str, out: &mut dyn Output) -> Result<(), CallError> {
     out.begin_struct(name, "ReadinessReport");
-    out.field("readiness", match r.get_readiness() { Ok(v) => Value::Enum(enum_tasks_capnp_Readiness(v)), Err(x) => Value::UnknownEnum(x.0) });
+    out.field("readiness", match r.get_readiness() { Ok(v) => Value::Enum(enum_tasks_capnp_readiness(v)), Err(x) => Value::UnknownEnum(x.0) });
     {
         let l = r.get_by()?;
         out.begin_list("by", "Text");
@@ -1286,7 +1286,7 @@ fn out_tasks_capnp_tasks_support_report_results(r: crate::tasks_capnp::tasks::su
 fn out_types_capnp_command_description(r: crate::types_capnp::command_description::Reader<'_>, name: &str, out: &mut dyn Output) -> Result<(), CallError> {
     out.begin_struct(name, "CommandDescription");
     out.field("name", Value::Text(r.get_name()?.to_str()?));
-    out.field("kind", match r.get_kind() { Ok(v) => Value::Enum(enum_types_capnp_CommandKind(v)), Err(x) => Value::UnknownEnum(x.0) });
+    out.field("kind", match r.get_kind() { Ok(v) => Value::Enum(enum_types_capnp_command_kind(v)), Err(x) => Value::UnknownEnum(x.0) });
     out.field("label", Value::Text(r.get_label()?.to_str()?));
     {
         let l = r.get_input()?;
@@ -1313,7 +1313,7 @@ fn out_types_capnp_command_description(r: crate::types_capnp::command_descriptio
 fn out_types_capnp_field_description(r: crate::types_capnp::field_description::Reader<'_>, name: &str, out: &mut dyn Output) -> Result<(), CallError> {
     out.begin_struct(name, "FieldDescription");
     out.field("name", Value::Text(r.get_name()?.to_str()?));
-    out.field("basic", match r.get_basic() { Ok(v) => Value::Enum(enum_types_capnp_BasicType(v)), Err(x) => Value::UnknownEnum(x.0) });
+    out.field("basic", match r.get_basic() { Ok(v) => Value::Enum(enum_types_capnp_basic_type(v)), Err(x) => Value::UnknownEnum(x.0) });
     out.field("required", Value::Bool(r.get_required()));
     out.field("multiple", Value::Bool(r.get_multiple()));
     out.field("label", Value::Text(r.get_label()?.to_str()?));
@@ -1373,7 +1373,7 @@ fn out_types_capnp_type_description(r: crate::types_capnp::type_description::Rea
     Ok(())
 }
 
-fn enum_tasks_capnp_Readiness(v: crate::tasks_capnp::Readiness) -> &'static str {
+fn enum_tasks_capnp_readiness(v: crate::tasks_capnp::Readiness) -> &'static str {
     match v {
         crate::tasks_capnp::Readiness::Ready => "ready",
         crate::tasks_capnp::Readiness::Blocked => "blocked",
@@ -1384,7 +1384,7 @@ fn enum_tasks_capnp_Readiness(v: crate::tasks_capnp::Readiness) -> &'static str 
     }
 }
 
-fn enum_types_capnp_BasicType(v: crate::types_capnp::BasicType) -> &'static str {
+fn enum_types_capnp_basic_type(v: crate::types_capnp::BasicType) -> &'static str {
     match v {
         crate::types_capnp::BasicType::Unknown => "unknown",
         crate::types_capnp::BasicType::Text => "text",
@@ -1406,7 +1406,7 @@ fn enum_types_capnp_BasicType(v: crate::types_capnp::BasicType) -> &'static str 
     }
 }
 
-fn enum_types_capnp_CommandKind(v: crate::types_capnp::CommandKind) -> &'static str {
+fn enum_types_capnp_command_kind(v: crate::types_capnp::CommandKind) -> &'static str {
     match v {
         crate::types_capnp::CommandKind::Unknown => "unknown",
         crate::types_capnp::CommandKind::Create => "create",
