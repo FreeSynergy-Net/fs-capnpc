@@ -7,8 +7,6 @@ use super::rt::json_string;
 /// A JSON value.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Json {
-    /// `null`.
-    Null,
     /// `true` / `false`.
     Bool(bool),
     /// A number as its digits.
@@ -32,7 +30,6 @@ impl Json {
 
     fn write(&self, out: &mut String) {
         match self {
-            Self::Null => out.push_str("null"),
             Self::Bool(b) => out.push_str(if *b { "true" } else { "false" }),
             Self::Num(n) => out.push_str(n),
             Self::Str(s) => out.push_str(&json_string(s)),

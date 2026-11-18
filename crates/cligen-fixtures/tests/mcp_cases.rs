@@ -155,7 +155,10 @@ fn mcp_fixture_cases() {
     assert_eq!(i.get("required").unwrap().arr(), [V::Str("byId".into())]);
     assert_eq!(
         i.at("properties/byId/description").and_then(V::str),
-        Some("The id of the note.")
+        Some("The id of the note."),
+        "{} / {}",
+        by_id.description,
+        by_id.input_schema
     );
     assert!(by_id.description.starts_with("Find notes."));
     let every = input(tool(t, "mcp.find.everything"));
