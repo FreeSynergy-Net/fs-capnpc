@@ -90,6 +90,7 @@ capnp-compiler compile -o <dir> [-I <import-dir>]... [--src-prefix <dir>]... fil
 | `-I, --import-path <dir>` | search `<dir>` for absolute imports (`import "/foo.capnp"`) |
 | `--src-prefix <dir>` | strip `<dir>` from file names (as `capnp compile --src-prefix`) |
 | `--no-standard-import` | do not fall back to the embedded `/capnp/*.capnp` files |
+| `--cli <dir>` | write command line code (`<name>_cli.rs`, see "Command line code from an interface") into `<dir>`; with `-o` both are written |
 | `--request <file>` | additionally write the raw serialized `CodeGeneratorRequest` |
 
 ### Library

@@ -70,6 +70,14 @@ pub fn compare(files: &[&str], src_prefix: &str, imports: &[&str]) -> Report {
     let ra: code_generator_request::Reader = ma.get_root().unwrap();
     let rb: code_generator_request::Reader = mb.get_root().unwrap();
 
+    // The whole request in canonical form (no segment layout, every bit of content): the Debug text above shows a
+    // pointer value (default, constant or annotation value of struct, list or AnyPointer type) only as `<opaque pointer>`.
+    if ma.canonicalize().unwrap() != mb.canonicalize().unwrap() {
+        rep.differences.push(
+            "the request differs in canonical form (a pointer value, e.g. a constant or default)"
+                .into(),
+        );
+    }
     let na = ra.get_nodes().unwrap();
     let nb = rb.get_nodes().unwrap();
     if na.len() != nb.len() {

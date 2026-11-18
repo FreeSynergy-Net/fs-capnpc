@@ -17,7 +17,7 @@ std/capnp/rust.capnp comes from capnproto-rust (MIT, David Renshaw and contribut
 AI collaboration: design and code were written with the help of AI (Claude, Anthropic). Review is done by
 humans and by further checks (tests against the official compiler, CI gates).
 
-Dependency licences (read from `cargo metadata --locked` on 2026-11-18; policy in `deny.toml`; `cargo deny` itself has not been run, it was not installed):
+Dependency licences (read from `cargo metadata --locked` on 2026-11-18; policy in `deny.toml`; `cargo deny` 0.21.0 was run on 2026-11-18 over this tree: licenses, bans, sources and advisories ok):
 
   Normal dependencies of `capnp-compiler`: `capnp` 0.27.3 (MIT), `embedded-io` 0.7.1 (MIT OR Apache-2.0), and with the default
   feature `cli` also `capnpc` 0.27.0 (MIT). Without default features only `capnp` and `embedded-io` remain.

@@ -56,7 +56,8 @@ Compared: every node (Debug text of the readers, output order), requested files,
 | Schema | Status |
 |---|---|
 | builtins.capnp, doc.capnp, tiny.capnp | identical (also byte-identical) |
-| kinds.capnp, generics.capnp, features.capnp | identical in content and generated Rust; bytes differ (segmentation, see below) |
+| kinds.capnp, generics.capnp | identical (also byte-identical, checked 18.11.2026 on the whole request in canonical form) |
+| features.capnp | identical in content and generated Rust; bytes differ (segmentation, see below) |
 | official/test.capnp | identical in content; `capnpc` cannot write code for it ("List(AnyPointer) is unsupported" from `capnpc` `codegen_types.rs`; the file has no written-out `List(AnyPointer)`, a list whose element resolves to `AnyPointer` triggers it; exact field not traced), both requests fail identically |
 | official/test-import.capnp, test-import2.capnp | identical in content and generated Rust |
 | fs/contracts/{common,messenger}.capnp | identical in content and generated Rust |
