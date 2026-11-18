@@ -35,9 +35,9 @@ CI, Upload erst nach dem Ja des Eigentuemers.)
   module `cli` any more. Hence 0.2.0.
   (Deutsch: Feature `cli` (Standard) enthaelt die Befehlszeilen und `capnpc`; ohne Standard-Features keine Befehlszeile
   mehr: Bruch, deshalb 0.2.0.)
-- Removed: the workspace crate `capnpc-cli` (never published) and its stub binary `capnpc-mcp` (it only exited with 1).
-  The test crate is now `crates/cligen-fixtures`. Open: the MCP tool generator (AP4).
-  (Deutsch: das Crate `capnpc-cli` und der Stummel `capnpc-mcp` fallen weg; AP4 ist offen, A1 ist erledigt, siehe oben.)
+- Removed: the workspace crate `capnpc-cli` (never published) and its stub binary `capnpc-mcp` (it only exited with 1; the real
+  `capnpc-mcp` is described below). The test crate is now `crates/cligen-fixtures`. A1 and AP4 are done (see the entries).
+  (Deutsch: das Crate `capnpc-cli` und der Stummel `capnpc-mcp` fallen weg; A1 und AP4 sind erledigt.)
 - CI: a workflow `slim-lib` (runs on every push: no `capnpc` in the tree without default features, the fixtures crate on the slim library, both binaries in the package), the Windows
   workflow also builds the slim library; `release.yml` packages both binaries.
 

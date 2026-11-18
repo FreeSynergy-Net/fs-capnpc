@@ -65,7 +65,7 @@ on standard error. Both plugin binaries need the feature `cli` (as `capnpc-cli`)
 ## What is not there yet
 
 - For large schemas the layout of the message in memory differs from the official one. The content is identical and readers do not care.
-- Only compilation to the request for the Rust generator, not other languages.
+- The Rust code is written by upstream `capnpc`; this crate adds the generators for command line code (`cligen`) and MCP tool tables (`mcpgen`). Other languages are not covered.
 
 ## Part of FreeSynergy
 
@@ -107,6 +107,7 @@ capnp-compiler compile -o <dir> [-I <import-dir>]... [--src-prefix <dir>]... fil
 | `--src-prefix <dir>` | strip `<dir>` from file names (as `capnp compile --src-prefix`) |
 | `--no-standard-import` | do not fall back to the embedded `/capnp/*.capnp` files |
 | `--cli <dir>` | write command line code (`<name>_cli.rs`, see "Command line code from an interface") into `<dir>`; with `-o` both are written |
+| `--mcp <dir>` | write MCP tool tables (`<name>_mcp.rs`, see "MCP tool tables from an interface") into `<dir>` |
 | `--request <file>` | additionally write the raw serialized `CodeGeneratorRequest` |
 
 ### Library
