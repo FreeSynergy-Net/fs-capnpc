@@ -92,13 +92,14 @@ impl<'a> Ctx<'a> {
         self.todo.pop()
     }
 
-    /// The name of a helper function: its prefix and the module path of the node without `crate`.
+    /// The name of a helper function: its prefix and the module path of the node without `crate`, in snake case (an
+    /// enum is named `Readiness` by capnpc, a function may not be).
     #[must_use]
     pub fn ident(&self, prefix: &str, id: u64) -> String {
         let mut s = prefix.to_owned();
         for p in self.m.paths[&id].iter().skip(1) {
             s.push('_');
-            s.push_str(p);
+            s.push_str(&crate::model::snake(p));
         }
         s
     }

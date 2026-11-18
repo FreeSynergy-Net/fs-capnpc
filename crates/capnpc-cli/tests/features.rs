@@ -96,3 +96,14 @@ fn reserved_word_is_an_error() {
         .expect_err("collision");
     assert!(err.to_string().contains("reserved word `version`"), "{err}");
 }
+
+#[test]
+fn helper_names_are_snake_case() {
+    // the gate found `enum_features_capnp_Colour`: a non-snake-case function is a lint error in the user's crate
+    let t = text();
+    assert!(t.contains("fn enum_features_capnp_colour("));
+    for l in t.lines().filter(|l| l.starts_with("fn ")) {
+        let name = l[3..].split('(').next().unwrap();
+        assert!(!name.chars().any(char::is_uppercase), "{name}");
+    }
+}
