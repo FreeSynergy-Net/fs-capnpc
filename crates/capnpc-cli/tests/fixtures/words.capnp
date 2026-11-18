@@ -1,5 +1,5 @@
-# Reserved words: on the top level they get the prefix (also as navigation, the commands below are marked too),
-# below the top level `version` is an ordinary word.
+# Reserved words: on the top level they get the prefix (also as navigation, the commands below are marked too, on
+# every level), below the top level `version` is an ordinary word.
 @0xc1d2e3f405162739;
 interface Words {
   help  @0 () -> ();
@@ -7,4 +7,8 @@ interface Words {
   mcp   @2 () -> ();
   nav   @3 () -> (other :Sub);
 }
-interface Sub { version @0 () -> (); }
+interface Sub {
+  version @0 () -> ();
+  down    @1 () -> (leaf :Leaf);
+}
+interface Leaf { ping @0 () -> (); }

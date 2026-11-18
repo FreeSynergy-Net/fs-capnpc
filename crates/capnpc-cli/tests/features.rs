@@ -165,6 +165,13 @@ fn every_reserved_word_gets_the_prefix_on_the_top_level_only() {
         below.contains("renamed: true,") && below.contains("key: \"words/Sub.version\""),
         "{below}"
     );
+    // V7: the mark goes down on every level, not on the first one only
+    let deep = row_of(&t, "\"method-serve\", \"down\", \"ping\"");
+    assert!(
+        deep.contains("renamed: true,") && deep.contains("key: \"words/Leaf.ping\""),
+        "{deep}"
+    );
+    assert!(row_of(&t, "\"nav\", \"down\", \"ping\"").contains("renamed: false,"));
     // the same interface below `nav`: no reserved word on the top level, nothing is renamed
     let plain = row_of(&t, "\"nav\", \"version\"");
     assert!(plain.contains("renamed: false,"), "{plain}");
@@ -182,9 +189,25 @@ fn two_methods_with_the_same_words_are_an_error_not_an_overwrite() {
         .generate(&common::request(&["collide.capnp"]))
         .map(|_| ())
         .expect_err("collision");
+    let msg = err.to_string();
+    // the message names the words and BOTH methods
+    assert!(msg.contains("get the words `method-version`"), "{msg}");
     assert!(
-        err.to_string()
-            .contains("two commands get the words `method-version`"),
-        "{err}"
+        msg.contains("collide/Collide.version") && msg.contains("collide/Collide.methodVersion"),
+        "{msg}"
+    );
+}
+
+#[test]
+fn a_navigation_word_and_a_command_with_the_same_words_are_an_error() {
+    let err = capnpc_cli::GenerationCommand::new()
+        .generate(&common::request(&["collide2.capnp"]))
+        .map(|_| ())
+        .expect_err("collision");
+    let msg = err.to_string();
+    assert!(msg.contains("get the words `method-serve`"), "{msg}");
+    assert!(
+        msg.contains("collide2/Collide2.serve") && msg.contains("collide2/Collide2.methodServe"),
+        "{msg}"
     );
 }

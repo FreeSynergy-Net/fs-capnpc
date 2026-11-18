@@ -123,22 +123,31 @@ impl Tree {
     /// Build the tree below the root interface `root`.
     ///
     /// # Errors
-    /// Two methods get the same words.
+    /// Two methods (two commands, or a navigation word and a command) get the same words.
     pub fn build(m: &Model, root: u64) -> capnp::Result<Self> {
         let mut t = Self {
             root,
             ..Self::default()
         };
         walk(m, &[root], &[], &[], false, &mut t)?;
-        let mut seen = std::collections::BTreeSet::new();
+        // words -> the key of the method that has them; a group and a command may not share words either
+        let mut seen: std::collections::BTreeMap<Vec<String>, String> =
+            std::collections::BTreeMap::new();
         let mut names = std::collections::BTreeMap::new();
-        for c in &mut t.commands {
-            if !seen.insert(c.words.clone()) {
+        let words_and_keys = t
+            .groups
+            .iter()
+            .map(|g| (g.words.clone(), g.key.clone()))
+            .chain(t.commands.iter().map(|c| (c.words.clone(), c.key.clone())));
+        for (words, key) in words_and_keys {
+            if let Some(first) = seen.insert(words.clone(), key.clone()) {
                 return Err(capnp::Error::failed(format!(
-                    "two commands get the words `{}`",
-                    c.words.join(" ")
+                    "two methods get the words `{}`: `{first}` and `{key}`",
+                    words.join(" ")
                 )));
             }
+        }
+        for c in &mut t.commands {
             let n = names.entry(c.fn_name.clone()).or_insert(0_u32);
             *n += 1;
             if *n > 1 {

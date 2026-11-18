@@ -32,6 +32,17 @@ pub const COMMANDS: &[Command] = &[
         annotations: &[],
     },
     Command {
+        words: &["method-serve", "down", "ping"],
+        key: "words/Leaf.ping",
+        iface_id: 0xd23b50f5defd0f78,
+        ordinal: 0,
+        params: &[],
+        watch: false,
+        renamed: true,
+        doc: "",
+        annotations: &[],
+    },
+    Command {
         words: &["method-mcp"],
         key: "words/Words.mcp",
         iface_id: 0xbe0e946c604ee66e,
@@ -53,11 +64,24 @@ pub const COMMANDS: &[Command] = &[
         doc: "",
         annotations: &[],
     },
+    Command {
+        words: &["nav", "down", "ping"],
+        key: "words/Leaf.ping",
+        iface_id: 0xd23b50f5defd0f78,
+        ordinal: 0,
+        params: &[],
+        watch: false,
+        renamed: false,
+        doc: "",
+        annotations: &[],
+    },
 ];
 
 pub const GROUPS: &[Group] = &[
     Group { words: &["method-serve"], key: "words/Words.serve" },
+    Group { words: &["method-serve", "down"], key: "words/Sub.down" },
     Group { words: &["nav"], key: "words/Words.nav" },
+    Group { words: &["nav", "down"], key: "words/Sub.down" },
 ];
 
 pub type Runner = for<'a> fn(&'a crate::words_capnp::words::Client, &'a mut dyn Input, &'a mut dyn Output) -> ::core::pin::Pin<Box<dyn ::core::future::Future<Output = Result<Held, CallError>> + 'a>>;
@@ -67,8 +91,10 @@ pub fn dispatch(words: &[&str]) -> Option<Runner> {
     match words {
         ["method-help"] => Some(|r, i, o| Box::pin(run_words_help(r, i, o))),
         ["method-serve", "version"] => Some(|r, i, o| Box::pin(run_sub_version(r, i, o))),
+        ["method-serve", "down", "ping"] => Some(|r, i, o| Box::pin(run_leaf_ping(r, i, o))),
         ["method-mcp"] => Some(|r, i, o| Box::pin(run_words_mcp(r, i, o))),
         ["nav", "version"] => Some(|r, i, o| Box::pin(run_sub_version_2(r, i, o))),
+        ["nav", "down", "ping"] => Some(|r, i, o| Box::pin(run_leaf_ping_2(r, i, o))),
         _ => None,
     }
 }
@@ -92,6 +118,17 @@ pub async fn run_sub_version(root: &crate::words_capnp::words::Client, inp: &mut
     Ok(Held::none())
 }
 
+/// `words/Leaf.ping`
+pub async fn run_leaf_ping(root: &crate::words_capnp::words::Client, inp: &mut dyn Input, out: &mut dyn Output) -> Result<Held, CallError> {
+    let c0 = root.serve_request().send().pipeline.get_sub();
+    let c1 = c0.down_request().send().pipeline.get_leaf();
+    let mut req = c1.ping_request();
+    set_words_capnp_leaf_ping_params(req.get(), inp, "")?;
+    let resp = req.send().promise.await?;
+    out_words_capnp_leaf_ping_results(resp.get()?, "", out)?;
+    Ok(Held::none())
+}
+
 /// `words/Words.mcp`
 pub async fn run_words_mcp(root: &crate::words_capnp::words::Client, inp: &mut dyn Input, out: &mut dyn Output) -> Result<Held, CallError> {
     let mut req = root.mcp_request();
@@ -111,6 +148,22 @@ pub async fn run_sub_version_2(root: &crate::words_capnp::words::Client, inp: &m
     Ok(Held::none())
 }
 
+/// `words/Leaf.ping`
+pub async fn run_leaf_ping_2(root: &crate::words_capnp::words::Client, inp: &mut dyn Input, out: &mut dyn Output) -> Result<Held, CallError> {
+    let c0 = root.nav_request().send().pipeline.get_other();
+    let c1 = c0.down_request().send().pipeline.get_leaf();
+    let mut req = c1.ping_request();
+    set_words_capnp_leaf_ping_params(req.get(), inp, "")?;
+    let resp = req.send().promise.await?;
+    out_words_capnp_leaf_ping_results(resp.get()?, "", out)?;
+    Ok(Held::none())
+}
+
+#[allow(unused_variables, unused_mut)]
+fn set_words_capnp_leaf_ping_params(mut b: crate::words_capnp::leaf::ping_params::Builder<'_>, inp: &mut dyn Input, path: &str) -> Result<(), CallError> {
+    Ok(())
+}
+
 #[allow(unused_variables, unused_mut)]
 fn set_words_capnp_sub_version_params(mut b: crate::words_capnp::sub::version_params::Builder<'_>, inp: &mut dyn Input, path: &str) -> Result<(), CallError> {
     Ok(())
@@ -123,6 +176,13 @@ fn set_words_capnp_words_help_params(mut b: crate::words_capnp::words::help_para
 
 #[allow(unused_variables, unused_mut)]
 fn set_words_capnp_words_mcp_params(mut b: crate::words_capnp::words::mcp_params::Builder<'_>, inp: &mut dyn Input, path: &str) -> Result<(), CallError> {
+    Ok(())
+}
+
+#[allow(unused_variables, unused_mut)]
+fn out_words_capnp_leaf_ping_results(r: crate::words_capnp::leaf::ping_results::Reader<'_>, name: &str, out: &mut dyn Output) -> Result<(), CallError> {
+    out.begin_struct(name, "");
+    out.end();
     Ok(())
 }
 
