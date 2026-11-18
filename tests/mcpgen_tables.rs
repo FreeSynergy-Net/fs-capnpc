@@ -91,6 +91,14 @@ impl MarkSource for Marks {
     }
 }
 
+struct KindOnly;
+
+impl MarkSource for KindOnly {
+    fn kind(&self, key: &str, path: &str) -> Option<String> {
+        (key == "mcp/Notes.add" && path == "text").then(|| "email".to_owned())
+    }
+}
+
 #[test]
 fn the_marks_of_a_program_add_to_the_annotations() {
     let plain = mcp();
@@ -108,12 +116,6 @@ fn the_marks_of_a_program_add_to_the_annotations() {
     assert!(marked.contains("(\"mcp/Notes.add\", \"secret\")"));
     // a kind mark makes a format
     let mut kinds = GenerationCommand::new();
-    struct KindOnly;
-    impl MarkSource for KindOnly {
-        fn kind(&self, key: &str, path: &str) -> Option<String> {
-            (key == "mcp/Notes.add" && path == "text").then(|| "email".to_owned())
-        }
-    }
     kinds.marks(Box::new(KindOnly));
     let t: String = kinds
         .generate(&common::request(&["mcp.capnp", "capnpc_cli.capnp"]))
