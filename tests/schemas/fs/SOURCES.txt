@@ -1,0 +1,6 @@
+Copies of FreeSynergy contracts, test input only (18.11.2026, heads of the default branches):
+fs-interfaces 962f66bcfa187a2e38846fa87fb3f8d535f41866 schema/*.capnp
+fs-rpc 4b60df96b0fd304a2b9b31fab29a7bb375ac2114 crates/fs-layouts-rpc/schema/bind.capnp, layouts.capnp
+fs-components 8ede48561d736104bd548ac504cfd88f83e6f018 crates/fs-settings/settings.capnp
+fs-types 0dbc9b685746ea55ceb789fe1043a162e34ac387 crates/fs-types/schema/types.capnp (to tests/schemas/types.capnp, unchanged)
+They sit in one folder because bind, layouts and settings import "common.capnp" from fs-interfaces next to them.

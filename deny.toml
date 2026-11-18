@@ -1,0 +1,36 @@
+# cargo-deny configuration (licences, sources, bans). Run: cargo deny check
+# Same policy as the FreeSynergy default (fs-release configs/deny.toml), narrowed to what this tree uses.
+# Dependency licences were read from `cargo metadata --locked` (see NOTICE); cargo-deny itself was not installed
+# when this file was written, so the file has not been run yet. The first `cargo deny check` is the check.
+
+[graph]
+all-features = true
+
+[licenses]
+version = 2
+# Every dependency (normal, dev and build) is under one of these, alone or as one choice of an OR expression.
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "Zlib",
+    "Unicode-3.0",
+]
+confidence-threshold = 0.93
+unused-allowed-license = "allow"
+
+[bans]
+multiple-versions = "warn"   # the test-only oracle (wasm runtime) pulls in several duplicate crates
+wildcards = "deny"
+allow-wildcard-paths = true  # workspace crates refer to each other by path
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []
+
+[advisories]
+version = 2
+yanked = "deny"

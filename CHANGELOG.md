@@ -1,5 +1,12 @@
 # Changelog
 
+Versions: the published truth is `capnp-compiler` 0.1.1 on crates.io (2026-11-06); 0.1.0 was never uploaded (its content is
+part of 0.1.1). All crates of the workspace share one version (0.2.0 now), and the version equals the tag. The tag `v0.2.0`
+comes after the review and a green CI on the exact head, the upload to crates.io only after the owner says yes. The old tag
+`v0.0.1` is from the reset of the numbers (ADR 0064) and lies below the published 0.1.1.
+(Deutsch: Wahrheit ist 0.1.1 auf crates.io; 0.1.0 wurde nie hochgeladen; Version = Tag; Tag v0.2.0 nach Review und gruener
+CI, Upload erst nach dem Ja des Eigentuemers.)
+
 ## 0.2.0 - unreleased
 
 - Added: the command line code generator `capnp_compiler::cligen` (moved here from the workspace crate `capnpc-cli`,
@@ -16,6 +23,13 @@
   and the fixtures crate compiles the provided variant. The option `capnp_module` of the old plan is not needed.
   (Deutsch: A1 erledigt: `crates_provide_map` wie bei `capnpc`; Typen einer Datei aus einem anderen Crate heissen
   `::<crate>::<stem>_capnp::...`.)
+- Honest description: `capnp-compiler` is a Cap'n Proto parser and compiler (schema to `CodeGeneratorRequest`); the Rust code
+  comes from upstream `capnpc`. AI collaboration (Claude) stays stated in `NOTICE` and the README. The oracle test now also
+  holds the current FreeSynergy contracts (fs-interfaces, fs-rpc layouts, fs-components settings, fs-types types): 34 schemas,
+  all identical in content, the larger ones differ in segmentation only. Invalid-schema table: `List(AnyPointer)` and
+  `List(AnyStruct)` added. `deny.toml` (cargo-deny: licences, sources, bans) and the licence list in `NOTICE`.
+  (Deutsch: ehrliche Beschreibung; Oracle-Korpus um die aktuellen FreeSynergy-Vertraege erweitert (34 Schemas, inhaltsgleich,
+  Segmentierung verschieden); `deny.toml` und Lizenzliste in `NOTICE`.)
 - Changed (breaking for `default-features = false`): the feature `cli` (default) holds the command lines and the
   dependency `capnpc`; `capnp-compiler = { default-features = false }` is the library without `capnpc`, and has no
   module `cli` any more. Hence 0.2.0.
@@ -82,7 +96,7 @@
 
 - Package metadata: `rust-version = 1.88`, `authors`, security contact; release packages via fs-release (Linux, Windows, macOS), SPDX SBOM, OpenPGP signatures.
 
-## 0.1.0 (unreleased)
+## 0.1.0 - never uploaded (its content is part of 0.1.1)
 
 - Pure Rust lexer, parser and compiler for the full Cap'n Proto schema language: structs, unions,
   groups, enums, interfaces (generic methods, streaming), constants, annotations, generics with

@@ -16,3 +16,17 @@ std/capnp/rust.capnp comes from capnproto-rust (MIT, David Renshaw and contribut
 
 AI collaboration: design and code were written with the help of AI (Claude, Anthropic). Review is done by
 humans and by further checks (tests against the official compiler, CI gates).
+
+Dependency licences (read from `cargo metadata --locked` on 2026-11-18; policy in `deny.toml`; `cargo deny` itself has not been run, it was not installed):
+
+  Normal dependencies of `capnp-compiler`: `capnp` 0.27.3 (MIT), `embedded-io` 0.7.1 (MIT OR Apache-2.0), and with the default
+  feature `cli` also `capnpc` 0.27.0 (MIT). Without default features only `capnp` and `embedded-io` remain.
+
+  Tests only (not part of the published package): the oracle `capnpc-embedded` 0.2 (runs the official compiler as WASM) with
+  its WASM runtime, and the `capnp-rpc` / `futures` stack of the test crate. All 143 packages of Cargo.lock (2 of them our own
+  workspace crates) are under MIT, Apache-2.0 (also with the LLVM exception), BSD-2-Clause, Zlib, Unlicense or Unicode-3.0,
+  alone or as one choice of an OR expression; no copyleft licence is the only choice anywhere (`r-efi` offers LGPL-2.1-or-later
+  as a third choice next to MIT and Apache-2.0).
+
+The schemas under tests/schemas/fs/ and tests/schemas/types.capnp are copies of FreeSynergy contracts used only as test input
+(origin commits: tests/schemas/fs/SOURCES.txt).
