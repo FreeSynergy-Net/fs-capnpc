@@ -222,5 +222,5 @@ fn several_roots_and_reserved_words() {
         ]
     );
     assert!(multi_mcp::alpha::tools(&Off).is_empty() && multi_mcp::gamma::tools(&Off).is_empty());
-    assert!(!multi_mcp::beta::TOOLS[0].words.is_empty());
+    assert_ne!(multi_mcp::beta::TOOLS[0].words.len(), 0);
 }
