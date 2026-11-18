@@ -14,3 +14,5 @@ Cap'n Proto distribution so that imports such as "/capnp/c++.capnp" resolve exac
 official compiler. They remain under the MIT License of the Cap'n Proto project (copyright as above);
 std/capnp/rust.capnp comes from capnproto-rust (MIT, David Renshaw and contributors).
 
+AI collaboration: design and code were written with the help of AI (Claude, Anthropic). Review is done by
+humans and by further checks (tests against the official compiler, CI gates).

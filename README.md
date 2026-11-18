@@ -33,6 +33,7 @@ Capnpc keeps the contract repo buildable on any machine with Rust. FreeSynergy i
 - Build and test: `cargo build` and `cargo test`. The tests use the official compiler (as WASM, `capnpc-embedded`) as an oracle.
 - Design and the pattern map: [DESIGN.md](DESIGN.md). The status of each oracle schema is in `PLAN.md`. Credits in `NOTICE`.
 - Licence: MIT OR Apache-2.0.
+- AI collaboration: AI (Claude, Anthropic) took part in design and code. Review by humans and further checks (tests against the official compiler, CI gates).
 
 ## Reference
 
