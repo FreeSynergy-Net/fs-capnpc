@@ -96,9 +96,9 @@ mod tests {
     fn notes() -> Model {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let mut cmd = CompileCommand::new();
-        cmd.src_prefix(&root.join("tests/cligen/fixtures"));
-        cmd.import_path(&root.join("src/cligen"));
-        cmd.file(&root.join("tests/cligen/fixtures/mcp.capnp"));
+        cmd.src_prefix(root.join("tests/cligen/fixtures"));
+        cmd.import_path(root.join("src/cligen"));
+        cmd.file(root.join("tests/cligen/fixtures/mcp.capnp"));
         Model::from_request(&cmd.run_bytes().expect("fixture compiles")).expect("request reads")
     }
 
