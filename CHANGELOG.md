@@ -17,7 +17,7 @@
 - Removed: the workspace crate `capnpc-cli` (never published) and its stub binary `capnpc-mcp` (it only exited with 1).
   The test crate is now `crates/cligen-fixtures`. Open: the MCP tool generator (AP4) and the option `capnp_module` (A1).
   (Deutsch: das Crate `capnpc-cli` und der Stummel `capnpc-mcp` fallen weg; AP4 und A1 sind offen.)
-- CI: a job `slim-lib` (no `capnpc` in the tree without default features, both binaries in the package), the Windows
+- CI: a workflow `slim-lib` (runs on every push: no `capnpc` in the tree without default features, the fixtures crate on the slim library, both binaries in the package), the Windows
   workflow also builds the slim library; `release.yml` packages both binaries.
 
 ### Earlier entries of this unreleased section (before the move)
