@@ -24,7 +24,15 @@ generated!(
     multi_cli,
     common_cli,
     words_capnp,
-    words_cli
+    words_cli,
+    mcp_capnp,
+    mcp_cli,
+    tasks_mcp,
+    features_mcp,
+    multi_mcp,
+    common_mcp,
+    words_mcp,
+    mcp_mcp
 );
 
 /// `tasks_cli.rs` generated with `crates_provide_map` (types of `types.capnp` named `::fs_types::types_capnp`).

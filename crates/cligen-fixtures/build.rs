@@ -1,5 +1,5 @@
 //! Compile the fixture schemas with capnp-compiler, then write the Rust types (capnpc) and the command code
-//! (capnpc-cli) for the same request. The test crate includes the result and compiles it.
+//! (capnpc-cli) and the tool tables (capnpc-mcp) for the same request. The test crate includes the result and compiles it.
 
 use std::path::PathBuf;
 
@@ -23,6 +23,7 @@ fn main() {
         ),
         (&["multi.capnp"][..], &["multi.capnp"][..]),
         (&["words.capnp"][..], &["words.capnp"][..]),
+        (&["mcp.capnp", "capnpc_cli.capnp"][..], &["mcp.capnp"][..]),
     ] {
         let request = |set: &[&str]| {
             let mut cmd = CompileCommand::new();
@@ -45,6 +46,10 @@ fn main() {
             .output_directory(&out)
             .run(&request(commands)[..])
             .expect("capnpc-cli");
+        capnp_compiler::mcpgen::GenerationCommand::new()
+            .output_directory(&out)
+            .run(&request(commands)[..])
+            .expect("capnpc-mcp");
     }
     provided(&root, &out);
     println!("cargo:rerun-if-changed=../../tests/cligen/fixtures");
