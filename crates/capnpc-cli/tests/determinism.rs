@@ -59,3 +59,17 @@ fn t8_head_has_no_time_and_no_path() {
     assert!(!head.contains('\\'));
     assert!(!text.contains("/srv/") && !text.contains(env!("CARGO_MANIFEST_DIR")));
 }
+
+#[test]
+fn t8_name_with_a_folder_keeps_the_slash() {
+    // M14: a backslash in the path of the head
+    let files = capnpc_cli::GenerationCommand::new()
+        .generate(&common::request(&["sub/nested.capnp"]))
+        .unwrap();
+    assert_eq!(files[0].name, "nested_cli.rs");
+    let head = files[0].content.lines().next().unwrap();
+    assert!(
+        head.contains("from sub/nested.capnp;") && !head.contains('\\'),
+        "{head}"
+    );
+}
