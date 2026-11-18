@@ -31,6 +31,23 @@ interface Sub {
   ping @0 () -> ();
 }
 
+interface Peek $Cli.risk(read) {
+  # No mark of its own: the mark of the interface counts.
+  peek @0 () -> (n :UInt32);
+}
+
+interface Inner {
+  deep @0 () -> ();
+}
+
+interface Child {
+  leaf @0 () -> ();
+}
+
+interface Outer $Cli.risk(excluded) {
+  child @0 () -> (child :Child);
+}
+
 interface Notes {
   # The notes of a person.
   find   @0 Pick -> (notes :List(Note));   # Find notes.
@@ -42,4 +59,8 @@ interface Notes {
   raw    @6 (value :AnyPointer) -> ();
   other  @7 (name :Text) -> (sub :Sub);
   hidden @8 () -> () $Cli.risk(excluded);
+  peeker @9 () -> (peek :Peek);
+  inner  @10 () -> (inner :Inner) $Cli.risk(excluded);   # a way to a tool that is excluded: nothing below it is a tool
+  outer  @11 () -> (outer :Outer);
+  voids  @12 (nothing :Void, n :UInt8) -> (done :Void, ok :Bool);
 }

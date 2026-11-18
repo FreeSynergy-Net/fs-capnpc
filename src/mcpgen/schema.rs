@@ -31,11 +31,50 @@ fn int(signed: bool, bits: u8) -> Json {
     } else {
         ("0".to_owned(), ((1_u128 << bits) - 1).to_string())
     };
+    if bits == 64 {
+        // the capnp-JSON codec writes 64-bit integers as strings (a number loses digits above 2^53)
+        let pattern = if signed { "^-?[0-9]+$" } else { "^[0-9]+$" };
+        let range = obj([
+            ("signed", Json::Bool(signed)),
+            ("bits", Json::Num("64".to_owned())),
+            ("minimum", Json::Str(min)),
+            ("maximum", Json::Str(max)),
+        ]);
+        return obj([
+            ("type", s("string")),
+            ("pattern", s(pattern)),
+            ("x-fs-int", range),
+        ]);
+    }
     obj([
         ("type", s("integer")),
         ("minimum", Json::Num(min)),
         ("maximum", Json::Num(max)),
     ])
+}
+
+/// A float as the capnp-JSON codec writes it: a number, or one of three strings for infinity and not-a-number.
+fn float() -> Json {
+    let special = obj([
+        ("type", s("string")),
+        (
+            "enum",
+            Json::Arr(vec![s("Infinity"), s("-Infinity"), s("NaN")]),
+        ),
+    ]);
+    obj([(
+        "anyOf",
+        Json::Arr(vec![obj([("type", s("number"))]), special]),
+    )])
+}
+
+/// Does the capnp-JSON codec always write this field? Numbers, booleans and enums live in the data section; a pointer
+/// that is null is left out.
+fn always_written(kind: &FieldKind) -> bool {
+    matches!(
+        kind,
+        FieldKind::Slot(Ty::Bool | Ty::Int(..) | Ty::Float(_) | Ty::Enum(_))
+    )
 }
 
 fn join(prefix: &str, name: &str) -> String {
@@ -63,7 +102,8 @@ pub struct Schema<'a> {
     m: &'a Model,
     marks: &'a dyn MarkSource,
     key: &'a str,
-    /// An input schema is closed (`additionalProperties: false`); a result is not.
+    /// An input schema is strict (closed, every field required, a union is `oneOf`); a result is lax, because the
+    /// capnp-JSON codec leaves out null pointers and the default member of a union.
     closed: bool,
     defs: BTreeMap<String, Json>,
 }
@@ -98,7 +138,7 @@ impl<'a> Schema<'a> {
             Ty::Void => obj([("type", s("null"))]),
             Ty::Bool => obj([("type", s("boolean"))]),
             Ty::Int(signed, bits) => int(*signed, *bits),
-            Ty::Float(_) => obj([("type", s("number"))]),
+            Ty::Float(_) => float(),
             Ty::Text => obj([("type", s("string"))]),
             Ty::Data => obj([("type", s("string")), ("contentEncoding", s("base64"))]),
             Ty::List(e) => {
@@ -170,8 +210,11 @@ impl<'a> Schema<'a> {
             }
             props.push((f.name.clone(), self.field(f, path)));
             if only.is_some() || !member {
-                required.push(s(&f.name));
-            } else {
+                // a result is lax: the codec leaves out a null pointer, so only what it always writes is required
+                if self.closed || always_written(&f.kind) {
+                    required.push(s(&f.name));
+                }
+            } else if self.closed {
                 alternatives.push(obj([("required", Json::Arr(vec![s(&f.name)]))]));
             }
         }

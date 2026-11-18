@@ -57,7 +57,7 @@ fn spec(t: &Tool, w: &mut String) {
 /// The tables and functions of one tree; `cli` is the path of its command code.
 fn body(table: &Table, cli: &str) -> String {
     let mut w = String::new();
-    w.push_str("pub const TOOLS: &[ToolSpec] = &[\n");
+    w.push_str("/// The whole table, whatever the switch says: a program reads `tools(&switch)`, never this.\n#[doc(hidden)]\npub const TOOLS: &[ToolSpec] = &[\n");
     for t in &table.tools {
         spec(t, &mut w);
     }

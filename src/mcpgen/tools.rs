@@ -17,6 +17,24 @@ use crate::cligen::tree::{Command, Tree};
 /// The longest tool name the specification asks for.
 const MAX_NAME: usize = 128;
 
+/// Is the text a tool name the specification allows: 1 to 128 characters of `A-Z a-z 0-9 _ - .`?
+///
+/// # Errors
+/// It is empty, too long, or has another character.
+pub fn check_name(name: &str) -> capnp::Result<()> {
+    let ok = (1..=MAX_NAME).contains(&name.len())
+        && name
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.'));
+    if ok {
+        Ok(())
+    } else {
+        Err(capnp::Error::failed(format!(
+            "the tool name `{name}` is not 1 to {MAX_NAME} characters of A-Z a-z 0-9 _ - ."
+        )))
+    }
+}
+
 /// What a method without a doc comment says.
 pub const NO_DOC: &str = "No description in the contract.";
 
@@ -177,11 +195,7 @@ pub fn build(m: &Model, marks: &dyn MarkSource, t: &Tree, prefix: &str) -> capnp
             if let Some(mb) = member {
                 name = format!("{name}.{}", kebab(mb));
             }
-            if name.len() > MAX_NAME {
-                return Err(capnp::Error::failed(format!(
-                    "the tool name `{name}` is longer than {MAX_NAME} characters"
-                )));
-            }
+            check_name(&name)?;
             if !names.insert(name.clone()) {
                 return Err(capnp::Error::failed(format!(
                     "two tools get the name `{name}` (`{}`)",

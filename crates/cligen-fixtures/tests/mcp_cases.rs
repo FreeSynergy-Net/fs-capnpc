@@ -22,16 +22,38 @@ fn tasks_tools_follow_the_command_tree() {
     // the result is the struct, by reference, with its definition below
     assert!(output(create).at("properties/task/$ref").is_some());
     assert!(output(create).at("$defs").is_some());
-    // 64-bit numbers keep their bounds
+    // 64-bit integers are strings, as the capnp-JSON codec writes them, with their bounds in `x-fs-int`
     let edit_if = input(tool(t, "tasks.items.edit-if"));
     assert_eq!(
-        edit_if.at("properties/revision/maximum"),
-        Some(&V::Num("18446744073709551615".into()))
+        edit_if.at("properties/revision/type").and_then(V::str),
+        Some("string")
     );
     assert_eq!(
-        edit_if.at("properties/revision/minimum"),
-        Some(&V::Num("0".into()))
+        edit_if.at("properties/revision/pattern").and_then(V::str),
+        Some("^[0-9]+$")
     );
+    assert_eq!(
+        edit_if
+            .at("properties/revision/x-fs-int/maximum")
+            .and_then(V::str),
+        Some("18446744073709551615")
+    );
+    assert_eq!(
+        edit_if
+            .at("properties/revision/x-fs-int/minimum")
+            .and_then(V::str),
+        Some("0")
+    );
+    // a result is lax: what the codec always writes is required (a Bool), a pointer is not (it may be left out)
+    let get = output(tool(t, "tasks.items.get"));
+    let required: Vec<&str> = get
+        .get("required")
+        .unwrap()
+        .arr()
+        .iter()
+        .filter_map(V::str)
+        .collect();
+    assert_eq!(required, ["found"]);
     // an enum is an enum
     let rel = input(tool(t, "tasks.items.create-relation"));
     let names: Vec<&str> = rel
@@ -94,6 +116,10 @@ fn features_cases() {
     let shape = place.at("$defs/features.Shape").expect("Shape in $defs");
     assert_eq!(shape.get("oneOf").map(|o| o.arr().len()), Some(4));
     assert_eq!(shape.get("required").map(|r| r.arr().len()), Some(1));
+    // ... but not in a result: the codec leaves out a null pointer and the default member of a union
+    let placed = output(tool(t, "features.place"));
+    let shape_out = placed.at("$defs/features.Shape").expect("Shape in $defs");
+    assert!(shape_out.get("oneOf").is_none() && shape_out.get("required").is_none());
     assert_eq!(
         shape.at("properties/nothing/type").and_then(V::str),
         Some("null")
@@ -123,7 +149,15 @@ fn features_cases() {
         at.at("properties/small/maximum"),
         Some(&V::Num("127".into()))
     );
-    assert_eq!(at.at("properties/f/type").and_then(V::str), Some("number"));
+    // a float is a number, or one of the three strings the codec writes for infinity and not-a-number
+    let any_of = at.at("properties/f/anyOf").unwrap().arr();
+    assert_eq!(any_of.len(), 2);
+    assert_eq!(any_of[0].get("type").and_then(V::str), Some("number"));
+    assert_eq!(any_of[1].get("enum").unwrap().arr().len(), 3);
+    assert_eq!(
+        at.at("properties/when/pattern").and_then(V::str),
+        Some("^-?[0-9]+$")
+    );
     let blob = input(tool(t, "features.blob"));
     assert_eq!(
         blob.at("properties/data/contentEncoding").and_then(V::str),
@@ -143,7 +177,9 @@ fn mcp_fixture_cases() {
             "mcp.find.everything",
             "mcp.add",
             "mcp.wipe",
-            "mcp.count"
+            "mcp.count",
+            "mcp.peeker.peek",
+            "mcp.voids"
         ]
     );
     // a union only: one tool for each member, each asks for its member and nothing else
@@ -201,6 +237,15 @@ fn mcp_fixture_cases() {
     assert_eq!(left(l, "mcp/Notes.login").as_deref(), Some("secret"));
     assert_eq!(left(l, "mcp/Notes.raw").as_deref(), Some("any-pointer"));
     assert_eq!(left(l, "mcp/Notes.other").as_deref(), Some("capability"));
+    // a way (a getter) that is excluded, or an interface on the way that is excluded: nothing below is a tool
+    assert_eq!(left(l, "mcp/Inner.deep").as_deref(), Some("excluded"));
+    assert_eq!(left(l, "mcp/Child.leaf").as_deref(), Some("excluded"));
+    // no mark on the method: the mark of the interface counts
+    assert_eq!(tool(t, "mcp.peeker.peek").risk, Some(Danger::Read));
+    // a Void field outside a union says nothing, in the arguments and in the result
+    let voids = tool(t, "mcp.voids");
+    assert_eq!(input(voids).at("properties").unwrap().keys(), ["n"]);
+    assert_eq!(output(voids).at("properties").unwrap().keys(), ["ok"]);
     // free text is marked: `add` takes a text without a kind
     assert!(add.free_content && !tool(t, "mcp.count").free_content);
 }

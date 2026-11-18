@@ -103,12 +103,20 @@ fn the_specification_date_is_the_one_we_target() {
 
 #[test]
 fn the_actor_comes_from_the_client_name_and_is_always_an_ai() {
-    assert_eq!(rt::actor(Some("Zed")), "ai:Zed");
-    assert_eq!(rt::actor(None), "ai:unknown");
-    assert_eq!(rt::actor(Some("  ")), "ai:unknown");
-    assert_eq!(rt::actor(Some("a\nb")), "ai:ab");
-    let meta = parse(&rt::result_meta(&rt::actor(Some("x\"y")))).unwrap();
+    assert_eq!(rt::actor(Some("Zed")).as_str(), "ai:Zed");
+    assert_eq!(rt::actor(None).as_str(), "ai:unknown");
+    assert_eq!(rt::actor(Some("  ")).as_str(), "ai:unknown");
+    // a name that claims to be a person stays an AI label, with no `:` in it
+    assert_eq!(rt::actor(Some("human:alice")).as_str(), "ai:human_alice");
+    assert_eq!(rt::actor(Some("a\nb")).as_str(), "ai:a_b");
+    // direction and format characters (U+202E, U+200B) cannot turn the label around
+    assert_eq!(rt::actor(Some("x\u{202e}y\u{200b}z")).as_str(), "ai:x_y_z");
+    assert_eq!(rt::actor(Some("x\"y")).as_str(), "ai:x_y");
+    // at most 64 characters of the name
+    let long = rt::actor(Some(&"a".repeat(500)));
+    assert_eq!(long.as_str().len(), "ai:".len() + 64);
+    let meta = parse(&rt::result_meta(&rt::actor(Some("x y")))).unwrap();
     let ours = meta.get(rt::META_KEY).unwrap();
-    assert_eq!(ours.get("actor").and_then(V::str), Some("ai:x\"y"));
+    assert_eq!(ours.get("actor").and_then(V::str), Some("ai:x y"));
     assert_eq!(ours.get("ai"), Some(&V::Bool(true)));
 }

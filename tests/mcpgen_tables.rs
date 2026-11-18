@@ -46,14 +46,14 @@ fn every_tool_is_labelled_as_an_ai_and_has_both_schemas() {
         values(&t, "input_schema"),
         values(&t, "output_schema"),
     );
-    assert_eq!(metas.len(), 6);
+    assert_eq!(metas.len(), 8);
     assert!(
         metas.iter().all(|m| m.contains("\"actor\":\"ai\"")),
         "{metas:?}"
     );
     assert!(ins.iter().all(|s| s.contains("\"type\":\"object\"")));
     assert!(outs.iter().all(|s| s.contains("\"type\":\"object\"")));
-    assert_eq!((ins.len(), outs.len()), (6, 6));
+    assert_eq!((ins.len(), outs.len()), (8, 8));
 }
 
 #[test]
@@ -125,4 +125,68 @@ fn the_marks_of_a_program_add_to_the_annotations() {
         .map(|f| f.content)
         .collect();
     assert!(t.contains("\"text\":{\"type\":\"string\",\"format\":\"email\"}"));
+}
+
+/// A program that names the tool of `mcp/Notes.add` (and of `mcp/Notes.count` too, if `both`).
+struct Named {
+    name: String,
+    both: bool,
+}
+
+impl MarkSource for Named {
+    fn tool_name(&self, key: &str) -> Option<String> {
+        (key == "mcp/Notes.add" || (self.both && key == "mcp/Notes.count"))
+            .then(|| self.name.clone())
+    }
+}
+
+fn generate_named(
+    name: &str,
+    both: bool,
+) -> capnp::Result<Vec<capnp_compiler::mcpgen::GeneratedFile>> {
+    let mut cmd = GenerationCommand::new();
+    cmd.marks(Box::new(Named {
+        name: name.to_owned(),
+        both,
+    }));
+    cmd.generate(&common::request(&["mcp.capnp", "capnpc_cli.capnp"]))
+}
+
+#[test]
+fn a_tool_name_is_1_to_128_characters_of_the_allowed_set() {
+    assert!(generate_named(&"a".repeat(128), false).is_ok());
+    for bad in [
+        "a".repeat(129),
+        String::new(),
+        "has space".to_owned(),
+        "a,b".to_owned(),
+        "caf\u{e9}".to_owned(),
+        "a/b".to_owned(),
+    ] {
+        let Err(e) = generate_named(&bad, false) else {
+            panic!("`{bad}` must be an error");
+        };
+        assert!(e.to_string().contains("1 to 128"), "{e}");
+    }
+    assert!(capnp_compiler::mcpgen::check_name("task.create-2_x").is_ok());
+    assert!(capnp_compiler::mcpgen::check_name("").is_err());
+    assert!(capnp_compiler::mcpgen::check_name(&"a".repeat(129)).is_err());
+}
+
+#[test]
+fn two_tools_with_one_name_are_an_error() {
+    let Err(e) = generate_named("same.name", true) else {
+        panic!("two tools with one name must be an error");
+    };
+    assert!(
+        e.to_string().contains("two tools get the name `same.name`"),
+        "{e}"
+    );
+    assert!(generate_named("same.name", false).is_ok());
+}
+
+#[test]
+fn the_whole_table_is_hidden_from_the_docs() {
+    let t = mcp();
+    assert!(t.contains("#[doc(hidden)]\npub const TOOLS: &[ToolSpec]"));
 }

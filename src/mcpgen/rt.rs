@@ -35,10 +35,6 @@ pub const fn same_text(a: &str, b: &str) -> bool {
     true
 }
 
-/// The `annotations` of every tool: nothing is read-only and nothing is harmless, the real class is in `_meta`.
-pub const TOOL_ANNOTATIONS: &str =
-    r#"{"readOnlyHint":false,"destructiveHint":true,"openWorldHint":true}"#;
-
 /// What a call does to the data of people (the enumerants of `Danger` in `capnpc_cli.capnp`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Danger {
@@ -153,25 +149,59 @@ pub fn json_string(s: &str) -> String {
     out
 }
 
-/// The actor of a connection: `ai:<client name>`, always an AI. The name is what the client says about itself in the
-/// `_meta` of its request (`io.modelcontextprotocol/clientInfo`): it labels, it never grants anything.
+/// The actor of a connection: `ai:<client name>`, an AI always. It can only be made by [`actor`], so no result can
+/// carry a label that does not start with `ai:` (the type, not a convention, holds it).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AiActor(String);
+
+impl AiActor {
+    /// The label, `ai:x`.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl std::fmt::Display for AiActor {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+/// The longest client name kept in a label.
+pub const ACTOR_NAME_MAX: usize = 64;
+
+/// The actor of a connection: `ai:<client name>`. The name is what the client says about itself in the `_meta` of its
+/// request (`io.modelcontextprotocol/clientInfo`): it labels, it never grants anything. Only `A-Z a-z 0-9 . _ - space`
+/// are kept, every other character (a `:`, a control or direction character) becomes `_`, so `human:alice` is
+/// `ai:human_alice`; at most [`ACTOR_NAME_MAX`] characters.
 #[must_use]
-pub fn actor(client_name: Option<&str>) -> String {
+pub fn actor(client_name: Option<&str>) -> AiActor {
     let name: String = client_name
         .unwrap_or_default()
+        .trim()
         .chars()
-        .filter(|c| !c.is_control())
-        .take(64)
+        .take(ACTOR_NAME_MAX)
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-' | ' ') {
+                c
+            } else {
+                '_'
+            }
+        })
         .collect();
     let name = name.trim();
-    format!("ai:{}", if name.is_empty() { "unknown" } else { name })
+    AiActor(format!(
+        "ai:{}",
+        if name.is_empty() { "unknown" } else { name }
+    ))
 }
 
 /// The `_meta` of a result: who acted, marked as an AI.
 #[must_use]
-pub fn result_meta(actor: &str) -> String {
+pub fn result_meta(actor: &AiActor) -> String {
     format!(
         "{{\"{META_KEY}\":{{\"actor\":{},\"ai\":true}}}}",
-        json_string(actor)
+        json_string(actor.as_str())
     )
 }

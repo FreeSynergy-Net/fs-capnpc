@@ -94,16 +94,37 @@ program that serves MCP (`fs-mcp`, stage 2) reads the table. `mcpgen::rt` holds 
 | a command (method, reached through getters without parameters) | one tool; name `<file>.<words joined by .>` |
 | a method whose parameters are a union only | one tool for each member, name ends `.<member>` |
 | parameter struct | `inputSchema`: `type: object`, `properties`, `required` = every field that is not in a union, `oneOf` for a union inside, `additionalProperties: false`, `$defs` for named structs |
-| result struct | `outputSchema` (open object); the run time answers with `structuredContent` that fits it |
+| result struct | `outputSchema` (lax object, see below); the run time answers with `structuredContent` that fits it |
 | doc comment | `description`; its first line is the `title` |
 | `risk` annotation | `_meta["net.freesynergy/mcp"].risk` and `ToolSpec.risk` (not marked: `unknown` / `None`) |
 | `secret`, `risk(excluded)` (method, interface, or a navigation method on the way), `AnyPointer`/generics, capability parameter or result, listener, `-> stream` | no tool; the key and the reason are in `LEFT` |
 
-Property and enum names are the names of the contract (`otherUid`, `dependsOn`); the command code of `cligen` spells
-them in kebab case (`other-uid`), so the run time maps with `cligen::model::kebab`. Integers carry their bounds
-(`minimum`/`maximum` per width), `Data` is a base64 string, a `kind` hint on a `Text` is a `format` (`uuid`, `date-time`,
-`date`, `email`, `uri`), any other hint is `x-fs-kind`. Marks that a program keeps outside the schema (`MarkSource`) count
-like annotations; they apply to the parameters of the command itself (path as in `cligen`), not inside `$defs`.
+The encoding is the capnp JSON encoding (the codec of Cap'n Proto), so what a tool takes and gives is what that codec reads
+and writes: property and enum names are the names of the contract (`otherUid`, `dependsOn`; the command code of `cligen`
+spells them in kebab case, so the run time maps with `cligen::model::kebab`). Integers up to 32 bits carry their bounds
+(`minimum`/`maximum`); a 64-bit integer is a string (`pattern`, the width and bounds in `x-fs-int`), as the codec writes
+it and because a number loses digits above 2^53. A float is `anyOf` a number and the strings `Infinity`, `-Infinity`,
+`NaN`. `Data` is a base64 string (`contentEncoding`): the codec's own default is an array of bytes, we use its `$Json.base64`
+rule for every `Data`, and the encoder of the run time (M4) does the same. A `kind` hint on a `Text` is a `format` (`uuid`,
+`date-time`, `date`, `email`, `uri`), any other hint is `x-fs-kind`. Marks that a program keeps outside the schema
+(`MarkSource`) count like annotations; they apply to the parameters of the command itself (path as in `cligen`), not inside
+`$defs`, and not to result fields (see below).
+
+An argument schema is strict: closed, every field that is not in a union required, `oneOf` for a union. A result schema is
+lax: the codec leaves out a null pointer and the default member of a union, so only what it always writes (a number, a
+boolean, an enum) is `required`, and there is no `oneOf`; otherwise a correct `structuredContent` would break the rule
+that it must fit the `outputSchema`.
+
+`secret` on a result field: the annotation counts (no tool). A program mark (`MarkSource::secret`) is defined for the
+parameter path of a command and is not read for results; the answer to that is in M3, where the screen of `fs-mcp` (secret
+words, free text, `AnyPointer`) must be applied as a mandatory intersection with the generated table (`tools/list` = table
+and catalog); a result field that the program marks as secret outside the schema is then taken out by that screen. We chose
+this over a second meaning of the same method, because `cligen` and `mcpgen` share the trait and the path form of a result
+is not defined there.
+
+The label of an AI: `rt::actor` makes an `AiActor` (`ai:<name>`, only `A-Za-z0-9._- ` of the name, every other character
+`_`, at most 64), and `rt::result_meta` takes only that type, so a result cannot carry a label that does not start with `ai:`.
+The table `TOOLS` is `#[doc(hidden)]`: a program reads `tools(&switch)`, which is empty while the switch is off.
 
 Safety: the generated code is off. `ENABLED_BY_DEFAULT` is `false`, `tools(&Off)` is empty, `Never` (the vault) never
 turns on. Every tool says `"actor":"ai"` in its `_meta`; `rt::actor` makes `ai:<client name>` and `rt::result_meta` the

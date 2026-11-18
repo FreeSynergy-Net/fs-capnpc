@@ -22,6 +22,8 @@ mod scan;
 mod schema;
 mod tools;
 
+pub use tools::check_name;
+
 pub mod rt;
 
 pub use crate::cligen::{GeneratedFile, MarkSource, NoMarks};
