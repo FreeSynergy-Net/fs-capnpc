@@ -24,6 +24,7 @@ fn values<'a>(text: &'a str, name: &str) -> Vec<&'a str> {
     let prefix = format!("        {name}: ");
     text.lines()
         .filter_map(|l| l.strip_prefix(prefix.as_str()))
+        .map(|v| v.strip_suffix(',').unwrap_or(v))
         .collect()
 }
 
