@@ -30,8 +30,10 @@ Covered: scalars, text, data, enums, structs, groups, unions (two members given 
 generic types, capabilities in structs) are listed in the table as `ParamTy::Unreadable` with the reason, and shown in
 the output as `Value::Unreadable`; nothing is dropped silently.
 
-Words are the kebab case of the method names (`createRelation` becomes `create-relation`). A method that is named like
-a word the program owns (`serve`, `mcp`, `help`, `version`) is an error; names are never changed.
+Words are the kebab case of the method names (`createRelation` becomes `create-relation`). A method on the top level that is named
+like a word the program owns (`serve`, `mcp`, `help`, `version`) keeps its contract name, but its word becomes
+`method-<word>` (`method-version`) and the table says `renamed: true` (also for the commands below such a method);
+below the top level nothing is renamed. Two methods that end up with the same words are an error, never a silent overwrite.
 A file with several interfaces that nothing leads to has one module per interface.
 
 ## Marks

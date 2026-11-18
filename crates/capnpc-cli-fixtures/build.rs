@@ -21,6 +21,7 @@ fn main() {
             &["features.capnp"][..],
         ),
         (&["multi.capnp"][..], &["multi.capnp"][..]),
+        (&["words.capnp"][..], &["words.capnp"][..]),
     ] {
         let request = |set: &[&str]| {
             let mut cmd = CompileCommand::new();

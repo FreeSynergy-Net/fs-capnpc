@@ -19,7 +19,9 @@ generated!(
     features_cli,
     multi_capnp,
     multi_cli,
-    common_cli
+    common_cli,
+    words_capnp,
+    words_cli
 );
 
 /// The interface ids capnpc wrote (`pub(crate)` there), for the tests that check the tables against them.

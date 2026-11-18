@@ -57,7 +57,8 @@ impl GenerationCommand {
     /// The files for a request, without writing anything.
     ///
     /// # Errors
-    /// The request is malformed, a method collides with a reserved word, or two commands get the same words.
+    /// The request is malformed, or two commands get the same words (a method named like a reserved word is no error: its
+    /// word gets the prefix `method-`).
     pub fn generate(&self, request: &[u8]) -> capnp::Result<Vec<GeneratedFile>> {
         generate(&Model::from_request(request)?, &*self.marks)
     }

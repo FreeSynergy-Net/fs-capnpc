@@ -135,3 +135,56 @@ fn helper_names_are_snake_case() {
         assert!(!name.chars().any(char::is_uppercase), "{name}");
     }
 }
+
+/// The text of the `Command` row (or `Group` line) that starts with these words.
+fn row_of<'a>(t: &'a str, words: &str) -> &'a str {
+    let start = t
+        .find(&format!("words: &[{words}],"))
+        .unwrap_or_else(|| panic!("no words {words}"));
+    let end = t[start..].find("},").map_or(t.len(), |e| start + e);
+    &t[start..end]
+}
+
+#[test]
+fn every_reserved_word_gets_the_prefix_on_the_top_level_only() {
+    // R1: only `version` escaped; R4: escaped below the top level too; R2: `renamed` not handed down;
+    // R7 (empty prefix) and MA2 (no escape) are killed here as well
+    let t = common::generated(&["words.capnp"], "words_cli.rs");
+    for w in ["help", "mcp"] {
+        let r = row_of(&t, &format!("\"method-{w}\""));
+        assert!(r.contains("renamed: true,"), "{w}: {r}");
+        assert!(
+            r.contains(&format!("key: \"words/Words.{w}\"")),
+            "the contract name stays: {r}"
+        );
+    }
+    // `serve` is a navigation word here: the group is renamed, the command below it is marked
+    assert!(t.contains("Group { words: &[\"method-serve\"], key: \"words/Words.serve\" }"));
+    let below = row_of(&t, "\"method-serve\", \"version\"");
+    assert!(
+        below.contains("renamed: true,") && below.contains("key: \"words/Sub.version\""),
+        "{below}"
+    );
+    // the same interface below `nav`: no reserved word on the top level, nothing is renamed
+    let plain = row_of(&t, "\"nav\", \"version\"");
+    assert!(plain.contains("renamed: false,"), "{plain}");
+    assert!(
+        !t.contains("\"nav\", \"method-version\""),
+        "no prefix below the top level"
+    );
+    assert!(!t.contains("\"method-nav\""));
+}
+
+#[test]
+fn two_methods_with_the_same_words_are_an_error_not_an_overwrite() {
+    // R5: the check for equal words switched off
+    let err = capnpc_cli::GenerationCommand::new()
+        .generate(&common::request(&["collide.capnp"]))
+        .map(|_| ())
+        .expect_err("collision");
+    assert!(
+        err.to_string()
+            .contains("two commands get the words `method-version`"),
+        "{err}"
+    );
+}

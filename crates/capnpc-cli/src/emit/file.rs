@@ -18,7 +18,8 @@ use crate::tree::{Tree, roots};
 /// interface has its table and functions at the top; with several, each root gets a module named like it.
 ///
 /// # Errors
-/// A method collides with a reserved word, or two commands get the same words.
+/// Two commands get the same words (a method named like a reserved word is no error: its word gets the prefix
+/// `method-`).
 pub fn generate(m: &Model, marks: &dyn MarkSource) -> capnp::Result<Vec<GeneratedFile>> {
     let mut files = Vec::new();
     for f in &m.files {

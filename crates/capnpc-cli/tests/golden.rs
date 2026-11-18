@@ -32,6 +32,7 @@ fn t4_multi_root_and_reserved_word_golden() {
     check(&["multi.capnp"], "multi_cli.rs");
     check(&["common.capnp"], "common_cli.rs");
     check(&["reserved.capnp"], "reserved_cli.rs");
+    check(&["words.capnp"], "words_cli.rs");
 }
 
 #[test]

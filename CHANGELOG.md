@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- New workspace crate `capnpc-cli` (with the test crate `capnpc-cli-fixtures`): a Cap'n Proto generator plugin that
+  writes command line code (command tables and typed call functions) for an interface; `capnp-compiler` is unchanged.
+  The AI collaboration is stated in `NOTICE` and the READMEs.
+
 ## 0.1.1 — 2026-11-06
 
 - Package metadata: `rust-version = 1.88`, `authors`, security contact; release packages via fs-release (Linux, Windows, macOS), SPDX SBOM, OpenPGP signatures.
