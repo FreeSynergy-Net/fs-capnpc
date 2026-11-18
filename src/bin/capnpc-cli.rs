@@ -7,10 +7,16 @@ fn main() {
     if let Some(a) = std::env::args().nth(1) {
         match a.as_str() {
             "-V" | "--version" => println!("capnpc-cli {}", env!("CARGO_PKG_VERSION")),
-            _ => println!(
+            "-h" | "--help" => println!(
                 "capnpc-cli {}: a capnp plugin; reads a CodeGeneratorRequest on standard input and writes <name>_cli.rs files\ninto the current directory (capnp compile -ocli:<dir> ...). Without the C++ tool: capnp-compiler compile --cli <dir> ...",
                 env!("CARGO_PKG_VERSION")
             ),
+            other => {
+                eprintln!(
+                    "capnpc-cli: unknown argument '{other}'; it reads a CodeGeneratorRequest on standard input (see --help)"
+                );
+                std::process::exit(2);
+            }
         }
         return;
     }

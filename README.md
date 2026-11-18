@@ -8,7 +8,7 @@ What is different here: we do not ask you to trust it. Its output is compared wi
 
 ## What it can do today
 
-Latest tag: `v0.0.1`.
+Published on crates.io: `capnp-compiler` 0.1.1 (2026-11-06). This tree is version 0.2.0, not released yet (no tag, no upload).
 
 - A command line, `capnp-compiler compile`, with output folder, import paths and source prefix.
 - A library with a builder, so schemas can come from memory and errors can be collected elsewhere.
@@ -45,7 +45,6 @@ Open: an MCP tool generator (`capnpc-mcp`, AP4) and the option `capnp_module` (A
 ## What is not there yet
 
 - For large schemas the layout of the message in memory differs from the official one. The content is identical and readers do not care.
-- The release is a draft on GitHub, not yet public (according to the release repo's status note).
 - Only compilation to the request for the Rust generator, not other languages.
 
 ## Part of FreeSynergy
@@ -55,8 +54,8 @@ Capnpc keeps the contract repo buildable on any machine with Rust. FreeSynergy i
 
 ## For developers
 
-- `capnp-compiler` at the root, and `crates/capnpc-cli`: a generator plugin that writes command line code for an interface (see its README); `crates/capnpc-cli-fixtures` is its test crate.
-- One crate, `capnp-compiler`. The pipeline is a chain of traits (`SourceLoader`, `Frontend`, `ErrorReporter`, `Emitter`); `CompileCommand` composes them.
+- One published package, `capnp-compiler`, with the library, the binaries `capnp-compiler` and `capnpc-cli` (`src/bin/capnpc-cli.rs`) and the generator for command line code in `src/cligen/` (see above); `crates/cligen-fixtures` is its test crate (not published).
+- The compiler pipeline is a chain of traits (`SourceLoader`, `Frontend`, `ErrorReporter`, `Emitter`); `CompileCommand` composes them.
 - Library use: `CompileCommand::new().file("schema/hello.capnp").run_bytes()?` gives the request for `capnpc::codegen`.
 - Build and test: `cargo build` and `cargo test`. The tests use the official compiler (as WASM, `capnpc-embedded`) as an oracle.
 - Design and the pattern map: [DESIGN.md](DESIGN.md). The status of each oracle schema is in `PLAN.md`. Credits in `NOTICE`.

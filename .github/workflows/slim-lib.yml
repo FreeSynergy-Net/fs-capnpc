@@ -32,6 +32,10 @@ jobs:
             echo "capnpc is still a dependency without default features" >&2
             exit 1
           fi
+      - name: the fixtures crate does not pull the default features back in
+        run: |
+          cargo tree -e normal --locked -p capnp-compiler-cligen-fixtures | tee fx.txt
+          ! grep -q 'capnpc v' fx.txt
       - name: both binaries and the generator are in the package
         run: |
           cargo package --locked --list --allow-dirty > package.list

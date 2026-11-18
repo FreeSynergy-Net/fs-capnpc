@@ -78,3 +78,28 @@ fn cli_option_needs_a_value() {
         .expect("run capnp-compiler");
     assert_eq!(r.status.code(), Some(2));
 }
+
+#[test]
+fn output_and_cli_options_together_write_both() {
+    let dir = work("both");
+    let (types, cli) = (dir.join("types"), dir.join("cli"));
+    let r = compile(&[&types, Path::new("--cli"), &cli], "-o");
+    assert!(r.status.success(), "{}", String::from_utf8_lossy(&r.stderr));
+    assert_eq!(std::fs::read(cli.join("tasks_cli.rs")).unwrap(), golden());
+    assert!(types.join("tasks_capnp.rs").is_file());
+}
+
+#[test]
+fn plugin_binary_help_is_zero_and_an_unknown_argument_is_two() {
+    let help = Command::new(env!("CARGO_BIN_EXE_capnpc-cli"))
+        .arg("--help")
+        .output()
+        .expect("run capnpc-cli");
+    assert_eq!(help.status.code(), Some(0));
+    let bad = Command::new(env!("CARGO_BIN_EXE_capnpc-cli"))
+        .arg("foo")
+        .output()
+        .expect("run capnpc-cli");
+    assert_eq!(bad.status.code(), Some(2));
+    assert_eq!(bad.stdout.len(), 0);
+}
