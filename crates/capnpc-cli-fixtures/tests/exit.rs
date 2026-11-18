@@ -56,6 +56,13 @@ fn a_clean_watch_and_a_plain_call_exit_with_0() {
 }
 
 #[test]
+fn the_counters_of_all_listeners_add_up_and_a_lost_connection_is_3() {
+    // X4: only the first listener counted; X9: a lost connection is a plain error (1)
+    assert_eq!(code(Mode::Normal, &["watch-two"], &[], true), 3);
+    assert_eq!(code(Mode::Normal, &["raw-value"], &[], false), 3);
+}
+
+#[test]
 fn the_other_sides_error_wrong_words_and_wrong_values_have_their_own_codes() {
     // `danger` is not implemented by the fake: the contract side answers with an error
     assert_eq!(code(Mode::Normal, &["danger"], &[], false), 1);

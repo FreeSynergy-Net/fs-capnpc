@@ -227,6 +227,40 @@ impl features::Server for Fake {
         }
     }
 
+    fn watch_two(
+        self: capnp::capability::Rc<Self>,
+        params: features::WatchTwoParams,
+        _: features::WatchTwoResults,
+    ) -> impl Future<Output = Result<(), capnp::Error>> + 'static {
+        let sinks = params
+            .get()
+            .and_then(|p| Ok((p.get_first()?, p.get_second()?)));
+        async move {
+            let (_first, second) = sinks?;
+            // only the SECOND listener gets a call that cannot be read
+            let mut d = second
+                .client
+                .new_call::<capnp::any_pointer::Owned, capnp::any_pointer::Owned>(
+                    capnpc_cli_fixtures::ids::SINK,
+                    1,
+                    None,
+                );
+            d.get().set_as::<capnp::text::Owned>("not a struct")?;
+            d.send().promise.await?;
+            Ok(())
+        }
+    }
+
+    fn raw_value(
+        self: capnp::capability::Rc<Self>,
+        _: features::RawValueParams,
+        _: features::RawValueResults,
+    ) -> impl Future<Output = Result<(), capnp::Error>> + 'static {
+        ready(Err(capnp::Error::disconnected(
+            "the fake went away".to_owned(),
+        )))
+    }
+
     fn reserved_ok(
         self: capnp::capability::Rc<Self>,
         _: features::ReservedOkParams,

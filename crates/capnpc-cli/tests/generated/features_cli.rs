@@ -200,6 +200,20 @@ pub const COMMANDS: &[Command] = &[
         ],
         watch: false,
         renamed: false,
+        doc: "two listeners: the counters add up",
+        annotations: &[],
+    },
+    Command {
+        words: &["watch-two"],
+        key: "features/Features.watchTwo",
+        iface_id: 0x8c3a5724dbdfb8b2,
+        ordinal: 13,
+        params: &[
+            Param { path: "first", ty: ParamTy::Unreadable, ty_name: "capability", union_of: None, hint: "", secret: false, doc: "" },
+            Param { path: "second", ty: ParamTy::Unreadable, ty_name: "capability", union_of: None, hint: "", secret: false, doc: "" },
+        ],
+        watch: true,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -227,6 +241,7 @@ pub fn dispatch(words: &[&str]) -> Option<Runner> {
         ["page"] => Some(|r, i, o| Box::pin(run_features_page(r, i, o))),
         ["reserved-ok"] => Some(|r, i, o| Box::pin(run_features_reserved_ok(r, i, o))),
         ["create-at"] => Some(|r, i, o| Box::pin(run_features_create_at(r, i, o))),
+        ["watch-two"] => Some(|r, i, o| Box::pin(run_features_watch_two(r, i, o))),
         _ => None,
     }
 }
@@ -358,13 +373,30 @@ pub async fn run_features_reserved_ok(root: &crate::features_capnp::features::Cl
     Ok(Outcome::none())
 }
 
-/// `features/Features.createAt`
+/// `features/Features.createAt` two listeners: the counters add up
 pub async fn run_features_create_at(root: &crate::features_capnp::features::Client, inp: &mut dyn Input, out: &mut dyn Output) -> Result<Outcome, CallError> {
     let mut req = root.create_at_request();
     set_features_capnp_features_create_at_params(req.get(), inp, "")?;
     let resp = req.send().promise.await?;
     out_features_capnp_features_create_at_results(resp.get()?, "", out)?;
     Ok(Outcome::none())
+}
+
+/// `features/Features.watchTwo`
+pub async fn run_features_watch_two(root: &crate::features_capnp::features::Client, inp: &mut dyn Input, out: &mut dyn Output) -> Result<Outcome, CallError> {
+    let mut req = root.watch_two_request();
+    set_features_capnp_features_watch_two_params(req.get(), inp, "")?;
+    let sink = out.sink().ok_or_else(|| CallError::at("", ErrorKind::Unsupported("watching needs a sink")))?;
+    let lines_0 = SinkLines::new(sink);
+    let errors_0 = lines_0.errors();
+    req.get().set_first(::capnp_rpc::new_client::<crate::features_capnp::sink::Client, _>(lines_0));
+    let sink = out.sink().ok_or_else(|| CallError::at("", ErrorKind::Unsupported("watching needs a sink")))?;
+    let lines_1 = SinkLines::new(sink);
+    let errors_1 = lines_1.errors();
+    req.get().set_second(::capnp_rpc::new_client::<crate::features_capnp::sink::Client, _>(lines_1));
+    let resp = req.send().promise.await?;
+    out_features_capnp_features_watch_two_results(resp.get()?, "", out)?;
+    Ok(Outcome::new(Held::new(resp), vec![errors_0, errors_1]))
 }
 
 /// Receives the calls of `Sink` and hands each to the sink as one line.
@@ -559,6 +591,11 @@ fn set_features_capnp_features_tree_params(mut b: crate::features_capnp::feature
 
 #[allow(unused_variables, unused_mut)]
 fn set_features_capnp_features_watch_params(mut b: crate::features_capnp::features::watch_params::Builder<'_>, inp: &mut dyn Input, path: &str) -> Result<(), CallError> {
+    Ok(())
+}
+
+#[allow(unused_variables, unused_mut)]
+fn set_features_capnp_features_watch_two_params(mut b: crate::features_capnp::features::watch_two_params::Builder<'_>, inp: &mut dyn Input, path: &str) -> Result<(), CallError> {
     Ok(())
 }
 
@@ -764,6 +801,14 @@ fn out_features_capnp_features_tree_results(r: crate::features_capnp::features::
 
 #[allow(unused_variables, unused_mut)]
 fn out_features_capnp_features_watch_results(r: crate::features_capnp::features::watch_results::Reader<'_>, name: &str, out: &mut dyn Output) -> Result<(), CallError> {
+    out.begin_struct(name, "");
+    out.field("subscription", Value::Capability("Details"));
+    out.end();
+    Ok(())
+}
+
+#[allow(unused_variables, unused_mut)]
+fn out_features_capnp_features_watch_two_results(r: crate::features_capnp::features::watch_two_results::Reader<'_>, name: &str, out: &mut dyn Output) -> Result<(), CallError> {
     out.begin_struct(name, "");
     out.field("subscription", Value::Capability("Details"));
     out.end();

@@ -52,5 +52,6 @@ interface Features {
   danger     @9 () -> () $Cli.risk(destructive);
   page       @10 () -> (page :Page);
   reservedOk @11 () -> (version :UInt8, kinds :Colour);
+  watchTwo   @13 (first :Sink, second :Sink) -> (subscription :Details);   # two listeners: the counters add up
   createAt   @12 (when :Int64, big :UInt64, small :Int8, f :Float64) -> ();
 }
