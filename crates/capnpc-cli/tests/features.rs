@@ -117,10 +117,10 @@ fn a_call_that_cannot_be_read_becomes_an_error_line_not_a_gap() {
     // A4: the listener dropped such a call silently
     let t = text();
     assert!(
-        t.contains("Err(e) => { let why = e.to_string(); self.sink.borrow_mut().line(\"event\"")
+        t.contains("Err(e) => { self.errors.set(self.errors.get() + 1); let why = e.to_string(); self.sink.borrow_mut().line(\"event\"")
     );
     assert!(
-        t.contains("Err(e) => { let why = e.to_string(); self.sink.borrow_mut().line(\"done\"")
+        t.contains("Err(e) => { self.errors.set(self.errors.get() + 1); let why = e.to_string(); self.sink.borrow_mut().line(\"done\"")
     );
     assert!(!t.contains("if let Ok(p) = params.get()"));
 }
@@ -193,7 +193,8 @@ fn two_methods_with_the_same_words_are_an_error_not_an_overwrite() {
     // the message names the words and BOTH methods
     assert!(msg.contains("get the words `method-version`"), "{msg}");
     assert!(
-        msg.contains("collide/Collide.version") && msg.contains("collide/Collide.methodVersion"),
+        msg.contains("`collide/Collide.version` (Collide, command)")
+            && msg.contains("`collide/Collide.methodVersion` (Collide, command)"),
         "{msg}"
     );
 }
@@ -207,7 +208,8 @@ fn a_navigation_word_and_a_command_with_the_same_words_are_an_error() {
     let msg = err.to_string();
     assert!(msg.contains("get the words `method-serve`"), "{msg}");
     assert!(
-        msg.contains("collide2/Collide2.serve") && msg.contains("collide2/Collide2.methodServe"),
+        msg.contains("`collide2/Collide2.serve` (Collide2, navigation)")
+            && msg.contains("`collide2/Collide2.methodServe` (Collide2, command)"),
         "{msg}"
     );
 }

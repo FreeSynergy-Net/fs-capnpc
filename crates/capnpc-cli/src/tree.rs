@@ -48,6 +48,8 @@ pub struct Group {
     pub words: Vec<String>,
     /// Coverage key `file/Interface.method`.
     pub key: String,
+    /// Name of the interface that owns the method.
+    pub owner: String,
 }
 
 /// The tree of one root interface.
@@ -131,18 +133,32 @@ impl Tree {
         };
         walk(m, &[root], &[], &[], false, &mut t)?;
         // words -> the key of the method that has them; a group and a command may not share words either
-        let mut seen: std::collections::BTreeMap<Vec<String>, String> =
+        let mut seen: std::collections::BTreeMap<Vec<String>, (String, String)> =
             std::collections::BTreeMap::new();
         let mut names = std::collections::BTreeMap::new();
         let words_and_keys = t
             .groups
             .iter()
-            .map(|g| (g.words.clone(), g.key.clone()))
-            .chain(t.commands.iter().map(|c| (c.words.clone(), c.key.clone())));
-        for (words, key) in words_and_keys {
-            if let Some(first) = seen.insert(words.clone(), key.clone()) {
+            .map(|g| {
+                (
+                    g.words.clone(),
+                    g.key.clone(),
+                    format!("{}, navigation", g.owner),
+                )
+            })
+            .chain(t.commands.iter().map(|c| {
+                (
+                    c.words.clone(),
+                    c.key.clone(),
+                    format!("{}, command", m.interfaces[&c.iface].name),
+                )
+            }));
+        for (words, key, what) in words_and_keys {
+            if let Some((first, first_what)) =
+                seen.insert(words.clone(), (key.clone(), what.clone()))
+            {
                 return Err(capnp::Error::failed(format!(
-                    "two methods get the words `{}`: `{first}` and `{key}`",
+                    "two methods get the words `{}`: `{first}` ({first_what}) and `{key}` ({what})",
                     words.join(" ")
                 )));
             }
@@ -185,6 +201,7 @@ fn walk(
             t.groups.push(Group {
                 words: all.clone(),
                 key: key_of(me),
+                owner: i.name.clone(),
             });
             let mut p = path.to_vec();
             p.push(Step {

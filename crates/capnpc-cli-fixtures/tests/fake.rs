@@ -16,6 +16,8 @@ pub enum Mode {
     Normal,
     /// This many events, then `done`; the fake notes how many lines the sink had when `done` was answered.
     Burst(u32),
+    /// Answer at once and keep the sink in `stash`: the test calls it later, while the program waits.
+    Stash,
     /// An event and a `done` whose arguments are not what the method takes (a text where a struct belongs).
     Malformed,
 }
@@ -25,6 +27,8 @@ pub struct Fake {
     pub mode: Mode,
     /// The lines of the sink, to check that the answer came after the sink took the line.
     pub probe: Log,
+    /// The sink of a `watch` in mode `Stash`.
+    pub stash: Rc<RefCell<Option<capnpc_cli_fixtures::features_capnp::sink::Client>>>,
 }
 
 impl Fake {
@@ -33,6 +37,7 @@ impl Fake {
             log,
             mode: Mode::Normal,
             probe: Rc::default(),
+            stash: Rc::default(),
         }
     }
 }
@@ -173,6 +178,9 @@ impl features::Server for Fake {
         async move {
             let sink = sink?;
             match self.mode {
+                Mode::Stash => {
+                    *self.stash.borrow_mut() = Some(sink);
+                }
                 Mode::Normal | Mode::Burst(_) => {
                     let n = if let Mode::Burst(n) = self.mode { n } else { 1 };
                     for i in 0..n {

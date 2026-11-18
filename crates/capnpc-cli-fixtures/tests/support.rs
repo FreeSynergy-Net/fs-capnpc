@@ -80,6 +80,8 @@ impl Input for In {
 pub struct Rec {
     pub lines: Vec<String>,
     pub sink: Option<Rc<RefCell<Vec<String>>>>,
+    /// Hand out a [`Swallow`] sink instead.
+    pub swallow: bool,
 }
 
 impl Output for Rec {
@@ -96,6 +98,9 @@ impl Output for Rec {
         self.lines.push("end".to_owned());
     }
     fn sink(&mut self) -> Option<Box<dyn Sink>> {
+        if self.swallow {
+            return Some(Box::new(Swallow));
+        }
         self.sink
             .clone()
             .map(|s| Box::new(Lines(s)) as Box<dyn Sink>)
@@ -125,13 +130,11 @@ pub fn run<F: std::future::Future>(f: F) -> F::Output {
     futures::executor::LocalPool::new().run_until(f)
 }
 
-/// What a program does with the lines of a watch: any error line makes the exit code 3 (the program decides; the
-/// generated code only hands the error to the sink).
-#[must_use]
-pub fn exit_code(lines: &[String]) -> i32 {
-    if lines.iter().any(|l| l.contains(": ERR ")) {
-        3
-    } else {
-        0
+/// A sink that swallows everything, also the errors: the generated code must still count them.
+pub struct Swallow;
+
+impl Sink for Swallow {
+    fn line(&mut self, _: &str, render: &mut dyn FnMut(&mut dyn Output) -> Result<(), CallError>) {
+        let _ = render(&mut Rec::default());
     }
 }

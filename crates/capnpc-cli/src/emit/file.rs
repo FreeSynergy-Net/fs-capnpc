@@ -43,7 +43,7 @@ pub fn generate(m: &Model, marks: &dyn MarkSource) -> capnp::Result<Vec<Generate
                 let name = crate::model::module_name(&m.interfaces[id].name.replace('.', "_"));
                 let _ = write!(
                     content,
-                    "\npub mod {name} {{\n    #[allow(unused_imports)]\n    use capnpc_cli::rt::{{CallError, Command, ErrorKind, Group, Held, Input, Output, Param, ParamTy, Sink, Value, join}};\n{text}}}\n"
+                    "\npub mod {name} {{\n    #[allow(unused_imports)]\n    use capnpc_cli::rt::{{CallError, Command, ErrorKind, Group, Held, Input, Outcome, Output, Param, ParamTy, Sink, Value, join}};\n{text}}}\n"
                 );
             }
         }
@@ -104,7 +104,7 @@ fn head(w: &mut Text, file: &RequestedFile, rpc: bool) {
     }
     w.blank();
     w.line("#[allow(unused_imports)]");
-    w.line("use capnpc_cli::rt::{CallError, Command, ErrorKind, Group, Held, Input, Output, Param, ParamTy, Sink, Value, join};");
+    w.line("use capnpc_cli::rt::{CallError, Command, ErrorKind, Group, Held, Input, Outcome, Output, Param, ParamTy, Sink, Value, join};");
     w.blank();
     w.line(format!("pub const GENERATED_BY: &str = {GENERATED_BY:?};"));
     w.line(format!("pub const RT_ABI: u32 = {ABI};"));

@@ -239,7 +239,7 @@ pub fn emit(ctx: &Ctx<'_>, w: &mut Text, t: &Tree, root_client: &str) {
     w.close("];");
     w.blank();
     w.line(format!(
-        "pub type Runner = for<'a> fn(&'a {root_client}, &'a mut dyn Input, &'a mut dyn Output) -> ::core::pin::Pin<Box<dyn ::core::future::Future<Output = Result<Held, CallError>> + 'a>>;"
+        "pub type Runner = for<'a> fn(&'a {root_client}, &'a mut dyn Input, &'a mut dyn Output) -> ::core::pin::Pin<Box<dyn ::core::future::Future<Output = Result<Outcome, CallError>> + 'a>>;"
     ));
     w.blank();
     w.line("/// The function of a command, by its words; `None` if there is no such command.");
@@ -255,5 +255,26 @@ pub fn emit(ctx: &Ctx<'_>, w: &mut Text, t: &Tree, root_client: &str) {
     }
     w.line("_ => None,");
     w.close("}");
+    w.close("}");
+    w.blank();
+    run_to_exit(w, root_client);
+}
+
+/// The entry point that makes the exit code, so a program cannot forget the rule.
+fn run_to_exit(w: &mut Text, root_client: &str) {
+    w.line("/// Run a command by its words and give the exit code: 0 ok, 1 the other side answered with an error, 2 a wrong");
+    w.line("/// word or value, 3 not reachable or a call of a watch could not be read. `wait` is what the program does while a");
+    w.line("/// watch runs (until the user stops it); the code is made after it, from what the listeners counted.");
+    w.open(format!(
+        "pub async fn run_to_exit<W, F>(root: &{root_client}, words: &[&str], inp: &mut dyn Input, out: &mut dyn Output, wait: W) -> i32 where W: FnOnce() -> F, F: ::core::future::Future<Output = ()> {{"
+    ));
+    w.open("let result = match dispatch(words) {");
+    w.line("Some(go) => go(root, inp, out).await,");
+    w.line("None => Err(CallError::at(\"\", ErrorKind::BadValue(format!(\"no command `{}`\", words.join(\" \"))))),");
+    w.close("};");
+    w.open("if let Ok(o) = &result {");
+    w.line("if o.is_watching() { wait().await; }");
+    w.close("}");
+    w.line("capnpc_cli::rt::exit_code(&result)");
     w.close("}");
 }

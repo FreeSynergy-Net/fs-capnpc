@@ -24,11 +24,19 @@ pub fn emit(ctx: &mut Ctx<'_>, w: &mut Text, id: u64) {
     ));
     w.open(format!("pub struct {name}<S: Sink> {{"));
     w.line("sink: ::core::cell::RefCell<S>,");
+    w.line("errors: ::std::rc::Rc<::core::cell::Cell<u32>>,");
     w.close("}");
     w.blank();
     w.open(format!("impl<S: Sink> {name}<S> {{"));
     w.open("pub fn new(sink: S) -> Self {");
-    w.line("Self { sink: ::core::cell::RefCell::new(sink) }");
+    w.line("Self { sink: ::core::cell::RefCell::new(sink), errors: ::std::rc::Rc::default() }");
+    w.close("}");
+    w.blank();
+    w.line(
+        "/// How many calls could not be read: counted here, whatever the sink does with the line.",
+    );
+    w.open("pub fn errors(&self) -> ::std::rc::Rc<::core::cell::Cell<u32>> {");
+    w.line("self.errors.clone()");
     w.close("}");
     w.close("}");
     w.blank();
@@ -48,10 +56,10 @@ pub fn emit(ctx: &mut Ctx<'_>, w: &mut Text, id: u64) {
         let kind = format!("{:?}", crate::model::kebab(&me.name));
         w.open("match params.get() {");
         w.line(format!(
-            "Ok(p) => self.sink.borrow_mut().line({kind}, &mut |out| {out}(p, \"\", out)),"
+            "Ok(p) => {{ let errors = &self.errors; self.sink.borrow_mut().line({kind}, &mut |out| {{ let r = {out}(p, \"\", out); if r.is_err() {{ errors.set(errors.get() + 1); }} r }}); }}"
         ));
         w.line(format!(
-            "Err(e) => {{ let why = e.to_string(); self.sink.borrow_mut().line({kind}, &mut |_| Err(CallError::at(\"\", ErrorKind::BadValue(why.clone())))); }}"
+            "Err(e) => {{ self.errors.set(self.errors.get() + 1); let why = e.to_string(); self.sink.borrow_mut().line({kind}, &mut |_| Err(CallError::at(\"\", ErrorKind::BadValue(why.clone())))); }}"
         ));
         w.close("}");
         w.line("::core::future::ready(Ok(()))");

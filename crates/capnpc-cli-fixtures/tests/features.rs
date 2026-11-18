@@ -215,7 +215,7 @@ fn listener_gets_its_lines_in_order_and_the_call_returns_the_subscription() {
         &c, &mut inp, &mut out,
     ))
     .unwrap();
-    assert!(held.is_some());
+    assert!(held.is_watching());
     let lines = sink_log.borrow();
     assert_eq!(lines.len(), 2, "{lines:?}");
     assert_eq!(

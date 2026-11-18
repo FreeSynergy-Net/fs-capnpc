@@ -5,7 +5,10 @@
 - New workspace crate `capnpc-cli` (with the test crate `capnpc-cli-fixtures`): a Cap'n Proto generator plugin that
   writes command line code (command tables and typed call functions) for an interface; `capnp-compiler` is unchanged.
   The AI collaboration is stated in `NOTICE` and the READMEs.
-  The generated code states its `rt` ABI (1) and fails to compile against another one. A top-level method named like
+  The generated code states its `rt` ABI (2) and fails to compile against another one. `run_*` return an `Outcome`;
+  the generated listener counts the calls it cannot read itself (a sink that swallows errors cannot hide them), and the
+  generated `run_to_exit` makes the exit code (0 ok, 1 the other side answered with an error, 2 a wrong word or value,
+  3 not reachable or a call of a watch could not be read) after the program has waited for the watch. A top-level method named like
   a word the program owns (`serve`, `mcp`, `help`, `version`) keeps its contract name; its command word is
   `method-<word>`, the table says `renamed: true` (also below it); two methods with the same words are an error.
 
