@@ -11,6 +11,7 @@ use capnpc_cli::rt::{CallError, ErrorKind, Input, Output, Sink, Value};
 pub struct In(pub BTreeMap<String, String>);
 
 impl In {
+    #[must_use]
     pub fn of(pairs: &[(&str, &str)]) -> Self {
         Self(
             pairs

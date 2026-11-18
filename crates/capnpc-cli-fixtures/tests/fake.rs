@@ -71,7 +71,7 @@ impl features::Server for Fake {
                 .map(|q| (q.get_x(), q.get_y()))
                 .collect();
             let mut grid = Vec::new();
-            for row in p.get_grid()?.iter() {
+            for row in p.get_grid()? {
                 grid.push(row?.iter().collect::<Vec<i32>>());
             }
             let colours: Vec<u16> = p
@@ -142,7 +142,9 @@ impl features::Server for Fake {
         params: features::WatchParams,
         _: features::WatchResults,
     ) -> impl Future<Output = Result<(), capnp::Error>> + 'static {
-        let sink = params.get().and_then(|p| p.get_sink());
+        let sink = params
+            .get()
+            .and_then(features::watch_params::Reader::get_sink);
         async move {
             let sink = sink?;
             let mut ev = sink.event_request();

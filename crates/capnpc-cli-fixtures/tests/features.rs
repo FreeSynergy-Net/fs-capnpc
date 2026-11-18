@@ -77,8 +77,8 @@ fn union_and_its_echo() {
         ]
     );
     let err = call(&["place"], &[("shape.circle", "1"), ("shape.box.x", "1")])
-        .err()
-        .expect("refused");
+        .map(|_| ())
+        .expect_err("refused");
     assert!(
         matches!(err.kind, ErrorKind::UnionTwice) && err.path == "shape",
         "{err}"
@@ -119,8 +119,8 @@ fn lists_of_every_kind_arrive_whole() {
     );
     assert_eq!(lines, ["struct :", "count=Uint(3)", "end"]);
     let err = call(&["lists"], &[("ints", "1"), ("ints.0", "256")])
-        .err()
-        .expect("range");
+        .map(|_| ())
+        .expect_err("range");
     assert!(
         matches!(err.kind, ErrorKind::OutOfRange("u8")) && err.path == "ints.0",
         "{err}"
@@ -233,7 +233,7 @@ fn listener_gets_its_lines_in_order_and_the_call_returns_the_subscription() {
         &mut In::default(),
         &mut none,
     ))
-    .err()
-    .expect("no sink");
+    .map(|_| ())
+    .expect_err("no sink");
     assert!(matches!(err.kind, ErrorKind::Unsupported(_)), "{err}");
 }
