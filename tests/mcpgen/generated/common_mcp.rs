@@ -31,7 +31,6 @@ pub mod blob {
             risk: None,
             free_content: false,
         },
-^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p capnp-compiler --test mcpgen_golden`
         ToolSpec {
             name: "common.blob.read",
             title: "may answer fewer bytes than asked; empty = the end",
