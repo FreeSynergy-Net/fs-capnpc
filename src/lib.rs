@@ -67,7 +67,6 @@ pub mod ast;
 #[cfg(feature = "cli")]
 pub mod cli;
 pub mod cligen;
-pub mod mcpgen;
 pub mod command;
 pub mod compiler;
 pub mod error;
@@ -77,6 +76,7 @@ pub mod hashorder;
 pub mod ids;
 pub mod layout;
 pub mod lexer;
+pub mod mcpgen;
 pub mod parser;
 pub mod pipeline;
 pub mod request;
