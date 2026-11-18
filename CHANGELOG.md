@@ -33,6 +33,16 @@
   (Deutsch: Windows-Pfadfehler behoben: neuer `AbsPath` zerlegt Pfadtext auf jedem Rechner gleich (Laufwerk bleibt,
   `\` und `/` trennen, `.`/`..` aufgeloest); `MemoryLoader` normalisiert Namen; Tests pruefen die Windows-Regeln auch
   unter Linux.)
+- Windows path edge cases (review of the path fix): `\\?\UNC\srv\share\x` (what `canonicalize` returns on Windows) is the
+  UNC path `//srv/share/x`, no longer a relative path below the current directory; a drive-relative `C:foo` is no longer
+  turned into `C:\foo`: it is relative to the current directory of that drive when the base is on that drive, otherwise
+  it stays drive-relative (root `C:`, the current directory of another drive is unknown and not guessed); a server
+  without a share (`//srv`) is the root `//srv/`, not `//srv//`. New tests (run the Windows rules on Linux, too): a Unix
+  host reads the source file with the Unix rules (`\` is a name character, `C:` no drive), a file that is an ancestor
+  of the current directory does not panic, UNC with `/`, and each edge case above.
+  (Deutsch: Windows-Randfaelle: `\\?\UNC\...` ist ein UNC-Pfad, `C:foo` bleibt laufwerk-relativ statt `C:\foo`, `//srv`
+  ohne Freigabe ist die Wurzel `//srv/`; neue Tests, u. a. Unix-Regeln auf Linux und Datei als Vorfahr des
+  Arbeitsverzeichnisses ohne Absturz.)
 
 ## 0.1.1 — 2026-11-06
 

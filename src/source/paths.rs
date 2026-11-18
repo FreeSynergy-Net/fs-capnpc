@@ -34,7 +34,7 @@ pub fn eval_components(base: &[String], rel: &str) -> Option<Vec<String>> {
 /// The parsing is a pure function of the text and a `windows` flag, never of `std::path`, so the same
 /// text gives the same result on every host (the tests run the Windows rules on Linux, too). The root
 /// is `/` (Unix, or a Windows root without drive), `C:/` (drive) or `//server/share/` (UNC) and
-/// always ends with `/`.
+/// ends with `/`; the one exception is the drive-relative `C:` (see `parse`).
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AbsPath {
     /// Root with its drive or share, ending in `/`.
@@ -64,36 +64,18 @@ impl AbsPath {
     }
 
     /// Parse `text`; a relative path is taken below `base`. With `windows`, `\` separates like `/`,
-    /// and drives (`C:`, `\\?\C:`) and UNC shares are roots; without it `\` is an ordinary name character.
+    /// and drives (`C:`, `\\?\C:`) and UNC shares (`\\srv\share`, `//srv/share`, `\\?\UNC\srv\share`)
+    /// are roots; without it `\` is an ordinary name character.
     #[must_use]
     pub fn parse(text: &str, windows: bool, base: &AbsPath) -> AbsPath {
         let sep = |c: char| c == '/' || (windows && c == '\\');
-        let text = if windows {
-            text.strip_prefix("\\\\?\\").unwrap_or(text)
+        let (root, rest, mut comps) = if windows {
+            split_windows_root(text, base, sep)
+        } else if text.starts_with('/') {
+            ("/".to_string(), text, vec![])
         } else {
-            text
+            (base.root.clone(), text, base.comps.clone())
         };
-        let b = text.as_bytes();
-        let (root, rest, mut comps): (String, &str, Vec<String>) =
-            if windows && b.len() >= 2 && b[0].is_ascii_alphabetic() && b[1] == b':' {
-                (
-                    format!("{}:/", char::from(b[0]).to_ascii_uppercase()),
-                    &text[2..],
-                    vec![],
-                )
-            } else if windows && text.starts_with(|c| sep(c)) && text[1..].starts_with(|c| sep(c)) {
-                let mut parts = text[2..].splitn(3, sep);
-                let (server, share) = (parts.next().unwrap_or(""), parts.next().unwrap_or(""));
-                (
-                    format!("//{server}/{share}/"),
-                    parts.next().unwrap_or(""),
-                    vec![],
-                )
-            } else if text.starts_with(sep) {
-                ("/".to_string(), text, vec![])
-            } else {
-                (base.root.clone(), text, base.comps.clone())
-            };
         for part in rest.split(sep) {
             match part {
                 "" | "." => {}
@@ -116,6 +98,56 @@ impl AbsPath {
     #[must_use]
     pub fn to_path(&self) -> PathBuf {
         join_path(Path::new(&self.root), &self.comps)
+    }
+}
+
+/// Root, rest of the text and starting components of a Windows path text.
+///
+/// Edge cases, by design: `\\?\UNC\srv\share\x` is the UNC path `//srv/share/x` (what `canonicalize`
+/// returns), never a relative one. A server without a share (`//srv`) is the root `//srv/`, never
+/// `//srv//`. A drive-relative `C:foo` is relative to the current directory of drive C: when the base
+/// is on that drive, otherwise it keeps the root `C:` (no slash) and so stays drive-relative: the
+/// current directory of another drive is unknown here and is not guessed (`..` above it is dropped).
+fn split_windows_root<'a>(
+    text: &'a str,
+    base: &AbsPath,
+    sep: impl Fn(char) -> bool + Copy,
+) -> (String, &'a str, Vec<String>) {
+    let (verbatim, text) = text
+        .strip_prefix("\\\\?\\")
+        .map_or((false, text), |t| (true, t));
+    let unc_body = if verbatim {
+        text.get(..3)
+            .filter(|u| u.eq_ignore_ascii_case("UNC"))
+            .and_then(|_| text[3..].strip_prefix(sep))
+    } else if text.starts_with(sep) && text[1..].starts_with(sep) {
+        Some(&text[2..])
+    } else {
+        None
+    };
+    let b = text.as_bytes();
+    if let Some(body) = unc_body.filter(|u| !u.is_empty() && !u.starts_with(sep)) {
+        let mut parts = body.splitn(3, sep);
+        let (server, share) = (parts.next().unwrap_or(""), parts.next().unwrap_or(""));
+        let root = if share.is_empty() {
+            format!("//{server}/")
+        } else {
+            format!("//{server}/{share}/")
+        };
+        (root, parts.next().unwrap_or(""), vec![])
+    } else if b.len() >= 2 && b[0].is_ascii_alphabetic() && b[1] == b':' {
+        let (drive, rest) = (char::from(b[0]).to_ascii_uppercase(), &text[2..]);
+        if rest.starts_with(sep) {
+            (format!("{drive}:/"), rest, vec![])
+        } else if same_name(&base.root, &format!("{drive}:/"), true) {
+            (base.root.clone(), rest, base.comps.clone())
+        } else {
+            (format!("{drive}:"), rest, vec![])
+        }
+    } else if text.starts_with(sep) {
+        ("/".to_string(), text, vec![])
+    } else {
+        (base.root.clone(), text, base.comps.clone())
     }
 }
 

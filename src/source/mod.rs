@@ -11,6 +11,8 @@ mod provider;
 mod std_files;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tests_paths;
 
 pub use disk::DiskLoader;
 pub use loader::ModuleLoader;
