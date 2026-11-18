@@ -2,4 +2,5 @@
 # with fresh output, so a CRLF checkout (core.autocrlf on Windows) must not touch them.
 * text=auto eol=lf
 tests/cligen/generated/** text eol=lf
+tests/mcpgen/generated/** text eol=lf
 *.png binary

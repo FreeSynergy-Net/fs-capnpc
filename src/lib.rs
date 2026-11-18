@@ -67,6 +67,7 @@ pub mod ast;
 #[cfg(feature = "cli")]
 pub mod cli;
 pub mod cligen;
+pub mod mcpgen;
 pub mod command;
 pub mod compiler;
 pub mod error;

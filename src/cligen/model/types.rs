@@ -72,6 +72,10 @@ pub struct StructNode {
     pub generic: bool,
     /// Fields in declaration order.
     pub fields: Vec<Field>,
+    /// Doc comment (empty if none).
+    pub doc: String,
+    /// All annotations of the struct.
+    pub annotations: Vec<Annotation>,
 }
 
 /// An enum node.

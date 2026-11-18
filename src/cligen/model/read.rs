@@ -142,6 +142,8 @@ impl Model {
                         has_union: s.get_discriminant_count() > 0,
                         generic: n.get_is_generic(),
                         fields: fields.into_iter().map(|f| f.1).collect(),
+                        doc: docs.get(&id).map(|d| d.0.clone()).unwrap_or_default(),
+                        annotations: read_all(n.get_annotations()?)?,
                     },
                 );
             }
