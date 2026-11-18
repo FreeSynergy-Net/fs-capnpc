@@ -38,6 +38,7 @@ jobs:
           ! grep -q 'capnpc v' fx.txt
       - name: the default features build both binaries (cargo install capnp-compiler must install something)
         run: |
+          rm -f target/debug/capnp-compiler target/debug/capnpc-cli
           cargo build --bins --locked
           test -x target/debug/capnp-compiler
           test -x target/debug/capnpc-cli
