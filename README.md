@@ -2,7 +2,7 @@
 
 **This is a building block. It is why anyone with a Rust toolchain can build FreeSynergy, with no C++ compiler.**
 
-Capnpc is a Cap'n Proto schema compiler written in pure Rust. FreeSynergy describes its interfaces in Cap'n Proto. The official compiler is written in C++, which means every contributor would need a C++ toolchain. This one reads the same schema files and produces the same output, so the normal Rust code generator can take over from there.
+`capnp-compiler` (repository `fs-capnpc`) is a Cap'n Proto parser and compiler written in pure Rust: schema to `CodeGeneratorRequest`. The Rust code itself is written by the upstream `capnpc` (capnproto-rust), which this crate feeds; it is not ours. FreeSynergy describes its interfaces in Cap'n Proto. The official compiler is written in C++, which means every contributor would need a C++ toolchain. This one reads the same schema files and produces the same output, so the normal Rust code generator can take over from there.
 
 What is different here: we do not ask you to trust it. Its output is compared with the official compiler (capnp 1.4.0): every node, every source-info record and the generated Rust text, for the official test schemas, the FreeSynergy schemas and a set of hand-written feature schemas.
 
@@ -12,7 +12,7 @@ Published on crates.io: `capnp-compiler` 0.1.1 (2026-11-06). This tree is versio
 
 - A command line, `capnp-compiler compile`, with output folder, import paths and source prefix.
 - A library with a builder, so schemas can come from memory and errors can be collected elsewhere.
-- Output identical in content to the official compiler for the schemas above.
+- Output identical in content to the official compiler for the schemas above (34 schemas, last run 18.11.2026); byte-identical only for the small ones, the others differ in segmentation only (see "Known difference").
 - Used by `fs-interfaces` to regenerate its contracts.
 
 ## Install
@@ -110,8 +110,12 @@ Every stage is a trait (`SourceLoader`, `Frontend`, `ErrorReporter`, `Emitter`),
 from memory (`MemoryLoader`) and diagnostics can be collected elsewhere. See `DESIGN.md` for the
 architecture and the pattern map, `PLAN.md` for the status of each oracle schema, and `examples/`.
 
+### Oracle test: what is claimed
+
+`tests/oracle_corpus.rs` compiles every schema under `tests/schemas/` (hand-written ones, the official `test*.capnp`, the FreeSynergy contracts with origin commits in `tests/schemas/fs/SOURCES.txt`) with the official compiler (capnp 1.4.0 as WASM) and with this one and compares every node, the requested files, the imports, the source info and the Rust text of `capnpc`. `official/test.capnp`: `capnpc` itself refuses to write code for it ("List(AnyPointer) is unsupported", in `codegen_types.rs` of `capnpc`; the file has no `List(AnyPointer)` written out, the case comes from a list whose element type resolves to `AnyPointer`, which exact field was not traced), the same for both requests, so there the Rust text is not compared, the nodes are. A written-out `List(AnyPointer)` or `List(AnyStruct)` is rejected by both compilers (`tests/oracle_errors.rs`).
+
 ### Known difference
 
-The serialized request is content-identical to the official one, but for large schemas the *segment
+The serialized request is content-identical to the official one (every node and source-info record compared as text), not byte-identical: for large schemas the *segment
 layout* of the message differs (the C++ builder only fills its most recent segment). Readers such as
 `capnpc` do not care.

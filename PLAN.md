@@ -57,11 +57,12 @@ Compared: every node (Debug text of the readers, output order), requested files,
 |---|---|
 | builtins.capnp, doc.capnp, tiny.capnp | identical (also byte-identical) |
 | kinds.capnp, generics.capnp, features.capnp | identical in content and generated Rust; bytes differ (segmentation, see below) |
-| official/test.capnp | identical in content; capnpc cannot generate code for it (`List(AnyPointer)`), both requests fail identically |
+| official/test.capnp | identical in content; `capnpc` cannot write code for it ("List(AnyPointer) is unsupported" from `capnpc` `codegen_types.rs`; the file has no written-out `List(AnyPointer)`, a list whose element resolves to `AnyPointer` triggers it; exact field not traced), both requests fail identically |
 | official/test-import.capnp, test-import2.capnp | identical in content and generated Rust |
 | fs/contracts/{common,messenger}.capnp | identical in content and generated Rust |
 | fs/hub/{common,hub}.capnp | identical in content and generated Rust |
-| invalid schemas (`tests/oracle_errors.rs`, 15 cases) | rejected by both compilers |
+| fs/interfaces/*.capnp (20 current contracts: fs-interfaces, fs-rpc layouts/bind, fs-components settings) and types.capnp (fs-types) | identical in content (18.11.2026, origins in tests/schemas/fs/SOURCES.txt); bytes differ (segmentation) |
+| invalid schemas (`tests/oracle_errors.rs`, 17 cases (incl. written-out `List(AnyPointer)`, `List(AnyStruct)`)) | rejected by both compilers |
 
 Known difference: byte layout (segmentation) of large requests. The C++ `BuilderArena` only tries its most recent segment
 for new allocations, capnp-rust scans all segments from the front, so the sizes of segments 0..n differ although the

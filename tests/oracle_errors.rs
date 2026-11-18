@@ -11,6 +11,8 @@ const HEADER: &str = "@0xdbb9ad1f14bf0d01;\n";
 
 const INVALID: &[(&str, &str)] = &[
     ("unknown type", "struct S { a @0 :Nope; }"),
+    ("list of AnyPointer", "struct S { a @0 :List(AnyPointer); }"),
+    ("list of AnyStruct", "struct S { a @0 :List(AnyStruct); }"),
     ("skipped ordinal", "struct S { a @1 :Int32; }"),
     (
         "duplicate ordinal",
