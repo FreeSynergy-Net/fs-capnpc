@@ -5,8 +5,11 @@
 
 use crate::model::{FieldKind, Method, Model, Ty, kebab, snake};
 
-/// Words a program owns; a contract method with one of these names is an error, never renamed.
+/// Words a program owns. A contract method with one of these names keeps its contract name; its word is prefixed.
 pub const RESERVED: &[&str] = &["serve", "mcp", "help", "version"];
+
+/// What a contract method named like a reserved word gets in front: `version` becomes `method-version`.
+pub const RENAME_PREFIX: &str = "method-";
 
 /// One call on the way to a command: a navigation method and the field of its result that holds the capability.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -34,6 +37,8 @@ pub struct Command {
     pub watch: bool,
     /// Name of the generated function, `run_items_create`.
     pub fn_name: String,
+    /// The first word was a word the program owns (`version`) and got the prefix `method-`.
+    pub renamed: bool,
 }
 
 /// A navigation word: covered by being the way to the commands below it.
@@ -118,13 +123,13 @@ impl Tree {
     /// Build the tree below the root interface `root`.
     ///
     /// # Errors
-    /// A method word collides with a reserved word, or two methods get the same words.
+    /// Two methods get the same words.
     pub fn build(m: &Model, root: u64) -> capnp::Result<Self> {
         let mut t = Self {
             root,
             ..Self::default()
         };
-        walk(m, &[root], &[], &[], &mut t)?;
+        walk(m, &[root], &[], &[], false, &mut t)?;
         let mut seen = std::collections::BTreeSet::new();
         let mut names = std::collections::BTreeMap::new();
         for c in &mut t.commands {
@@ -149,19 +154,20 @@ fn walk(
     stack: &[u64],
     words: &[String],
     path: &[Step],
+    renamed: bool,
     t: &mut Tree,
 ) -> capnp::Result<()> {
     let iface = stack[stack.len() - 1];
     let i = &m.interfaces[&iface];
     let key_of = |me: &Method| format!("{}/{}.{}", i.file, i.name, me.name);
     for me in &i.methods {
-        let w = kebab(&me.name);
-        if words.is_empty() && RESERVED.contains(&w.as_str()) {
-            return Err(capnp::Error::failed(format!(
-                "method `{}` of {} collides with the reserved word `{w}`",
-                me.name, i.name
-            )));
+        let mut w = kebab(&me.name);
+        // the contract name stays; the word on the command line gets a prefix, and the table says so
+        let clash = words.is_empty() && RESERVED.contains(&w.as_str());
+        if clash {
+            w = format!("{RENAME_PREFIX}{w}");
         }
+        let renamed = renamed || clash;
         let mut all = words.to_vec();
         all.push(w);
         // a navigation that leads back to an interface on the way is a command (its result is a capability)
@@ -178,7 +184,7 @@ fn walk(
             });
             let mut st = stack.to_vec();
             st.push(next);
-            walk(m, &st, &all, &p, t)?;
+            walk(m, &st, &all, &p, renamed, t)?;
             continue;
         }
         t.commands.push(Command {
@@ -193,6 +199,7 @@ fn walk(
                 snake(&i.name).replace('.', "_"),
                 snake(&me.name)
             ),
+            renamed,
         });
     }
     Ok(())

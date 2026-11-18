@@ -237,3 +237,23 @@ fn listener_gets_its_lines_in_order_and_the_call_returns_the_subscription() {
     .expect_err("no sink");
     assert!(matches!(err.kind, ErrorKind::Unsupported(_)), "{err}");
 }
+
+#[test]
+fn float32_value_that_is_not_zero_arrives() {
+    // a Float32 written as 0 would only show in the golden file
+    let (_, log) = call(&["draw"], &[("line.opacity", "0.25")]).unwrap();
+    assert!(
+        log.borrow()[0].contains("opacity=0.25"),
+        "{:?}",
+        log.borrow()
+    );
+}
+
+#[test]
+fn several_roots_each_have_their_own_dispatch() {
+    use capnpc_cli_fixtures::multi_cli as m;
+    assert!(m::alpha::dispatch(&["first"]).is_some() && m::alpha::dispatch(&["second"]).is_none());
+    assert!(m::beta::dispatch(&["second"]).is_some());
+    assert!(m::gamma::dispatch(&["third"]).is_some());
+    assert_eq!(m::beta::COMMANDS[0].params.len(), 1);
+}

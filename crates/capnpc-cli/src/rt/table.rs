@@ -71,6 +71,8 @@ pub struct Command {
     pub watch: bool,
     /// The doc comment of the method (the English help).
     pub doc: &'static str,
+    /// The first word is not the method name: the name is a word the program owns (`version`), so it got a prefix.
+    pub renamed: bool,
     /// Annotations of the method that are not known to the generator: (annotation id, value as text).
     pub annotations: &'static [(u64, &'static str)],
 }

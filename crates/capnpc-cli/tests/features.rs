@@ -90,11 +90,39 @@ fn risk_annotation_is_passed_on() {
 }
 
 #[test]
-fn reserved_word_is_an_error() {
-    let err = capnpc_cli::GenerationCommand::new()
-        .generate(&common::request(&["reserved.capnp"]))
-        .expect_err("collision");
-    assert!(err.to_string().contains("reserved word `version`"), "{err}");
+fn reserved_word_keeps_the_contract_name_and_gets_a_prefix() {
+    // A2: the generator must not break on `version`, and must not hide that the word changed
+    let t = common::generated(&["reserved.capnp"], "reserved_cli.rs");
+    assert!(t.contains("words: &[\"method-version\"],"), "{t}");
+    assert!(t.contains("key: \"reserved/Bad.version\","));
+    assert!(t.contains("renamed: true,"));
+    assert!(t.contains("[\"method-version\"] => Some("));
+    // the real case: `Control.version` of common.capnp, together with the second root `Blob`
+    let c = common::generated(&["common.capnp"], "common_cli.rs");
+    assert!(c.contains("key: \"common/Control.version\","));
+    assert!(c.contains("pub mod control {") && c.contains("pub mod blob {"));
+    assert!(c.contains("renamed: true,") && c.contains("renamed: false,"));
+}
+
+#[test]
+fn several_roots_give_one_module_each_in_a_fixed_order() {
+    let t = common::generated(&["multi.capnp"], "multi_cli.rs");
+    for m in ["alpha", "beta", "gamma"] {
+        assert!(t.contains(&format!("pub mod {m} {{")), "no module {m}");
+    }
+}
+
+#[test]
+fn a_call_that_cannot_be_read_becomes_an_error_line_not_a_gap() {
+    // A4: the listener dropped such a call silently
+    let t = text();
+    assert!(
+        t.contains("Err(e) => { let why = e.to_string(); self.sink.borrow_mut().line(\"event\"")
+    );
+    assert!(
+        t.contains("Err(e) => { let why = e.to_string(); self.sink.borrow_mut().line(\"done\"")
+    );
+    assert!(!t.contains("if let Ok(p) = params.get()"));
 }
 
 #[test]

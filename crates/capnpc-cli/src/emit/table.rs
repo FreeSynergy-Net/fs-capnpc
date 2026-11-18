@@ -211,6 +211,7 @@ pub fn emit(ctx: &Ctx<'_>, w: &mut Text, t: &Tree, root_client: &str) {
             w.close("],");
         }
         w.line(format!("watch: {},", c.watch));
+        w.line(format!("renamed: {},", c.renamed));
         w.line(format!("doc: {},", lit(c.method.doc.trim())));
         let ann: Vec<String> = c
             .method

@@ -36,6 +36,9 @@ fn t8_twice_and_reordered_are_byte_equal() {
     let bytes = common::request(&["tasks.capnp"]);
     let f = common::request(&["features.capnp", "capnpc_cli.capnp"]);
     let (rb, rf) = (reversed(&bytes), reversed(&f));
+    let m = common::request(&["multi.capnp", "common.capnp"]);
+    let rm = reversed(&m);
+    let ma = generate(&m);
     let a = generate(&bytes);
     let fa = generate(&f);
     // [TEST-MEHRFACH]: hash seeds differ from map to map, so one run can pass by luck; ten runs cannot
@@ -44,6 +47,8 @@ fn t8_twice_and_reordered_are_byte_equal() {
         assert_eq!(a, generate(&rb), "tasks reordered, run {round}");
         assert_eq!(fa, generate(&f), "features, run {round}");
         assert_eq!(fa, generate(&rf), "features reordered, run {round}");
+        assert_eq!(ma, generate(&m), "several roots, run {round}");
+        assert_eq!(ma, generate(&rm), "several roots reordered, run {round}");
     }
 }
 
@@ -71,5 +76,61 @@ fn t8_name_with_a_folder_keeps_the_slash() {
     assert!(
         head.contains("from sub/nested.capnp;") && !head.contains('\\'),
         "{head}"
+    );
+}
+
+/// The request as a Windows build of the compiler would write it: `\` in the file names.
+fn with_backslashes(bytes: &[u8]) -> Vec<u8> {
+    let msg = capnp::serialize::read_message(&mut &bytes[..], ReaderOptions::new()).unwrap();
+    let req: code_generator_request::Reader<'_> = msg.get_root().unwrap();
+    let mut out = Builder::new_default();
+    out.set_root(req).unwrap();
+    let mut b = out
+        .get_root::<code_generator_request::Builder<'_>>()
+        .unwrap();
+    let mut files = b.reborrow().get_requested_files().unwrap();
+    for i in 0..req.get_requested_files().unwrap().len() {
+        let name = req
+            .get_requested_files()
+            .unwrap()
+            .get(i)
+            .get_filename()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .replace('/', "\\");
+        files.reborrow().get(i).set_filename(name.as_str());
+    }
+    let nodes = req.get_nodes().unwrap();
+    let mut list = b.reborrow().get_nodes().unwrap();
+    for i in 0..nodes.len() {
+        let d = nodes.get(i).get_display_name().unwrap().to_str().unwrap();
+        let new = match d.split_once(':') {
+            Some((file, rest)) => format!("{}:{rest}", file.replace('/', "\\")),
+            None => d.replace('/', "\\"),
+        };
+        list.reborrow().get(i).set_display_name(new.as_str());
+    }
+    capnp::serialize::write_message_to_words(&out)
+}
+
+#[test]
+fn t8_windows_style_file_names_give_the_same_text() {
+    // M14: the `\` of a Windows file name reaches the head of the generated file
+    let bytes = common::request(&["sub/nested.capnp"]);
+    let win = with_backslashes(&bytes);
+    assert_ne!(win, bytes, "the rewritten request must really differ");
+    let a = capnpc_cli::GenerationCommand::new().generate(&win).unwrap();
+    let b = capnpc_cli::GenerationCommand::new()
+        .generate(&bytes)
+        .unwrap();
+    assert_eq!(a, b);
+    assert_eq!(a[0].name, "nested_cli.rs");
+    assert!(
+        a[0].content
+            .lines()
+            .next()
+            .unwrap()
+            .contains("from sub/nested.capnp;")
     );
 }

@@ -90,7 +90,9 @@ pub trait Output {
 }
 
 /// Takes the calls a listener receives, one line each. `line` returns when the line is written (back pressure):
-/// the generated listener answers the call only afterwards, and never answers with an error.
+/// the generated listener answers the call only afterwards, and never answers with an error. If `render` fails
+/// (a call that cannot be read), the sink writes an error line and the program turns that into its exit code:
+/// a line is never dropped silently.
 pub trait Sink: 'static {
     /// One call of the method `kind`; `render` walks the arguments into the output of the line.
     fn line(

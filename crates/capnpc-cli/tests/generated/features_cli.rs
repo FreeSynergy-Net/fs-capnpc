@@ -19,6 +19,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "name", ty: ParamTy::Text, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -41,6 +42,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "line.to.y", ty: ParamTy::Int { signed: true, bits: 32 }, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -60,6 +62,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "shape.names", ty: ParamTy::List, ty_name: "Text", union_of: Some("shape"), hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -78,6 +81,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "colours", ty: ParamTy::List, ty_name: "Colour", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -91,6 +95,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "first", ty: ParamTy::Bool, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -105,6 +110,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "root.children", ty: ParamTy::List, ty_name: "Node", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -117,6 +123,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "sink", ty: ParamTy::Unreadable, ty_name: "capability", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: true,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -130,6 +137,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "password", ty: ParamTy::Text, ty_name: "", union_of: None, hint: "", secret: true, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -142,6 +150,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "value", ty: ParamTy::Unreadable, ty_name: "any-pointer", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -152,6 +161,7 @@ pub const COMMANDS: &[Command] = &[
         ordinal: 9,
         params: &[],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[(0xf0a9fc9d3d3d3fb5, "destructive")],
     },
@@ -162,6 +172,7 @@ pub const COMMANDS: &[Command] = &[
         ordinal: 10,
         params: &[],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -172,6 +183,7 @@ pub const COMMANDS: &[Command] = &[
         ordinal: 11,
         params: &[],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -187,6 +199,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "f", ty: ParamTy::Float(64), ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -351,14 +364,16 @@ impl<S: Sink> SinkLines<S> {
 
 impl<S: Sink> crate::features_capnp::sink::Server for SinkLines<S> {
     fn event(self: ::capnp::capability::Rc<Self>, params: crate::features_capnp::sink::EventParams) -> impl ::core::future::Future<Output = Result<(), ::capnp::Error>> + 'static {
-        if let Ok(p) = params.get() {
-            self.sink.borrow_mut().line("event", &mut |out| out_features_capnp_sink_event_params(p, "", out));
+        match params.get() {
+            Ok(p) => self.sink.borrow_mut().line("event", &mut |out| out_features_capnp_sink_event_params(p, "", out)),
+            Err(e) => { let why = e.to_string(); self.sink.borrow_mut().line("event", &mut |_| Err(CallError::at("", ErrorKind::BadValue(why.clone())))); }
         }
         ::core::future::ready(Ok(()))
     }
     fn done(self: ::capnp::capability::Rc<Self>, params: crate::features_capnp::sink::DoneParams, _results: crate::features_capnp::sink::DoneResults) -> impl ::core::future::Future<Output = Result<(), ::capnp::Error>> + 'static {
-        if let Ok(p) = params.get() {
-            self.sink.borrow_mut().line("done", &mut |out| out_features_capnp_sink_done_params(p, "", out));
+        match params.get() {
+            Ok(p) => self.sink.borrow_mut().line("done", &mut |out| out_features_capnp_sink_done_params(p, "", out)),
+            Err(e) => { let why = e.to_string(); self.sink.borrow_mut().line("done", &mut |_| Err(CallError::at("", ErrorKind::BadValue(why.clone())))); }
         }
         ::core::future::ready(Ok(()))
     }

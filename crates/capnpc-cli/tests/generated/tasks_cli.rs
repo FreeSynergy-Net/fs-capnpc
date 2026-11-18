@@ -17,6 +17,7 @@ pub const COMMANDS: &[Command] = &[
         ordinal: 0,
         params: &[],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -29,6 +30,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "jscalendar", ty: ParamTy::Text, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "task.create",
         annotations: &[],
     },
@@ -44,6 +46,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "jscalendar", ty: ParamTy::Text, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "task.edit",
         annotations: &[],
     },
@@ -60,6 +63,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "email", ty: ParamTy::Text, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "task.assign",
         annotations: &[],
     },
@@ -76,6 +80,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "relation", ty: ParamTy::Enum(&["first", "next", "child", "parent", "depends-on", "finish-to-start", "finish-to-finish", "start-to-start", "start-to-finish"]), ty_name: "Relation", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "relation.create",
         annotations: &[],
     },
@@ -91,6 +96,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "label", ty: ParamTy::Text, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "label.assign",
         annotations: &[],
     },
@@ -105,6 +111,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "id.lo", ty: ParamTy::Int { signed: false, bits: 64 }, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -117,6 +124,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "uid", ty: ParamTy::Text, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -131,6 +139,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "id.lo", ty: ParamTy::Int { signed: false, bits: 64 }, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -144,6 +153,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "cursor.opaque", ty: ParamTy::Data, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -166,6 +176,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "cursor.opaque", ty: ParamTy::Data, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "time range, status, label",
         annotations: &[],
     },
@@ -178,6 +189,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "text", ty: ParamTy::Text, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "VTODO",
         annotations: &[],
     },
@@ -192,6 +204,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "ids.*.lo", ty: ParamTy::Int { signed: false, bits: 64 }, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -208,6 +221,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "jscalendar", ty: ParamTy::Text, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "task.edit, only if the task still has `revision`; otherwise it fails with a reason starting `conflict:` and writes nothing (compare-and-set; atomic inside one provider process only)\nAppended in 0.0.19. Capability ids `dependency.evaluate` (readiness, blockedBy, dependents) and `dependency.cycle-check`.",
         annotations: &[],
     },
@@ -222,6 +236,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "id.lo", ty: ParamTy::Int { signed: false, bits: 64 }, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "dependency.evaluate",
         annotations: &[],
     },
@@ -236,6 +251,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "id.lo", ty: ParamTy::Int { signed: false, bits: 64 }, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "dependency.evaluate; the unfinished tasks it waits for",
         annotations: &[],
     },
@@ -250,6 +266,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "id.lo", ty: ParamTy::Int { signed: false, bits: 64 }, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "dependency.evaluate; the tasks that wait for it (reverse edges)\nLike `createRelation`, with the lag (positive) or lead (negative) of a temporal relation: an ISO 8601 duration such as\n`P1D` or `-PT4H`, stored as the member `freesynergy.net:gap` of the JSCalendar `Relation` and written as RFC 9253 `GAP`.\nEmpty = none. A gap on a relation without temporal meaning is refused. `createRelation` stays as it was.",
         annotations: &[],
     },
@@ -267,6 +284,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "gap", ty: ParamTy::Text, ty_name: "", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: false,
+        renamed: false,
         doc: "relation.create\nA relation that would close a dependency cycle is refused by `createRelation*`: the problem type is `cycle` (status 409),\nits extension `path` repeats once for every uid of the cycle, in order.",
         annotations: &[],
     },
@@ -279,6 +297,7 @@ pub const COMMANDS: &[Command] = &[
             Param { path: "listener", ty: ParamTy::Unreadable, ty_name: "capability", union_of: None, hint: "", secret: false, doc: "" },
         ],
         watch: true,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -289,6 +308,7 @@ pub const COMMANDS: &[Command] = &[
         ordinal: 4,
         params: &[],
         watch: false,
+        renamed: false,
         doc: "provider rule (ADR 0045)\nThe data types this program owns (`Task`) and what can be done with them (ADR 0066), for a generated frontend.",
         annotations: &[],
     },
@@ -299,6 +319,7 @@ pub const COMMANDS: &[Command] = &[
         ordinal: 0,
         params: &[],
         watch: false,
+        renamed: false,
         doc: "",
         annotations: &[],
     },
@@ -562,14 +583,16 @@ impl<S: Sink> ChangeListenerLines<S> {
 
 impl<S: Sink> crate::common_capnp::change_listener::Server for ChangeListenerLines<S> {
     fn change(self: ::capnp::capability::Rc<Self>, params: crate::common_capnp::change_listener::ChangeParams) -> impl ::core::future::Future<Output = Result<(), ::capnp::Error>> + 'static {
-        if let Ok(p) = params.get() {
-            self.sink.borrow_mut().line("change", &mut |out| out_common_capnp_change_listener_change_params(p, "", out));
+        match params.get() {
+            Ok(p) => self.sink.borrow_mut().line("change", &mut |out| out_common_capnp_change_listener_change_params(p, "", out)),
+            Err(e) => { let why = e.to_string(); self.sink.borrow_mut().line("change", &mut |_| Err(CallError::at("", ErrorKind::BadValue(why.clone())))); }
         }
         ::core::future::ready(Ok(()))
     }
     fn ended(self: ::capnp::capability::Rc<Self>, params: crate::common_capnp::change_listener::EndedParams, _results: crate::common_capnp::change_listener::EndedResults) -> impl ::core::future::Future<Output = Result<(), ::capnp::Error>> + 'static {
-        if let Ok(p) = params.get() {
-            self.sink.borrow_mut().line("ended", &mut |out| out_common_capnp_change_listener_ended_params(p, "", out));
+        match params.get() {
+            Ok(p) => self.sink.borrow_mut().line("ended", &mut |out| out_common_capnp_change_listener_ended_params(p, "", out)),
+            Err(e) => { let why = e.to_string(); self.sink.borrow_mut().line("ended", &mut |_| Err(CallError::at("", ErrorKind::BadValue(why.clone())))); }
         }
         ::core::future::ready(Ok(()))
     }

@@ -45,10 +45,13 @@ pub fn emit(ctx: &mut Ctx<'_>, w: &mut Text, id: u64) {
             "fn {}(self: ::capnp::capability::Rc<Self>, params: {path}::{cap}Params{results}) -> impl ::core::future::Future<Output = Result<(), ::capnp::Error>> + 'static {{",
             module_name(&me.name)
         ));
-        w.open("if let Ok(p) = params.get() {");
+        let kind = format!("{:?}", crate::model::kebab(&me.name));
+        w.open("match params.get() {");
         w.line(format!(
-            "self.sink.borrow_mut().line({:?}, &mut |out| {out}(p, \"\", out));",
-            crate::model::kebab(&me.name)
+            "Ok(p) => self.sink.borrow_mut().line({kind}, &mut |out| {out}(p, \"\", out)),"
+        ));
+        w.line(format!(
+            "Err(e) => {{ let why = e.to_string(); self.sink.borrow_mut().line({kind}, &mut |_| Err(CallError::at(\"\", ErrorKind::BadValue(why.clone())))); }}"
         ));
         w.close("}");
         w.line("::core::future::ready(Ok(()))");

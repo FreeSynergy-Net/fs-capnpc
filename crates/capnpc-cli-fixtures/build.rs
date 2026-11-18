@@ -10,16 +10,17 @@ fn main() {
     let cli = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../capnpc-cli");
     let fixtures = cli.join("tests/fixtures");
     // (types: every file of the set; commands: only the files that are meant to have a command line, because
-    // every interface that nothing leads to is a root, and `common.capnp` has a method named `version`)
+    // every interface that nothing leads to is a root, and `common.capnp` has a method named `version`, which gets the word `method-version`)
     for (types, commands) in [
         (
             &["tasks.capnp", "common.capnp", "types.capnp"][..],
-            &["tasks.capnp"][..],
+            &["tasks.capnp", "common.capnp"][..],
         ),
         (
             &["features.capnp", "capnpc_cli.capnp"][..],
             &["features.capnp"][..],
         ),
+        (&["multi.capnp"][..], &["multi.capnp"][..]),
     ] {
         let request = |set: &[&str]| {
             let mut cmd = CompileCommand::new();
