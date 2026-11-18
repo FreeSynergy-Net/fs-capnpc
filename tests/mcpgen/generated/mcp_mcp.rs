@@ -120,6 +120,19 @@ pub const TOOLS: &[ToolSpec] = &[
         risk: None,
         free_content: false,
     },
+    ToolSpec {
+        name: "mcp.ratio",
+        title: "a float and a text in the result, nothing free in the arguments",
+        description: "a float and a text in the result, nothing free in the arguments",
+        key: "mcp/Notes.ratio",
+        member: None,
+        words: &["ratio"],
+        input_schema: r#"{"type":"object","additionalProperties":false}"#,
+        output_schema: r#"{"type":"object","properties":{"value":{"anyOf":[{"type":"number"},{"type":"string","enum":["Infinity","-Infinity","NaN"]}]},"label":{"type":"string"}},"required":["value"]}"#,
+        meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"mcp/Notes.ratio","freeContent":false}}"#,
+        risk: None,
+        free_content: false,
+    },
 ];
 
 /// The commands that are no tool, and why (key, reason).
@@ -131,6 +144,7 @@ pub const LEFT: &[(&str, &str)] = &[
     ("mcp/Notes.hidden", "excluded"),
     ("mcp/Inner.deep", "excluded"),
     ("mcp/Child.leaf", "excluded"),
+    ("mcp/Notes.token", "secret"),
 ];
 
 /// The tools a switch lets through: none unless it is on.
