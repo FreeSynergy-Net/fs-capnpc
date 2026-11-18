@@ -47,6 +47,11 @@ fn mcp_option_alone_is_valid_and_needs_a_value() {
     assert_eq!(a.mcp_dir.as_deref(), Some(std::path::Path::new("gen")));
     assert!(a.output_dir.is_none() && a.cli_dir.is_none());
     assert!(parse_args(argv("compile a.capnp --mcp")).is_err());
+    // also when `-o` is there: the missing value is the error, not "nothing to do"
+    assert_eq!(
+        parse_args(argv("compile -o x a.capnp --mcp")),
+        Err("--mcp needs a value".to_owned())
+    );
 }
 
 #[test]

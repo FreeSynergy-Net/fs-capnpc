@@ -244,4 +244,3 @@ fn two_tools_with_one_name_are_an_error() {
     );
     assert!(generate_named("same.name", false).is_ok());
 }
-

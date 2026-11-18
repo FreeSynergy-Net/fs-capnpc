@@ -10,7 +10,8 @@ fn root() -> PathBuf {
 }
 
 fn work(name: &str) -> PathBuf {
-    let dir = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(format!("mcpgen-bins-{name}"));
+    let dir = PathBuf::from(env!("CARGO_TARGET_TMPDIR"))
+        .join(format!("mcpgen-bins-{name}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
     dir
@@ -80,6 +81,16 @@ fn mcp_option_needs_a_value() {
         .output()
         .expect("run capnp-compiler");
     assert_eq!(r.status.code(), Some(2));
+}
+
+#[test]
+fn mcp_option_at_the_end_without_a_value_is_an_error_also_with_output() {
+    let r = Command::new(env!("CARGO_BIN_EXE_capnp-compiler"))
+        .args(["compile", "-o", "x", "a.capnp", "--mcp"])
+        .output()
+        .expect("run capnp-compiler");
+    assert_eq!(r.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&r.stderr).contains("--mcp needs a value"));
 }
 
 #[test]
