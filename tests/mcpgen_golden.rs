@@ -13,7 +13,7 @@ fn golden(name: &str) -> PathBuf {
 }
 
 /// The generated text of one file.
-pub fn generated(files: &[&str], name: &str) -> String {
+fn generated(files: &[&str], name: &str) -> String {
     let out = capnp_compiler::mcpgen::GenerationCommand::new()
         .generate(&common::request(files))
         .expect("generates");
