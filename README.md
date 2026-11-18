@@ -28,6 +28,7 @@ Capnpc keeps the contract repo buildable on any machine with Rust. FreeSynergy i
 
 ## For developers
 
+- `capnp-compiler` at the root, and `crates/capnpc-cli`: a generator plugin that writes command line code for an interface (see its README); `crates/capnpc-cli-fixtures` is its test crate.
 - One crate, `capnp-compiler`. The pipeline is a chain of traits (`SourceLoader`, `Frontend`, `ErrorReporter`, `Emitter`); `CompileCommand` composes them.
 - Library use: `CompileCommand::new().file("schema/hello.capnp").run_bytes()?` gives the request for `capnpc::codegen`.
 - Build and test: `cargo build` and `cargo test`. The tests use the official compiler (as WASM, `capnpc-embedded`) as an oracle.
