@@ -123,11 +123,22 @@ dependencies = [
 
 [[package]]
 name = "capnp-compiler"
-version = "0.0.1"
+version = "0.2.0"
 dependencies = [
  "capnp",
  "capnpc",
  "capnpc-embedded",
+]
+
+[[package]]
+name = "capnp-compiler-cligen-fixtures"
+version = "0.2.0"
+dependencies = [
+ "capnp",
+ "capnp-compiler",
+ "capnp-rpc",
+ "capnpc",
+ "futures",
 ]
 
 [[package]]
@@ -159,26 +170,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "82ca16312ddb64529d31c8dc46148671c22e57b80134fa5f17811ad5a6a79492"
 dependencies = [
  "capnp",
-]
-
-[[package]]
-name = "capnpc-cli"
-version = "0.0.1"
-dependencies = [
- "capnp",
- "capnp-compiler",
-]
-
-[[package]]
-name = "capnpc-cli-fixtures"
-version = "0.0.1"
-dependencies = [
- "capnp",
- "capnp-compiler",
- "capnp-rpc",
- "capnpc",
- "capnpc-cli",
- "futures",
 ]
 
 [[package]]

@@ -1,9 +1,29 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 - unreleased
 
-- New workspace crate `capnpc-cli` (with the test crate `capnpc-cli-fixtures`): a Cap'n Proto generator plugin that
-  writes command line code (command tables and typed call functions) for an interface; `capnp-compiler` is unchanged.
+- Added: the command line code generator `capnp_compiler::cligen` (moved here from the workspace crate `capnpc-cli`,
+  history kept, code unchanged apart from two things in the generated text: the runtime path is now
+  `capnp_compiler::cligen::rt`, and the head line names `capnpc-cli 0.2.0`), the binary `capnpc-cli` (plugin for
+  `capnp compile -ocli:<dir>`) and the option `capnp-compiler compile --cli <dir>` (same generator, in one process,
+  also together with `-o`). The runtime part `cligen::rt` needs no feature.
+  (Deutsch: neu: Generator `cligen` fuer Befehlszeilen-Code aus einer Schnittstelle, Binary `capnpc-cli` als capnp-Plugin
+  und Option `compile --cli <dir>`; der Code ist aus dem Crate `capnpc-cli` umgezogen, Historie bleibt.)
+- Changed (breaking for `default-features = false`): the feature `cli` (default) holds the command lines and the
+  dependency `capnpc`; `capnp-compiler = { default-features = false }` is the library without `capnpc`, and has no
+  module `cli` any more. Hence 0.2.0.
+  (Deutsch: Feature `cli` (Standard) enthaelt die Befehlszeilen und `capnpc`; ohne Standard-Features keine Befehlszeile
+  mehr: Bruch, deshalb 0.2.0.)
+- Removed: the workspace crate `capnpc-cli` (never published) and its stub binary `capnpc-mcp` (it only exited with 1).
+  The test crate is now `crates/cligen-fixtures`. Open: the MCP tool generator (AP4) and the option `capnp_module` (A1).
+  (Deutsch: das Crate `capnpc-cli` und der Stummel `capnpc-mcp` fallen weg; AP4 und A1 sind offen.)
+- CI: a job `slim-lib` (no `capnpc` in the tree without default features, both binaries in the package), the Windows
+  workflow also builds the slim library; `release.yml` packages both binaries.
+
+### Earlier entries of this unreleased section (before the move)
+
+- Workspace crate `capnpc-cli` (now the module `cligen`, see above; with the test crate `capnpc-cli-fixtures`, now `cligen-fixtures`): a Cap'n Proto generator plugin that
+  writes command line code (command tables and typed call functions) for an interface.
   The AI collaboration is stated in `NOTICE` and the READMEs.
   The generated code states its `rt` ABI (3) and fails to compile against another one. `run_*` return an `Outcome`;
   the generated listener counts the calls it cannot read itself, before the sink sees the line (a sink that swallows

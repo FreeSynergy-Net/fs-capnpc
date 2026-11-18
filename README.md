@@ -15,6 +15,33 @@ Latest tag: `v0.0.1`.
 - Output identical in content to the official compiler for the schemas above.
 - Used by `fs-interfaces` to regenerate its contracts.
 
+## Install
+
+```text
+cargo install capnp-compiler          # installs capnp-compiler and the plugin capnpc-cli
+```
+
+## Command line code from an interface (capnpc-cli)
+
+The generator `capnp_compiler::cligen` turns an interface into command line code: for every file one more Rust file
+(`<name>_cli.rs`) with a table of commands (one per method) and one function per command. It parses nothing and prints
+nothing itself; where the values come from, how they are shown, help texts and exit codes are the program's, behind
+four small traits in `capnp_compiler::cligen::rt`. Two ways, one generator:
+
+```text
+capnp-compiler compile -o src/gen --cli src/gen tasks.capnp
+# or, with the official C++ tool and the plugin binary capnpc-cli (found through PATH):
+capnp compile -orust:src/gen -ocli:src/gen tasks.capnp
+```
+
+`--cli` is the main way: the request stays in memory, no PATH and no C++ tool are needed, it works together with `-o`.
+Generated code needs only the library: `capnp-compiler = { version = "0.2", default-features = false }` (the default
+feature `cli` adds the two command lines and `capnpc`). The annotations the generator reads (`$Cli...`) are in
+`src/cligen/capnpc_cli.capnp` (use `-I` on that folder). It targets the output of `capnpc` 0.27. See
+[DESIGN.md](DESIGN.md), section "cligen".
+
+Open: an MCP tool generator (`capnpc-mcp`, AP4) and the option `capnp_module` (A1). Neither exists yet.
+
 ## What is not there yet
 
 - For large schemas the layout of the message in memory differs from the official one. The content is identical and readers do not care.

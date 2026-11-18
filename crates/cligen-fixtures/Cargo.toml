@@ -1,0 +1,22 @@
+[package]
+name = "capnp-compiler-cligen-fixtures"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.88"
+authors = ["FreeSynergy contributors <support@freesynergy.net>"]
+description = "Test crate of the cligen generator: compiles the fixture schemas with capnp-compiler and capnpc, writes the command code and checks that the result compiles and runs"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[lib]
+name = "capnpc_cli_fixtures"
+
+[dependencies]
+capnp = "0.27.3"
+capnp-rpc = "0.27.3"
+capnp-compiler = { path = "../..", default-features = false }
+futures = "0.3"
+
+[build-dependencies]
+capnp-compiler = { path = "../..", default-features = false }
+capnpc = "0.27.0"

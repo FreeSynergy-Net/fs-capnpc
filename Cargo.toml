@@ -1,6 +1,6 @@
 [package]
 name = "capnp-compiler"
-version = "0.0.1"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.88"
 authors = ["FreeSynergy contributors <support@freesynergy.net>"]
@@ -13,8 +13,14 @@ keywords = ["capnp", "capnproto", "schema", "compiler", "codegen"]
 categories = ["development-tools", "encoding", "parser-implementations"]
 
 [workspace]
-members = [".", "crates/capnpc-cli", "crates/capnpc-cli-fixtures"]
+members = [".", "crates/cligen-fixtures"]
 resolver = "3"
+
+[features]
+default = ["cli"]
+# The command lines `capnp-compiler` and `capnpc-cli` (and the Rust code generator capnpc for `-o`).
+# Without it the library has no `capnpc`; `cligen` (the generator and its runtime part `rt`) is always there.
+cli = ["dep:capnpc"]
 
 [lib]
 name = "capnp_compiler"
@@ -23,10 +29,17 @@ path = "src/lib.rs"
 [[bin]]
 name = "capnp-compiler"
 path = "src/main.rs"
+required-features = ["cli"]
+
+[[bin]]
+name = "capnpc-cli"
+path = "src/bin/capnpc-cli.rs"
+required-features = ["cli"]
 
 [dependencies]
 capnp = "0.27.3"
-capnpc = "0.27.0"
+capnpc = { version = "0.27.0", optional = true }
 
 [dev-dependencies]
+capnpc = "0.27.0"
 capnpc-embedded = "0.2"

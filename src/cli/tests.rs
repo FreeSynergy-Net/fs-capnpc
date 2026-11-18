@@ -30,6 +30,16 @@ fn rejects_bad_input() {
 }
 
 #[test]
+fn cli_option_alone_is_valid_and_needs_a_value() {
+    let Ok(Command::Compile(a)) = parse_args(argv("compile --cli gen a.capnp")) else {
+        panic!("expected compile");
+    };
+    assert_eq!(a.cli_dir.as_deref(), Some(std::path::Path::new("gen")));
+    assert!(a.output_dir.is_none());
+    assert!(parse_args(argv("compile a.capnp --cli")).is_err());
+}
+
+#[test]
 fn end_to_end_generates_rust() {
     let dir = std::env::temp_dir().join(format!("capnp-compiler-cli-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();

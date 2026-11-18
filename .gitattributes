@@ -1,5 +1,5 @@
 # Text files are checked out with LF on every system: the generated code in the golden files is compared byte for byte
 # with fresh output, so a CRLF checkout (core.autocrlf on Windows) must not touch them.
 * text=auto eol=lf
-crates/capnpc-cli/tests/generated/** text eol=lf
+tests/cligen/generated/** text eol=lf
 *.png binary

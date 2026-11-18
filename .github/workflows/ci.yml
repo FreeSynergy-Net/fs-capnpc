@@ -12,3 +12,29 @@ jobs:
     uses: FreeSynergy/fs-release/.github/workflows/ci.yml@v0.0.11
     with:
       msrv: "1.88"
+
+  # The library without the default feature `cli` has no `capnpc` (generated command line code needs only the library).
+  slim-lib:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: FreeSynergy/fs-release/actions/setup-rust@v0.0.11
+        with:
+          cache-key: slim-lib
+      - run: cargo check --lib --no-default-features --locked
+      - name: capnpc is not in the tree without default features
+        run: |
+          if cargo tree -e normal --no-default-features --locked -p capnp-compiler | grep -q '^.*capnpc v'; then
+            echo "capnpc is still a dependency without default features" >&2
+            exit 1
+          fi
+      - name: both binaries and the generator are in the package
+        run: |
+          cargo package --locked --list --allow-dirty > package.list
+          grep -q '^src/bin/capnpc-cli.rs$' package.list
+          grep -q '^src/cligen/capnpc_cli.capnp$' package.list
+          ! grep -q 'capnpc-mcp' package.list

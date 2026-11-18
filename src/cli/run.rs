@@ -55,5 +55,12 @@ fn compile(args: &super::args::CompileArgs) -> Result<(), String> {
             .run(&bytes[..])
             .map_err(|e| format!("code generation failed: {e}"))?;
     }
+    if let Some(dir) = &args.cli_dir {
+        std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+        crate::cligen::GenerationCommand::new()
+            .output_directory(dir)
+            .run(&bytes[..])
+            .map_err(|e| format!("cli generation failed: {e}"))?;
+    }
     Ok(())
 }
