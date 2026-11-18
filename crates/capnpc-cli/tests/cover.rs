@@ -67,7 +67,7 @@ fn t2_mutant_items_delete_left_out_is_reported_as_gap() {
 }
 
 /// The commands of the hand-written fs-tasks-cli (`args.rs` at fs-tasks `9a2767f` has eight words) and the words that
-/// replace them. `add` and `done` are conveniences: `add` builds the JSCalendar text, `done` is a workflow over
+/// replace them. `add` and `done` are conveniences: `add` builds the `JSCalendar` text, `done` is a workflow over
 /// `items get` and `items edit-if`; the contract has only the plain methods.
 const HAND_WRITTEN: &[(&str, &[&str])] = &[
     ("capabilities", &["capabilities"]),

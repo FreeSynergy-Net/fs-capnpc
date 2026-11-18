@@ -34,11 +34,17 @@ fn reversed(bytes: &[u8]) -> Vec<u8> {
 #[test]
 fn t8_twice_and_reordered_are_byte_equal() {
     let bytes = common::request(&["tasks.capnp"]);
-    let a = generate(&bytes);
-    assert_eq!(a, generate(&bytes));
-    assert_eq!(a, generate(&reversed(&bytes)));
     let f = common::request(&["features.capnp", "capnpc_cli.capnp"]);
-    assert_eq!(generate(&f), generate(&reversed(&f)));
+    let (rb, rf) = (reversed(&bytes), reversed(&f));
+    let a = generate(&bytes);
+    let fa = generate(&f);
+    // [TEST-MEHRFACH]: hash seeds differ from map to map, so one run can pass by luck; ten runs cannot
+    for round in 0..10 {
+        assert_eq!(a, generate(&bytes), "tasks, run {round}");
+        assert_eq!(a, generate(&rb), "tasks reordered, run {round}");
+        assert_eq!(fa, generate(&f), "features, run {round}");
+        assert_eq!(fa, generate(&rf), "features reordered, run {round}");
+    }
 }
 
 #[test]
