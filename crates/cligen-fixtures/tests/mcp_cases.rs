@@ -249,7 +249,8 @@ fn mcp_fixture_cases() {
     // a result: a Float is always written by the codec (required), a Text may be left out; a text in the result is
     // not free content of the arguments
     let ratio = tool(t, "mcp.ratio");
-    let required: Vec<&str> = output(ratio)
+    let out = output(ratio);
+    let required: Vec<&str> = out
         .get("required")
         .unwrap()
         .arr()
