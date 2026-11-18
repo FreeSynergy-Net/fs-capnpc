@@ -129,8 +129,7 @@ pub(super) fn split_source(
 ) -> (PathBuf, Vec<String>) {
     let path = AbsPath::parse(file, windows, cwd);
     let below_dir = |p: &AbsPath| {
-        same_start(&[p.root.clone()], &[path.root.clone()], windows)
-            && same_start(&path.comps, &p.comps, windows)
+        same_name(&p.root, &path.root, windows) && same_start(&path.comps, &p.comps, windows)
     };
     let best = prefixes
         .iter()
@@ -144,16 +143,22 @@ pub(super) fn split_source(
     }
 }
 
+/// Two names are equal; on Windows without regard to ASCII case.
+fn same_name(a: &str, b: &str, windows: bool) -> bool {
+    if windows {
+        a.eq_ignore_ascii_case(b)
+    } else {
+        a == b
+    }
+}
+
 /// `path` starts with the components `start`; on Windows names compare without regard to ASCII case.
 fn same_start(path: &[String], start: &[String], windows: bool) -> bool {
     path.len() >= start.len()
-        && path.iter().zip(start).all(|(a, b)| {
-            if windows {
-                a.eq_ignore_ascii_case(b)
-            } else {
-                a == b
-            }
-        })
+        && path
+            .iter()
+            .zip(start)
+            .all(|(a, b)| same_name(a, b, windows))
 }
 
 /// Key of a virtual file below `root`: `\` and `/` both separate, `.` and `..` are resolved.
