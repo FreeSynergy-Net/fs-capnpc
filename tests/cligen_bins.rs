@@ -64,7 +64,10 @@ fn plugin_binary_answers_version() {
         .output()
         .expect("run capnpc-cli");
     assert!(r.status.success());
-    assert!(String::from_utf8_lossy(&r.stdout).starts_with("capnpc-cli 0."));
+    assert_eq!(
+        String::from_utf8_lossy(&r.stdout),
+        format!("capnpc-cli {}\n", env!("CARGO_PKG_VERSION"))
+    );
 }
 
 #[test]
