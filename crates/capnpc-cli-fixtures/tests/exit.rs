@@ -28,7 +28,7 @@ fn code(mode: Mode, words: &[&str], pairs: &[(&str, &str)], swallow: bool) -> i3
         words,
         &mut In::of(pairs),
         &mut out,
-        || async {},
+        || async { Ok(()) },
     ))
 }
 
@@ -100,6 +100,7 @@ fn the_code_is_made_after_the_wait_from_what_arrived_while_waiting() {
         let mut d = sink.done_request();
         d.get().set_why("end");
         d.send().promise.await.unwrap();
+        Ok(())
     };
     let mut out = Rec {
         sink: Some(Rc::default()),
@@ -126,6 +127,7 @@ fn the_code_is_made_after_the_wait_from_what_arrived_while_waiting() {
         &mut Rec::default(),
         move || async move {
             w.set(true);
+            Ok(())
         },
     ));
     assert_eq!((c0, waited.get()), (0, false));

@@ -2,7 +2,9 @@
 //!
 //! Pattern: Adapter — the typed `Server` trait capnpc-rust wrote on one side, the one-line-per-call `Sink` of the
 //! program on the other. The answer goes out after the sink took the line (back pressure) and never is an error:
-//! a stream that failed once stays failed.
+//! a stream that failed once stays failed. A call that cannot be read is counted by the listener itself, before the
+//! sink sees the line (the arguments are walked once into `Discard`), so no sink can hide it, not even one that never
+//! calls `render`.
 
 use super::ctx::Ctx;
 use super::text::Text;
@@ -56,7 +58,7 @@ pub fn emit(ctx: &mut Ctx<'_>, w: &mut Text, id: u64) {
         let kind = format!("{:?}", crate::model::kebab(&me.name));
         w.open("match params.get() {");
         w.line(format!(
-            "Ok(p) => {{ let errors = &self.errors; self.sink.borrow_mut().line({kind}, &mut |out| {{ let r = {out}(p, \"\", out); if r.is_err() {{ errors.set(errors.get() + 1); }} r }}); }}"
+            "Ok(p) => {{ if {out}(p, \"\", &mut capnpc_cli::rt::Discard).is_err() {{ self.errors.set(self.errors.get() + 1); }} self.sink.borrow_mut().line({kind}, &mut |out| {out}(p, \"\", out)); }}"
         ));
         w.line(format!(
             "Err(e) => {{ self.errors.set(self.errors.get() + 1); let why = e.to_string(); self.sink.borrow_mut().line({kind}, &mut |_| Err(CallError::at(\"\", ErrorKind::BadValue(why.clone())))); }}"

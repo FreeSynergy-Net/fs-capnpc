@@ -1,6 +1,6 @@
 //! The error of a generated call.
 //!
-//! Pattern: Value Object — the kind and the path of the parameter say what went wrong; the program maps it to an exit code.
+//! Pattern: Value Object — the kind and the path of the parameter say what went wrong; [`exit_code`](super::exit_code) maps it to the exit code of the program.
 
 use core::fmt;
 

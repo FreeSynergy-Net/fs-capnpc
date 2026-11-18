@@ -89,10 +89,22 @@ pub trait Output {
     }
 }
 
+/// An [`Output`] that shows nothing: the generated listener walks every call into it once, to find out whether the
+/// call can be read, independent of what the sink does with the line.
+pub struct Discard;
+
+impl Output for Discard {
+    fn begin_struct(&mut self, _: &str, _: &str) {}
+    fn begin_list(&mut self, _: &str, _: &str) {}
+    fn field(&mut self, _: &str, _: Value<'_>) {}
+    fn end(&mut self) {}
+}
+
 /// Takes the calls a listener receives, one line each. `line` returns when the line is written (back pressure):
 /// the generated listener answers the call only afterwards, and never answers with an error. If `render` fails
-/// (a call that cannot be read), the sink writes an error line and the program turns that into its exit code:
-/// a line is never dropped silently.
+/// (a call that cannot be read), the sink writes an error line: a line is never dropped silently. The exit code does
+/// not depend on that: the generated listener counts every call it cannot read itself (see [`Outcome`](super::Outcome)),
+/// also when the sink never calls `render`.
 pub trait Sink: 'static {
     /// One call of the method `kind`; `render` walks the arguments into the output of the line.
     fn line(

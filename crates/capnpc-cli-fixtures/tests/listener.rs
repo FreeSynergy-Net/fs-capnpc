@@ -29,7 +29,7 @@ fn watch(mode: Mode) -> (i32, Vec<String>, Vec<String>) {
         &["watch"],
         &mut In::default(),
         &mut out,
-        || async {},
+        || async { Ok(()) },
     ));
     let (lines, calls) = (sink_log.borrow().clone(), log.borrow().clone());
     (code, lines, calls)

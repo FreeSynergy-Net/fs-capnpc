@@ -264,17 +264,19 @@ pub fn emit(ctx: &Ctx<'_>, w: &mut Text, t: &Tree, root_client: &str) {
 fn run_to_exit(w: &mut Text, root_client: &str) {
     w.line("/// Run a command by its words and give the exit code: 0 ok, 1 the other side answered with an error, 2 a wrong");
     w.line("/// word or value, 3 not reachable or a call of a watch could not be read. `wait` is what the program does while a");
-    w.line("/// watch runs (until the user stops it); the code is made after it, from what the listeners counted.");
+    w.line("/// watch runs (until the user stops it) and says why it ended: `Ok` if the user stopped it, an error if the connection");
+    w.line("/// was lost (`Disconnected` is 3); the code is made after it, from that and from what the listeners counted.");
     w.open(format!(
-        "pub async fn run_to_exit<W, F>(root: &{root_client}, words: &[&str], inp: &mut dyn Input, out: &mut dyn Output, wait: W) -> i32 where W: FnOnce() -> F, F: ::core::future::Future<Output = ()> {{"
+        "pub async fn run_to_exit<W, F>(root: &{root_client}, words: &[&str], inp: &mut dyn Input, out: &mut dyn Output, wait: W) -> i32 where W: FnOnce() -> F, F: ::core::future::Future<Output = Result<(), CallError>> {{"
     ));
     w.open("let result = match dispatch(words) {");
     w.line("Some(go) => go(root, inp, out).await,");
     w.line("None => Err(CallError::at(\"\", ErrorKind::BadValue(format!(\"no command `{}`\", words.join(\" \"))))),");
     w.close("};");
-    w.open("if let Ok(o) = &result {");
-    w.line("if o.is_watching() { wait().await; }");
-    w.close("}");
+    w.open("let result = match result {");
+    w.line("Ok(o) if o.is_watching() => wait().await.map(|()| o),");
+    w.line("other => other,");
+    w.close("};");
     w.line("capnpc_cli::rt::exit_code(&result)");
     w.close("}");
 }

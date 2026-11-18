@@ -22,7 +22,8 @@ For `tasks.capnp` with the root interface `Tasks`, `tasks_cli.rs` has
 - `dispatch(words)`, a `match` over the table (there is no extension point);
 - `run_to_exit(root, words, input, output, wait)`: runs a command and returns the exit code (0 ok, 1 the other side
   answered with an error, 2 a wrong word or value, 3 not reachable or a call of a watch could not be read). `wait` is
-  what the program does while a watch runs; the code is made after it. The listener counts the calls it cannot read
+  what the program does while a watch runs and returns a `Result`: `Ok` when the user stopped it, an error when the
+  connection was lost (`Disconnected` is 3); the code is made after it. The listener counts the calls it cannot read
   itself, so a sink that swallows errors cannot make a broken stream look fine;
 - for an interface that is passed as a parameter (a listener): a server `<Name>Lines<S: Sink>` that gives every call
   to the sink as one line, and answers only after the sink took it, and never with an error;
