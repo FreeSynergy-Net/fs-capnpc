@@ -225,8 +225,7 @@ fn call(words: &[&str], pairs: &[(&str, &str)]) -> Vec<String> {
     };
     let go = cli::dispatch(words).unwrap_or_else(|| panic!("no command {words:?}"));
     run(go(&root, &mut In::of(pairs), &mut out)).unwrap_or_else(|e| panic!("{words:?}: {e}"));
-    let calls = log.borrow().clone();
-    calls
+    std::mem::take(&mut *log.borrow_mut())
 }
 
 #[test]

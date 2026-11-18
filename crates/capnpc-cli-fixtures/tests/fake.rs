@@ -1,4 +1,5 @@
 //! The fake server of the feature fixture: it logs what it received and echoes what the tests ask for.
+#![allow(dead_code)] // shared by several test files, each uses a part
 
 use std::cell::RefCell;
 use std::future::{Future, ready};

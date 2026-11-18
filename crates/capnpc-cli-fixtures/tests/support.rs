@@ -1,4 +1,5 @@
 //! Test input, output and sink: plain recorders of what the generated code does.
+#![allow(dead_code)] // shared by several test files, each uses a part
 
 use std::cell::RefCell;
 use std::collections::BTreeMap;
