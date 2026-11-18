@@ -84,3 +84,51 @@ impl Walk<'_> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::scan;
+    use crate::CompileCommand;
+    use crate::cligen::NoMarks;
+    use crate::cligen::model::Model;
+    use std::path::PathBuf;
+
+    fn notes() -> Model {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let mut cmd = CompileCommand::new();
+        cmd.src_prefix(&root.join("tests/cligen/fixtures"));
+        cmd.import_path(&root.join("src/cligen"));
+        cmd.file(&root.join("tests/cligen/fixtures/mcp.capnp"));
+        Model::from_request(&cmd.run_bytes().expect("fixture compiles")).expect("request reads")
+    }
+
+    /// The parameters and the results of the method `name` of `Notes`.
+    fn method(m: &Model, name: &str) -> (String, u64, u64) {
+        let (_, notes) = m.interface("Notes").expect("Notes");
+        let me = notes.methods.iter().find(|x| x.name == name).expect(name);
+        (format!("mcp/Notes.{name}"), me.params, me.results)
+    }
+
+    #[test]
+    fn free_text_is_a_property_of_the_arguments_only() {
+        let m = notes();
+        let (key, params, results) = method(&m, "add");
+        // `add` takes free text; its result holds a Text too (`Note.body`), which says nothing about the arguments
+        assert!(scan(&m, &NoMarks, &key, params, true).free);
+        assert!(!scan(&m, &NoMarks, &key, results, false).free);
+        let (key, params, results) = method(&m, "ratio");
+        assert!(!scan(&m, &NoMarks, &key, params, true).free);
+        assert!(!scan(&m, &NoMarks, &key, results, false).free);
+    }
+
+    #[test]
+    fn a_secret_annotation_counts_in_a_result_too() {
+        let m = notes();
+        let (key, params, results) = method(&m, "token");
+        assert_eq!(
+            scan(&m, &NoMarks, &key, results, false).reason,
+            Some("secret")
+        );
+        assert_eq!(scan(&m, &NoMarks, &key, params, true).reason, None);
+    }
+}
