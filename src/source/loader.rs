@@ -4,7 +4,7 @@
 //! parsing behind a handful of calls; both collaborators are injected as trait objects.
 
 use super::module::Module;
-use super::paths::{Dir, abs_components, comps_to_path, eval_components};
+use super::paths::{AbsPath, Dir, eval_components, split_source};
 use super::provider::SourceLoader;
 use crate::error::Diagnostic;
 use crate::pipeline::{DefaultFrontend, Frontend};
@@ -57,26 +57,23 @@ impl ModuleLoader {
     }
 
     /// Work out the directory and relative path for a file named on the command line.
+    ///
+    /// The drive (or share) of the file is kept, so a file on another drive than the current
+    /// directory is found; see [`AbsPath`].
     #[must_use]
     pub fn interpret_source_file(&self, file: &Path) -> (Dir, Vec<String>) {
-        let path = abs_components(file);
-        let prefixes: Vec<Vec<String>> = self
+        let prefixes: Vec<String> = self
             .src_prefixes
             .iter()
-            .map(|p| abs_components(p))
+            .map(|p| p.to_string_lossy().into_owned())
             .collect();
-        for i in (1..path.len()).rev() {
-            let prefix = &path[..i];
-            if prefixes.iter().any(|p| p.as_slice() == prefix) {
-                return (Dir::Disk(comps_to_path(prefix)), path[i..].to_vec());
-            }
-        }
-        let cwd = abs_components(Path::new("."));
-        if path.len() >= cwd.len() && path[..cwd.len()] == cwd[..] {
-            (Dir::Disk(comps_to_path(&cwd)), path[cwd.len()..].to_vec())
-        } else {
-            (Dir::Disk(PathBuf::from("/")), path)
-        }
+        let (dir, path) = split_source(
+            &file.to_string_lossy(),
+            &prefixes,
+            &AbsPath::cwd(),
+            cfg!(windows),
+        );
+        (Dir::Disk(dir), path)
     }
 
     /// Load (or fetch from the cache) a module. Parse errors are appended to `errors`.

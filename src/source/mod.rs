@@ -16,6 +16,6 @@ pub use disk::DiskLoader;
 pub use loader::ModuleLoader;
 pub use memory::MemoryLoader;
 pub use module::{Module, Resolution};
-pub use paths::{Dir, eval_components};
+pub use paths::{AbsPath, Dir, eval_components};
 pub use provider::SourceLoader;
 pub use std_files::{STD_FILES, std_file};

@@ -22,6 +22,17 @@
   (Deutsch: Windows-Gate als eigener Workflow `windows`, `.gitattributes` mit LF fuer die Golden-Dateien; `ci` laeuft nur
   auf `main` und Pull Requests; neuer Test `wait_error`: ein anderer Fehler von `wait` als ein Verbindungsverlust ist
   Exit 1, Verbindungsverlust 3, sauberes Ende 0.)
+- Windows path fix (found by the new `windows` gate): the source lookup no longer uses `std::path` to take paths apart.
+  Cause: `abs_components` dropped the drive and put a root without drive (`/w/a.capnp`, not absolute on Windows) below
+  the current directory, and the in-memory loader looked files up by the host's `\`-joined path. A file on another
+  drive than the current directory ("hello.capnp: no such file") and every in-memory file were not found. Now the
+  new `AbsPath` parses path text the same way on every host (a `windows` flag selects the rules): root (`/`, `C:/`,
+  `//server/share/`), components, `.` and `..`; the drive is kept, Windows names compare without regard to ASCII
+  case. `MemoryLoader` normalises the names it stores and looks up (`/` and `\` separate, `.`/`..` resolved). New tests
+  run the Windows rules on Linux (drives, UNC, `\`, `..`, imports below a `\` directory).
+  (Deutsch: Windows-Pfadfehler behoben: neuer `AbsPath` zerlegt Pfadtext auf jedem Rechner gleich (Laufwerk bleibt,
+  `\` und `/` trennen, `.`/`..` aufgeloest); `MemoryLoader` normalisiert Namen; Tests pruefen die Windows-Regeln auch
+  unter Linux.)
 
 ## 0.1.1 — 2026-11-06
 
