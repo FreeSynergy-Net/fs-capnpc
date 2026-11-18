@@ -14,6 +14,14 @@
   connection is `Disconnected`, so 3) when the stream broke. A top-level method named like
   a word the program owns (`serve`, `mcp`, `help`, `version`) keeps its contract name; its command word is
   `method-<word>`, the table says `renamed: true` (also below it); two methods with the same words are an error.
+- Windows gate: new workflow `windows` (windows-2022: fmt, pedantic clippy, tests of the whole workspace) and a
+  `.gitattributes` that checks the golden files out with LF (they are compared byte for byte). The `ci` workflow runs on
+  `main` and on pull requests only (the shared pattern of the repositories), so a branch head without a pull request has
+  only the `check` run. New test `wait_error`: a `wait` that ends with another error than a lost connection (failed,
+  unimplemented, overloaded) is exit code 1, a lost connection is 3, a clean wait is 0.
+  (Deutsch: Windows-Gate als eigener Workflow `windows`, `.gitattributes` mit LF fuer die Golden-Dateien; `ci` laeuft nur
+  auf `main` und Pull Requests; neuer Test `wait_error`: ein anderer Fehler von `wait` als ein Verbindungsverlust ist
+  Exit 1, Verbindungsverlust 3, sauberes Ende 0.)
 
 ## 0.1.1 — 2026-11-06
 
