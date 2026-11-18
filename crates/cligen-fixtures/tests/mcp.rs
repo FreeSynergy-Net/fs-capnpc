@@ -53,7 +53,7 @@ fn every_tool_is_well_formed() {
                 "{}",
                 t.name
             );
-            assert!(t.risk != Some(Danger::Excluded));
+            assert_ne!(t.risk, Some(Danger::Excluded));
             // the words reach the command code
             assert!(!t.words.is_empty() && !t.key.is_empty());
         }
@@ -82,13 +82,14 @@ fn the_way_to_the_command_code_exists_for_every_tool() {
 
 #[test]
 fn off_by_default_and_never_for_the_vault() {
-    assert!(!tasks_mcp::ENABLED_BY_DEFAULT && !mcp_mcp::ENABLED_BY_DEFAULT);
+    let defaults = [tasks_mcp::ENABLED_BY_DEFAULT, mcp_mcp::ENABLED_BY_DEFAULT];
+    assert_eq!(defaults, [false, false]);
     for (file, tools) in every_table() {
         assert!(!tools.is_empty(), "{file} has tools");
     }
-    assert!(tasks_mcp::tools(&Off).is_empty());
-    assert!(tasks_mcp::tools(&Never).is_empty());
-    assert!(mcp_mcp::tools(&Never).is_empty());
+    assert_eq!(tasks_mcp::tools(&Off).len(), 0);
+    assert_eq!(tasks_mcp::tools(&Never).len(), 0);
+    assert_eq!(mcp_mcp::tools(&Never).len(), 0);
     assert_eq!(tasks_mcp::tools(&On).len(), tasks_mcp::TOOLS.len());
     assert!(!Off.is_on() && !Never.is_on());
 }
