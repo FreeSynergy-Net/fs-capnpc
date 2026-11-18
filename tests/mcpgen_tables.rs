@@ -213,7 +213,7 @@ fn generate_named(
 }
 
 #[test]
-fn a_tool_name_is_1_to_128_characters_of_the_allowed_set() {
+fn a_program_name_for_a_tool_must_be_1_to_128_characters_of_the_allowed_set() {
     assert!(generate_named(&"a".repeat(128), false).is_ok());
     for bad in [
         "a".repeat(129),
