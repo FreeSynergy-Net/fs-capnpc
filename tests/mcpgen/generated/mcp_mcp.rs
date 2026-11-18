@@ -13,6 +13,8 @@ const _: () = assert!(capnp_compiler::mcpgen::rt::same_text(PROTOCOL_HINT, capnp
 /// The tools are off until a program says otherwise.
 pub const ENABLED_BY_DEFAULT: bool = false;
 
+/// The whole table, whatever the switch says: a program reads `tools(&switch)`, never this.
+#[doc(hidden)]
 pub const TOOLS: &[ToolSpec] = &[
     ToolSpec {
         name: "mcp.find.by-id",
@@ -22,7 +24,7 @@ pub const TOOLS: &[ToolSpec] = &[
         member: Some("byId"),
         words: &["find"],
         input_schema: r#"{"type":"object","properties":{"byId":{"type":"string","description":"The id of the note."}},"required":["byId"],"additionalProperties":false}"#,
-        output_schema: r##"{"type":"object","properties":{"notes":{"type":"array","items":{"$ref":"#/$defs/mcp.Note"}}},"required":["notes"],"$defs":{"mcp.Note":{"type":"object","description":"A note somebody wrote.","properties":{"id":{"type":"string","format":"uuid","description":"Identifies the note."},"body":{"type":"string"},"at":{"type":"integer","minimum":-9223372036854775808,"maximum":9223372036854775807,"x-fs-kind":"timestamp"}},"required":["id","body","at"]}}}"##,
+        output_schema: r##"{"type":"object","properties":{"notes":{"type":"array","items":{"$ref":"#/$defs/mcp.Note"}}},"$defs":{"mcp.Note":{"type":"object","description":"A note somebody wrote.","properties":{"id":{"type":"string","format":"uuid","description":"Identifies the note."},"body":{"type":"string"},"at":{"type":"string","pattern":"^-?[0-9]+$","x-fs-int":{"signed":true,"bits":64,"minimum":"-9223372036854775808","maximum":"9223372036854775807"},"x-fs-kind":"timestamp"}},"required":["at"]}}}"##,
         meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"mcp/Notes.find#byId","freeContent":true}}"#,
         risk: None,
         free_content: true,
@@ -35,7 +37,7 @@ pub const TOOLS: &[ToolSpec] = &[
         member: Some("byName"),
         words: &["find"],
         input_schema: r#"{"type":"object","properties":{"byName":{"type":"string"}},"required":["byName"],"additionalProperties":false}"#,
-        output_schema: r##"{"type":"object","properties":{"notes":{"type":"array","items":{"$ref":"#/$defs/mcp.Note"}}},"required":["notes"],"$defs":{"mcp.Note":{"type":"object","description":"A note somebody wrote.","properties":{"id":{"type":"string","format":"uuid","description":"Identifies the note."},"body":{"type":"string"},"at":{"type":"integer","minimum":-9223372036854775808,"maximum":9223372036854775807,"x-fs-kind":"timestamp"}},"required":["id","body","at"]}}}"##,
+        output_schema: r##"{"type":"object","properties":{"notes":{"type":"array","items":{"$ref":"#/$defs/mcp.Note"}}},"$defs":{"mcp.Note":{"type":"object","description":"A note somebody wrote.","properties":{"id":{"type":"string","format":"uuid","description":"Identifies the note."},"body":{"type":"string"},"at":{"type":"string","pattern":"^-?[0-9]+$","x-fs-int":{"signed":true,"bits":64,"minimum":"-9223372036854775808","maximum":"9223372036854775807"},"x-fs-kind":"timestamp"}},"required":["at"]}}}"##,
         meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"mcp/Notes.find#byName","freeContent":true}}"#,
         risk: None,
         free_content: true,
@@ -48,7 +50,7 @@ pub const TOOLS: &[ToolSpec] = &[
         member: Some("everything"),
         words: &["find"],
         input_schema: r#"{"type":"object","properties":{"everything":{"type":"null"}},"required":["everything"],"additionalProperties":false}"#,
-        output_schema: r##"{"type":"object","properties":{"notes":{"type":"array","items":{"$ref":"#/$defs/mcp.Note"}}},"required":["notes"],"$defs":{"mcp.Note":{"type":"object","description":"A note somebody wrote.","properties":{"id":{"type":"string","format":"uuid","description":"Identifies the note."},"body":{"type":"string"},"at":{"type":"integer","minimum":-9223372036854775808,"maximum":9223372036854775807,"x-fs-kind":"timestamp"}},"required":["id","body","at"]}}}"##,
+        output_schema: r##"{"type":"object","properties":{"notes":{"type":"array","items":{"$ref":"#/$defs/mcp.Note"}}},"$defs":{"mcp.Note":{"type":"object","description":"A note somebody wrote.","properties":{"id":{"type":"string","format":"uuid","description":"Identifies the note."},"body":{"type":"string"},"at":{"type":"string","pattern":"^-?[0-9]+$","x-fs-int":{"signed":true,"bits":64,"minimum":"-9223372036854775808","maximum":"9223372036854775807"},"x-fs-kind":"timestamp"}},"required":["at"]}}}"##,
         meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"mcp/Notes.find#everything","freeContent":true}}"#,
         risk: None,
         free_content: true,
@@ -60,8 +62,8 @@ pub const TOOLS: &[ToolSpec] = &[
         key: "mcp/Notes.add",
         member: None,
         words: &["add"],
-        input_schema: r#"{"type":"object","properties":{"text":{"type":"string"},"tags":{"type":"array","items":{"type":"string"}},"mood":{"type":"string","enum":["calm","veryLoud"]},"at":{"type":"integer","minimum":-9223372036854775808,"maximum":9223372036854775807,"x-fs-kind":"timestamp"}},"required":["text","tags","mood","at"],"additionalProperties":false}"#,
-        output_schema: r##"{"type":"object","properties":{"note":{"$ref":"#/$defs/mcp.Note"}},"required":["note"],"$defs":{"mcp.Note":{"type":"object","description":"A note somebody wrote.","properties":{"id":{"type":"string","format":"uuid","description":"Identifies the note."},"body":{"type":"string"},"at":{"type":"integer","minimum":-9223372036854775808,"maximum":9223372036854775807,"x-fs-kind":"timestamp"}},"required":["id","body","at"]}}}"##,
+        input_schema: r#"{"type":"object","properties":{"text":{"type":"string"},"tags":{"type":"array","items":{"type":"string"}},"mood":{"type":"string","enum":["calm","veryLoud"]},"at":{"type":"string","pattern":"^-?[0-9]+$","x-fs-int":{"signed":true,"bits":64,"minimum":"-9223372036854775808","maximum":"9223372036854775807"},"x-fs-kind":"timestamp"}},"required":["text","tags","mood","at"],"additionalProperties":false}"#,
+        output_schema: r##"{"type":"object","properties":{"note":{"$ref":"#/$defs/mcp.Note"}},"$defs":{"mcp.Note":{"type":"object","description":"A note somebody wrote.","properties":{"id":{"type":"string","format":"uuid","description":"Identifies the note."},"body":{"type":"string"},"at":{"type":"string","pattern":"^-?[0-9]+$","x-fs-int":{"signed":true,"bits":64,"minimum":"-9223372036854775808","maximum":"9223372036854775807"},"x-fs-kind":"timestamp"}},"required":["at"]}}}"##,
         meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"add","needsRelease":true,"unmarked":false,"source":"mcp/Notes.add","freeContent":true}}"#,
         risk: Some(Danger::Add),
         free_content: true,
@@ -92,6 +94,32 @@ pub const TOOLS: &[ToolSpec] = &[
         risk: None,
         free_content: false,
     },
+    ToolSpec {
+        name: "mcp.peeker.peek",
+        title: "mcp.peeker.peek",
+        description: "No description in the contract.",
+        key: "mcp/Peek.peek",
+        member: None,
+        words: &["peeker", "peek"],
+        input_schema: r#"{"type":"object","additionalProperties":false}"#,
+        output_schema: r#"{"type":"object","properties":{"n":{"type":"integer","minimum":0,"maximum":4294967295}},"required":["n"]}"#,
+        meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"read","needsRelease":true,"unmarked":false,"source":"mcp/Peek.peek","freeContent":false}}"#,
+        risk: Some(Danger::Read),
+        free_content: false,
+    },
+    ToolSpec {
+        name: "mcp.voids",
+        title: "mcp.voids",
+        description: "No description in the contract.",
+        key: "mcp/Notes.voids",
+        member: None,
+        words: &["voids"],
+        input_schema: r#"{"type":"object","properties":{"n":{"type":"integer","minimum":0,"maximum":255}},"required":["n"],"additionalProperties":false}"#,
+        output_schema: r#"{"type":"object","properties":{"ok":{"type":"boolean"}},"required":["ok"]}"#,
+        meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"mcp/Notes.voids","freeContent":false}}"#,
+        risk: None,
+        free_content: false,
+    },
 ];
 
 /// The commands that are no tool, and why (key, reason).
@@ -101,6 +129,8 @@ pub const LEFT: &[(&str, &str)] = &[
     ("mcp/Notes.raw", "any-pointer"),
     ("mcp/Notes.other", "capability"),
     ("mcp/Notes.hidden", "excluded"),
+    ("mcp/Inner.deep", "excluded"),
+    ("mcp/Child.leaf", "excluded"),
 ];
 
 /// The tools a switch lets through: none unless it is on.

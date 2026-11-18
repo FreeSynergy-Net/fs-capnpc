@@ -17,6 +17,8 @@ pub mod blob {
     #[allow(unused_imports)]
     use capnp_compiler::mcpgen::rt::{Danger, Switch, ToolSpec};
 
+    /// The whole table, whatever the switch says: a program reads `tools(&switch)`, never this.
+    #[doc(hidden)]
     pub const TOOLS: &[ToolSpec] = &[
         ToolSpec {
             name: "common.blob.size",
@@ -26,7 +28,7 @@ pub mod blob {
             member: None,
             words: &["size"],
             input_schema: r#"{"type":"object","additionalProperties":false}"#,
-            output_schema: r#"{"type":"object","properties":{"bytes":{"type":"integer","minimum":0,"maximum":18446744073709551615},"mediaType":{"type":"string"}},"required":["bytes","mediaType"]}"#,
+            output_schema: r#"{"type":"object","properties":{"bytes":{"type":"string","pattern":"^[0-9]+$","x-fs-int":{"signed":false,"bits":64,"minimum":"0","maximum":"18446744073709551615"}},"mediaType":{"type":"string"}},"required":["bytes"]}"#,
             meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"common/Blob.size","freeContent":false}}"#,
             risk: None,
             free_content: false,
@@ -38,8 +40,8 @@ pub mod blob {
             key: "common/Blob.read",
             member: None,
             words: &["read"],
-            input_schema: r#"{"type":"object","properties":{"offset":{"type":"integer","minimum":0,"maximum":18446744073709551615},"length":{"type":"integer","minimum":0,"maximum":4294967295}},"required":["offset","length"],"additionalProperties":false}"#,
-            output_schema: r#"{"type":"object","properties":{"data":{"type":"string","contentEncoding":"base64"}},"required":["data"]}"#,
+            input_schema: r#"{"type":"object","properties":{"offset":{"type":"string","pattern":"^[0-9]+$","x-fs-int":{"signed":false,"bits":64,"minimum":"0","maximum":"18446744073709551615"}},"length":{"type":"integer","minimum":0,"maximum":4294967295}},"required":["offset","length"],"additionalProperties":false}"#,
+            output_schema: r#"{"type":"object","properties":{"data":{"type":"string","contentEncoding":"base64"}}}"#,
             meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"common/Blob.read","freeContent":false}}"#,
             risk: None,
             free_content: false,
@@ -65,6 +67,8 @@ pub mod subscription {
     #[allow(unused_imports)]
     use capnp_compiler::mcpgen::rt::{Danger, Switch, ToolSpec};
 
+    /// The whole table, whatever the switch says: a program reads `tools(&switch)`, never this.
+    #[doc(hidden)]
     pub const TOOLS: &[ToolSpec] = &[
     ];
 
@@ -87,6 +91,8 @@ pub mod control {
     #[allow(unused_imports)]
     use capnp_compiler::mcpgen::rt::{Danger, Switch, ToolSpec};
 
+    /// The whole table, whatever the switch says: a program reads `tools(&switch)`, never this.
+    #[doc(hidden)]
     pub const TOOLS: &[ToolSpec] = &[
         ToolSpec {
             name: "common.control.stop",
@@ -109,7 +115,7 @@ pub mod control {
             member: None,
             words: &["method-version"],
             input_schema: r#"{"type":"object","additionalProperties":false}"#,
-            output_schema: r#"{"type":"object","properties":{"program":{"type":"string"},"version":{"type":"string"},"protocol":{"type":"integer","minimum":0,"maximum":4294967295}},"required":["program","version","protocol"]}"#,
+            output_schema: r#"{"type":"object","properties":{"program":{"type":"string"},"version":{"type":"string"},"protocol":{"type":"integer","minimum":0,"maximum":4294967295}},"required":["protocol"]}"#,
             meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"common/Control.version","freeContent":false}}"#,
             risk: None,
             free_content: false,
@@ -135,6 +141,8 @@ pub mod change_listener {
     #[allow(unused_imports)]
     use capnp_compiler::mcpgen::rt::{Danger, Switch, ToolSpec};
 
+    /// The whole table, whatever the switch says: a program reads `tools(&switch)`, never this.
+    #[doc(hidden)]
     pub const TOOLS: &[ToolSpec] = &[
         ToolSpec {
             name: "common.change_listener.ended",

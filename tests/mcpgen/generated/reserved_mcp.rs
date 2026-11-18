@@ -13,6 +13,8 @@ const _: () = assert!(capnp_compiler::mcpgen::rt::same_text(PROTOCOL_HINT, capnp
 /// The tools are off until a program says otherwise.
 pub const ENABLED_BY_DEFAULT: bool = false;
 
+/// The whole table, whatever the switch says: a program reads `tools(&switch)`, never this.
+#[doc(hidden)]
 pub const TOOLS: &[ToolSpec] = &[
     ToolSpec {
         name: "reserved.method-version",

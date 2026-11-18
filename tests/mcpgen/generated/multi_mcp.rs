@@ -17,6 +17,8 @@ pub mod beta {
     #[allow(unused_imports)]
     use capnp_compiler::mcpgen::rt::{Danger, Switch, ToolSpec};
 
+    /// The whole table, whatever the switch says: a program reads `tools(&switch)`, never this.
+    #[doc(hidden)]
     pub const TOOLS: &[ToolSpec] = &[
         ToolSpec {
             name: "multi.beta.second",
@@ -52,6 +54,8 @@ pub mod alpha {
     #[allow(unused_imports)]
     use capnp_compiler::mcpgen::rt::{Danger, Switch, ToolSpec};
 
+    /// The whole table, whatever the switch says: a program reads `tools(&switch)`, never this.
+    #[doc(hidden)]
     pub const TOOLS: &[ToolSpec] = &[
         ToolSpec {
             name: "multi.alpha.first",
@@ -87,6 +91,8 @@ pub mod gamma {
     #[allow(unused_imports)]
     use capnp_compiler::mcpgen::rt::{Danger, Switch, ToolSpec};
 
+    /// The whole table, whatever the switch says: a program reads `tools(&switch)`, never this.
+    #[doc(hidden)]
     pub const TOOLS: &[ToolSpec] = &[
         ToolSpec {
             name: "multi.gamma.third",

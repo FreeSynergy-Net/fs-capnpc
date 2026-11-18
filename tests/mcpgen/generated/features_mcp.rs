@@ -13,6 +13,8 @@ const _: () = assert!(capnp_compiler::mcpgen::rt::same_text(PROTOCOL_HINT, capnp
 /// The tools are off until a program says otherwise.
 pub const ENABLED_BY_DEFAULT: bool = false;
 
+/// The whole table, whatever the switch says: a program reads `tools(&switch)`, never this.
+#[doc(hidden)]
 pub const TOOLS: &[ToolSpec] = &[
     ToolSpec {
         name: "features.details.rename",
@@ -34,7 +36,7 @@ pub const TOOLS: &[ToolSpec] = &[
         key: "features/Features.draw",
         member: None,
         words: &["draw"],
-        input_schema: r##"{"type":"object","properties":{"line":{"$ref":"#/$defs/features.Line"}},"required":["line"],"additionalProperties":false,"$defs":{"features.Line":{"type":"object","properties":{"width":{"type":"integer","minimum":0,"maximum":65535,"description":"default is not 0"},"opacity":{"type":"number"},"name":{"type":"string"},"colour":{"type":"string","enum":["red","deepBlue","green"]},"from":{"type":"object","properties":{"x":{"type":"integer","minimum":-2147483648,"maximum":2147483647},"y":{"type":"integer","minimum":-2147483648,"maximum":2147483647}},"required":["x","y"],"additionalProperties":false},"to":{"type":"object","properties":{"x":{"type":"integer","minimum":-2147483648,"maximum":2147483647},"y":{"type":"integer","minimum":-2147483648,"maximum":2147483647}},"required":["x","y"],"additionalProperties":false}},"required":["width","opacity","name","colour","from","to"],"additionalProperties":false}}}"##,
+        input_schema: r##"{"type":"object","properties":{"line":{"$ref":"#/$defs/features.Line"}},"required":["line"],"additionalProperties":false,"$defs":{"features.Line":{"type":"object","properties":{"width":{"type":"integer","minimum":0,"maximum":65535,"description":"default is not 0"},"opacity":{"anyOf":[{"type":"number"},{"type":"string","enum":["Infinity","-Infinity","NaN"]}]},"name":{"type":"string"},"colour":{"type":"string","enum":["red","deepBlue","green"]},"from":{"type":"object","properties":{"x":{"type":"integer","minimum":-2147483648,"maximum":2147483647},"y":{"type":"integer","minimum":-2147483648,"maximum":2147483647}},"required":["x","y"],"additionalProperties":false},"to":{"type":"object","properties":{"x":{"type":"integer","minimum":-2147483648,"maximum":2147483647},"y":{"type":"integer","minimum":-2147483648,"maximum":2147483647}},"required":["x","y"],"additionalProperties":false}},"required":["width","opacity","name","colour","from","to"],"additionalProperties":false}}}"##,
         output_schema: r#"{"type":"object"}"#,
         meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"features/Features.draw","freeContent":true}}"#,
         risk: None,
@@ -48,7 +50,7 @@ pub const TOOLS: &[ToolSpec] = &[
         member: None,
         words: &["place"],
         input_schema: r##"{"type":"object","properties":{"shape":{"$ref":"#/$defs/features.Shape"}},"required":["shape"],"additionalProperties":false,"$defs":{"features.Point":{"type":"object","properties":{"x":{"type":"integer","minimum":-2147483648,"maximum":2147483647},"y":{"type":"integer","minimum":-2147483648,"maximum":2147483647}},"required":["x","y"],"additionalProperties":false},"features.Shape":{"type":"object","properties":{"label":{"type":"string"},"circle":{"type":"integer","minimum":0,"maximum":4294967295},"box":{"$ref":"#/$defs/features.Point"},"nothing":{"type":"null"},"names":{"type":"array","items":{"type":"string"}}},"required":["label"],"additionalProperties":false,"oneOf":[{"required":["circle"]},{"required":["box"]},{"required":["nothing"]},{"required":["names"]}]}}}"##,
-        output_schema: r##"{"type":"object","properties":{"shape":{"$ref":"#/$defs/features.Shape"}},"required":["shape"],"$defs":{"features.Point":{"type":"object","properties":{"x":{"type":"integer","minimum":-2147483648,"maximum":2147483647},"y":{"type":"integer","minimum":-2147483648,"maximum":2147483647}},"required":["x","y"]},"features.Shape":{"type":"object","properties":{"label":{"type":"string"},"circle":{"type":"integer","minimum":0,"maximum":4294967295},"box":{"$ref":"#/$defs/features.Point"},"nothing":{"type":"null"},"names":{"type":"array","items":{"type":"string"}}},"required":["label"],"oneOf":[{"required":["circle"]},{"required":["box"]},{"required":["nothing"]},{"required":["names"]}]}}}"##,
+        output_schema: r##"{"type":"object","properties":{"shape":{"$ref":"#/$defs/features.Shape"}},"$defs":{"features.Point":{"type":"object","properties":{"x":{"type":"integer","minimum":-2147483648,"maximum":2147483647},"y":{"type":"integer","minimum":-2147483648,"maximum":2147483647}},"required":["x","y"]},"features.Shape":{"type":"object","properties":{"label":{"type":"string"},"circle":{"type":"integer","minimum":0,"maximum":4294967295},"box":{"$ref":"#/$defs/features.Point"},"nothing":{"type":"null"},"names":{"type":"array","items":{"type":"string"}}}}}}"##,
         meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"features/Features.place","freeContent":true}}"#,
         risk: None,
         free_content: true,
@@ -74,7 +76,7 @@ pub const TOOLS: &[ToolSpec] = &[
         member: None,
         words: &["blob"],
         input_schema: r#"{"type":"object","properties":{"data":{"type":"string","contentEncoding":"base64"},"first":{"type":"boolean"}},"required":["data","first"],"additionalProperties":false}"#,
-        output_schema: r#"{"type":"object","properties":{"data":{"type":"string","contentEncoding":"base64"}},"required":["data"]}"#,
+        output_schema: r#"{"type":"object","properties":{"data":{"type":"string","contentEncoding":"base64"}}}"#,
         meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"features/Features.blob","freeContent":true}}"#,
         risk: None,
         free_content: true,
@@ -87,7 +89,7 @@ pub const TOOLS: &[ToolSpec] = &[
         member: None,
         words: &["tree"],
         input_schema: r##"{"type":"object","properties":{"root":{"$ref":"#/$defs/features.Node"}},"required":["root"],"additionalProperties":false,"$defs":{"features.Node":{"type":"object","description":"contains itself","properties":{"name":{"type":"string"},"children":{"type":"array","items":{"$ref":"#/$defs/features.Node"}}},"required":["name","children"],"additionalProperties":false}}}"##,
-        output_schema: r##"{"type":"object","properties":{"root":{"$ref":"#/$defs/features.Node"}},"required":["root"],"$defs":{"features.Node":{"type":"object","description":"contains itself","properties":{"name":{"type":"string"},"children":{"type":"array","items":{"$ref":"#/$defs/features.Node"}}},"required":["name","children"]}}}"##,
+        output_schema: r##"{"type":"object","properties":{"root":{"$ref":"#/$defs/features.Node"}},"$defs":{"features.Node":{"type":"object","description":"contains itself","properties":{"name":{"type":"string"},"children":{"type":"array","items":{"$ref":"#/$defs/features.Node"}}}}}}"##,
         meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"features/Features.tree","freeContent":true}}"#,
         risk: None,
         free_content: true,
@@ -113,7 +115,7 @@ pub const TOOLS: &[ToolSpec] = &[
         member: None,
         words: &["page"],
         input_schema: r#"{"type":"object","additionalProperties":false}"#,
-        output_schema: r##"{"type":"object","properties":{"page":{"$ref":"#/$defs/features.Page"}},"required":["page"],"$defs":{"features.Page":{"type":"object","properties":{"shapes":{"type":"array","items":{"$ref":"#/$defs/features.Shape"}},"next":{"type":"string","contentEncoding":"base64"}},"required":["shapes","next"]},"features.Point":{"type":"object","properties":{"x":{"type":"integer","minimum":-2147483648,"maximum":2147483647},"y":{"type":"integer","minimum":-2147483648,"maximum":2147483647}},"required":["x","y"]},"features.Shape":{"type":"object","properties":{"label":{"type":"string"},"circle":{"type":"integer","minimum":0,"maximum":4294967295},"box":{"$ref":"#/$defs/features.Point"},"nothing":{"type":"null"},"names":{"type":"array","items":{"type":"string"}}},"required":["label"],"oneOf":[{"required":["circle"]},{"required":["box"]},{"required":["nothing"]},{"required":["names"]}]}}}"##,
+        output_schema: r##"{"type":"object","properties":{"page":{"$ref":"#/$defs/features.Page"}},"$defs":{"features.Page":{"type":"object","properties":{"shapes":{"type":"array","items":{"$ref":"#/$defs/features.Shape"}},"next":{"type":"string","contentEncoding":"base64"}}},"features.Point":{"type":"object","properties":{"x":{"type":"integer","minimum":-2147483648,"maximum":2147483647},"y":{"type":"integer","minimum":-2147483648,"maximum":2147483647}},"required":["x","y"]},"features.Shape":{"type":"object","properties":{"label":{"type":"string"},"circle":{"type":"integer","minimum":0,"maximum":4294967295},"box":{"$ref":"#/$defs/features.Point"},"nothing":{"type":"null"},"names":{"type":"array","items":{"type":"string"}}}}}}"##,
         meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"features/Features.page","freeContent":false}}"#,
         risk: None,
         free_content: false,
@@ -138,7 +140,7 @@ pub const TOOLS: &[ToolSpec] = &[
         key: "features/Features.createAt",
         member: None,
         words: &["create-at"],
-        input_schema: r#"{"type":"object","properties":{"when":{"type":"integer","minimum":-9223372036854775808,"maximum":9223372036854775807},"big":{"type":"integer","minimum":0,"maximum":18446744073709551615},"small":{"type":"integer","minimum":-128,"maximum":127},"f":{"type":"number"}},"required":["when","big","small","f"],"additionalProperties":false}"#,
+        input_schema: r#"{"type":"object","properties":{"when":{"type":"string","pattern":"^-?[0-9]+$","x-fs-int":{"signed":true,"bits":64,"minimum":"-9223372036854775808","maximum":"9223372036854775807"}},"big":{"type":"string","pattern":"^[0-9]+$","x-fs-int":{"signed":false,"bits":64,"minimum":"0","maximum":"18446744073709551615"}},"small":{"type":"integer","minimum":-128,"maximum":127},"f":{"anyOf":[{"type":"number"},{"type":"string","enum":["Infinity","-Infinity","NaN"]}]}},"required":["when","big","small","f"],"additionalProperties":false}"#,
         output_schema: r#"{"type":"object"}"#,
         meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"unknown","needsRelease":true,"unmarked":true,"source":"features/Features.createAt","freeContent":false}}"#,
         risk: None,
