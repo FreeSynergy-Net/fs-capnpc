@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   release:
-    uses: FreeSynergy/fs-release/.github/workflows/release.yml@v0.0.10
+    uses: FreeSynergy/fs-release/.github/workflows/release.yml@v0.0.11
     with:
       binaries: capnp-compiler
       kind: cli
