@@ -62,7 +62,6 @@ capnp-compiler compile -o src/gen --cli src/gen --mcp src/gen tasks.capnp
 on standard error. Both plugin binaries need the feature `cli` (as `capnpc-cli`): one switch decides which programs
 `cargo install` puts on the path. See [DESIGN.md](DESIGN.md), section "mcpgen", for the mapping and the specification.
 
-
 ## What is not there yet
 
 - For large schemas the layout of the message in memory differs from the official one. The content is identical and readers do not care.

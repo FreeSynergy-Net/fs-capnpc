@@ -63,4 +63,6 @@ interface Notes {
   inner  @10 () -> (inner :Inner) $Cli.risk(excluded);   # a way to a tool that is excluded: nothing below it is a tool
   outer  @11 () -> (outer :Outer);
   voids  @12 (nothing :Void, n :UInt8) -> (done :Void, ok :Bool);
+  ratio  @13 () -> (value :Float64, label :Text);   # a float and a text in the result, nothing free in the arguments
+  token  @14 () -> (token :Text $Cli.secret);   # a secret in a result: no tool
 }

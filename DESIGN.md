@@ -140,8 +140,10 @@ nothing copied). What the generator and `rt` rely on:
   optional `outputSchema`, `annotations`, `_meta`. Schemas default to JSON Schema 2020-12.
 - `outputSchema`: the server MUST give structured results that conform; for compatibility it SHOULD also return the JSON as a
   text block (`content`). `tools/call` results carry `resultType: "complete"` (`rt::RESULT_TYPE`).
-- Errors: an unknown tool or a malformed request is the JSON-RPC error `-32602`; an error of the other side is a result with
-  `isError: true`.
+- Errors: an unknown tool or a malformed request is the JSON-RPC error `-32602`; arguments that break the `inputSchema`
+  and an error of the other side are a result with `isError: true` (input validation is a tool execution error, not a
+  protocol error). A request for another protocol version is `-32022` (`UnsupportedProtocolVersion`) with `data.supported`
+  listing `2026-07-28`; this is for the run time (M4), the generator only fixes the date in `rt::PROTOCOL_VERSION`.
 - This revision is stateless: there is no `initialize` handshake; every request carries `io.modelcontextprotocol/protocolVersion`,
   `.../clientInfo` (optional) and `.../clientCapabilities` in its `_meta`, a missing required field is `-32602`. The name of
   the client is therefore read per request (`rt::CLIENT_INFO_KEY`); the specification calls it self-reported and says it

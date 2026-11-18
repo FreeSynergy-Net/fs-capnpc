@@ -112,6 +112,9 @@ fn the_actor_comes_from_the_client_name_and_is_always_an_ai() {
     // direction and format characters (U+202E, U+200B) cannot turn the label around
     assert_eq!(rt::actor(Some("x\u{202e}y\u{200b}z")).as_str(), "ai:x_y_z");
     assert_eq!(rt::actor(Some("x\"y")).as_str(), "ai:x_y");
+    // letters of other alphabets look like ASCII ones (Cyrillic a, e with an accent): they become `_` too
+    assert_eq!(rt::actor(Some("\u{430}dmin")).as_str(), "ai:_dmin");
+    assert_eq!(rt::actor(Some("caf\u{e9}")).as_str(), "ai:caf_");
     // at most 64 characters of the name
     let long = rt::actor(Some(&"a".repeat(500)));
     assert_eq!(long.as_str().len(), "ai:".len() + 64);

@@ -151,6 +151,16 @@ pub fn json_string(s: &str) -> String {
 
 /// The actor of a connection: `ai:<client name>`, an AI always. It can only be made by [`actor`], so no result can
 /// carry a label that does not start with `ai:` (the type, not a convention, holds it).
+///
+/// The field is private: outside this module the type cannot be built by hand.
+///
+/// ```compile_fail
+/// let _ = capnp_compiler::mcpgen::rt::AiActor(String::from("human:alice"));
+/// ```
+///
+/// ```
+/// assert_eq!(capnp_compiler::mcpgen::rt::actor(Some("human:alice")).as_str(), "ai:human_alice");
+/// ```
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AiActor(String);
 

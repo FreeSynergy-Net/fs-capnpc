@@ -179,7 +179,8 @@ fn mcp_fixture_cases() {
             "mcp.wipe",
             "mcp.count",
             "mcp.peeker.peek",
-            "mcp.voids"
+            "mcp.voids",
+            "mcp.ratio"
         ]
     );
     // a union only: one tool for each member, each asks for its member and nothing else
@@ -242,6 +243,21 @@ fn mcp_fixture_cases() {
     assert_eq!(left(l, "mcp/Child.leaf").as_deref(), Some("excluded"));
     // no mark on the method: the mark of the interface counts
     assert_eq!(tool(t, "mcp.peeker.peek").risk, Some(Danger::Read));
+    // a secret on a result field (the annotation) keeps the tool out, as on an argument
+    assert_eq!(left(l, "mcp/Notes.token").as_deref(), Some("secret"));
+    assert!(t.iter().all(|x| x.key != "mcp/Notes.token"));
+    // a result: a Float is always written by the codec (required), a Text may be left out; a text in the result is
+    // not free content of the arguments
+    let ratio = tool(t, "mcp.ratio");
+    let required: Vec<&str> = output(ratio)
+        .get("required")
+        .unwrap()
+        .arr()
+        .iter()
+        .filter_map(V::str)
+        .collect();
+    assert_eq!(required, ["value"]);
+    assert!(!ratio.free_content);
     // a Void field outside a union says nothing, in the arguments and in the result
     let voids = tool(t, "mcp.voids");
     assert_eq!(input(voids).at("properties").unwrap().keys(), ["n"]);

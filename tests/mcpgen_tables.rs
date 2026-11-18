@@ -46,14 +46,14 @@ fn every_tool_is_labelled_as_an_ai_and_has_both_schemas() {
         values(&t, "input_schema"),
         values(&t, "output_schema"),
     );
-    assert_eq!(metas.len(), 8);
+    assert_eq!(metas.len(), 9);
     assert!(
         metas.iter().all(|m| m.contains("\"actor\":\"ai\"")),
         "{metas:?}"
     );
     assert!(ins.iter().all(|s| s.contains("\"type\":\"object\"")));
     assert!(outs.iter().all(|s| s.contains("\"type\":\"object\"")));
-    assert_eq!((ins.len(), outs.len()), (8, 8));
+    assert_eq!((ins.len(), outs.len()), (9, 9));
 }
 
 #[test]
