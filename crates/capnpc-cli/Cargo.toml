@@ -1,0 +1,31 @@
+[package]
+name = "capnpc-cli"
+version = "0.0.1"
+edition = "2024"
+rust-version = "1.88"
+authors = ["FreeSynergy contributors <support@freesynergy.net>"]
+description = "A Cap'n Proto code generator plugin: turns an interface into command line commands (capnpc-cli) and tool descriptions (capnpc-mcp) that call the typed capnproto-rust clients"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/FreeSynergy/fs-capnpc"
+readme = "README.md"
+include = ["/src/**", "/capnpc_cli.capnp", "/Cargo.toml", "/README.md", "/LICENSE-MIT", "/LICENSE-APACHE"]
+keywords = ["capnp", "capnproto", "cli", "codegen", "rpc"]
+categories = ["development-tools", "command-line-interface", "encoding"]
+
+[lib]
+name = "capnpc_cli"
+path = "src/lib.rs"
+
+[[bin]]
+name = "capnpc-cli"
+path = "src/bin/capnpc-cli.rs"
+
+[[bin]]
+name = "capnpc-mcp"
+path = "src/bin/capnpc-mcp.rs"
+
+[dependencies]
+capnp = "0.27.3"
+
+[dev-dependencies]
+capnp-compiler = { path = "../.." }
