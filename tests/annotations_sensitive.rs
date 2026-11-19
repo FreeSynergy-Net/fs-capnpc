@@ -151,3 +151,21 @@ fn the_command_code_is_not_changed_by_the_mark() {
         "no argument is a secret and `sensitive` is no secret: {secrets:?}"
     );
 }
+
+struct ResultMarks;
+impl MarkSource for ResultMarks {
+    fn sensitive(&self, key: &str, path: &str) -> bool {
+        // a path that only a RESULT has (`count`) and one that both have (`name`): the marks speak of the arguments only
+        key == "sensitive/Records.plain" && (path == "count" || path == "name.x")
+    }
+}
+
+#[test]
+fn the_marks_of_a_program_do_not_reach_the_results() {
+    let t = text(Some(Box::new(ResultMarks)));
+    let plain = tool(&t, "sensitive.plain");
+    assert!(
+        !plain.contains("\"sensitive\":") && !plain.contains("x-fs-sensitive"),
+        "{plain}"
+    );
+}
