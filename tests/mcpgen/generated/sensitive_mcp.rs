@@ -50,7 +50,7 @@ pub const TOOLS: &[ToolSpec] = &[
         member: None,
         words: &["plain"],
         input_schema: r#"{"type":"object","properties":{"name":{"type":"string"}},"required":["name"],"additionalProperties":false}"#,
-        output_schema: r#"{"type":"object","properties":{"count":{"type":"integer","minimum":0,"maximum":4294967295}},"required":["count"]}"#,
+        output_schema: r#"{"type":"object","properties":{"count":{"type":"integer","minimum":0,"maximum":4294967295},"name":{"type":"string"}},"required":["count"]}"#,
         meta: r#"{"net.freesynergy/mcp":{"actor":"ai","risk":"read","needsRelease":true,"unmarked":false,"source":"sensitive/Records.plain","freeContent":true}}"#,
         risk: Some(Danger::Read),
         free_content: true,
