@@ -6,7 +6,7 @@ use crate::schema::{Id, Node, SourceInfo};
 use std::path::PathBuf;
 use std::rc::Rc;
 
-/// Options for [`compile_files`].
+/// Options for [`compile_files`](crate::command::compile_files).
 #[derive(Clone, Debug, Default)]
 pub struct CompileOptions {
     /// Schema files to compile.
