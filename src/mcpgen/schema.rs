@@ -188,10 +188,11 @@ impl<'a> Schema<'a> {
                 None => j.put("x-fs-kind", Json::Str(k)),
             }
         }
+        // (the path is only there for the arguments, so the marks of a program never reach a result)
         // sensitive data of a person: the program that serves the tools lets it out only to a receiver with a release
         let marked = fp
             .as_deref()
-            .is_some_and(|p| self.closed && self.marks.sensitive(self.key, p));
+            .is_some_and(|p| self.marks.sensitive(self.key, p));
         if marked || f.annotations.iter().any(Annotation::is_sensitive) {
             j.put("x-fs-sensitive", Json::Bool(true));
         }
