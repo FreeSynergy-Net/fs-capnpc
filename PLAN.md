@@ -63,7 +63,7 @@ Compared: every node (Debug text of the readers, output order), requested files,
 | fs/contracts/{common,messenger}.capnp | identical in content and generated Rust |
 | fs/hub/{common,hub}.capnp | identical in content and generated Rust |
 | fs/interfaces/*.capnp (20 current contracts: fs-interfaces, fs-rpc layouts/bind, fs-components settings) and types.capnp (fs-types) | identical in content (18.11.2026, origins in tests/schemas/fs/SOURCES.txt); bytes differ (segmentation) |
-| anyvalue/c1..c3.capnp (non-null AnyPointer values: a constant of type AnyPointer, annotation values) | identical in content and in canonical form (19.11.2026); both compilers accept them; `capnpc` writes no code for the constant ("anypointer constants" unimplemented), the same for both |
+| anyvalue/c1..c3.capnp (non-null AnyPointer values: a constant of type AnyPointer, annotation values) | identical in content and in canonical form, also byte-identical (19.11.2026); both compilers accept them; `capnpc` writes no code for the constant ("anypointer constants" unimplemented), the same for both |
 | invalid schemas (`tests/oracle_errors.rs`, 17 cases (incl. written-out `List(AnyPointer)`, `List(AnyStruct)`)) | rejected by both compilers |
 
 Known difference: byte layout (segmentation) of large requests. The C++ `BuilderArena` only tries its most recent segment

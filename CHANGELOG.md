@@ -25,7 +25,7 @@ CI, Upload erst nach dem Ja des Eigentuemers.)
   `::<crate>::<stem>_capnp::...`.)
 - Honest description: `capnp-compiler` is a Cap'n Proto parser and compiler (schema to `CodeGeneratorRequest`); the Rust code
   comes from upstream `capnpc`. AI collaboration (Claude) stays stated in `NOTICE` and the README. The oracle test now also
-  holds the current FreeSynergy contracts (fs-interfaces, fs-rpc layouts, fs-components settings, fs-types types): 37 schemas (34 plus the 3 `anyvalue` ones),
+  holds the current FreeSynergy contracts (fs-interfaces, fs-rpc layouts, fs-components settings, fs-types types): 37 schemas (34 plus the 3 `anyvalue` ones; 8 are byte-identical: builtins, doc, generics, kinds, tiny, anyvalue/c1..c3),
   all identical in content, the larger ones differ in segmentation only. Invalid-schema table: `List(AnyPointer)` and
   `List(AnyStruct)` added. `deny.toml` (cargo-deny: licences, sources, bans) and the licence list in `NOTICE`.
   (Deutsch: ehrliche Beschreibung; Oracle-Korpus um die aktuellen FreeSynergy-Vertraege erweitert (37 Schemas, inhaltsgleich,

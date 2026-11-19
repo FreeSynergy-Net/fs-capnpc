@@ -37,7 +37,7 @@ named patterns, files <= 200 lines / hard 300), ADR 0040 (why a Rust compiler).
 - `capnpc-embedded` is a dev-dependency only: the oracle for tests.
 
 ## State
-See `PLAN.md` (State section) for the current status and per-schema oracle table.
+See PLAN.md in the repository on GitHub (State section; not in the package) for the current status and per-schema oracle table.
 
 
 ## cligen (the generator of capnpc-cli)
