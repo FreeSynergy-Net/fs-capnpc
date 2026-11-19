@@ -8,11 +8,11 @@ What is different here: we do not ask you to trust it. Its output is compared wi
 
 ## What it can do today
 
-Published on crates.io: `capnp-compiler` 0.1.1 (2026-11-06). This tree is version 0.2.0, not released yet (no tag, no upload).
+Published on crates.io: `capnp-compiler` 0.1.1 (2026-11-06). This tree is version 0.2.0 (tag `v0.2.0`, not uploaded to crates.io yet); `0.1.0` was never uploaded, its content is part of 0.1.1.
 
 - A command line, `capnp-compiler compile`, with output folder, import paths and source prefix.
 - A library with a builder, so schemas can come from memory and errors can be collected elsewhere.
-- Output identical in content to the official compiler for the schemas above (34 schemas, last run 18.11.2026); byte-identical only for the small ones, the others differ in segmentation only (see "Known difference").
+- Output identical in content to the official compiler for the schemas above (37 schemas, last run 19.11.2026); byte-identical only for the small ones, the others differ in segmentation only (see "Known difference").
 - Used by `fs-interfaces` to regenerate its contracts.
 
 ## Install

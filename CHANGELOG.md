@@ -7,7 +7,7 @@ comes after the review and a green CI on the exact head, the upload to crates.io
 (Deutsch: Wahrheit ist 0.1.1 auf crates.io; 0.1.0 wurde nie hochgeladen; Version = Tag; Tag v0.2.0 nach Review und gruener
 CI, Upload erst nach dem Ja des Eigentuemers.)
 
-## 0.2.0 - unreleased
+## 0.2.0 — 2026-11-19
 
 - Added: the command line code generator `capnp_compiler::cligen` (moved here from the workspace crate `capnpc-cli`,
   history kept, code unchanged apart from two things in the generated text: the runtime path is now
@@ -25,10 +25,10 @@ CI, Upload erst nach dem Ja des Eigentuemers.)
   `::<crate>::<stem>_capnp::...`.)
 - Honest description: `capnp-compiler` is a Cap'n Proto parser and compiler (schema to `CodeGeneratorRequest`); the Rust code
   comes from upstream `capnpc`. AI collaboration (Claude) stays stated in `NOTICE` and the README. The oracle test now also
-  holds the current FreeSynergy contracts (fs-interfaces, fs-rpc layouts, fs-components settings, fs-types types): 34 schemas,
+  holds the current FreeSynergy contracts (fs-interfaces, fs-rpc layouts, fs-components settings, fs-types types): 37 schemas (34 plus the 3 `anyvalue` ones),
   all identical in content, the larger ones differ in segmentation only. Invalid-schema table: `List(AnyPointer)` and
   `List(AnyStruct)` added. `deny.toml` (cargo-deny: licences, sources, bans) and the licence list in `NOTICE`.
-  (Deutsch: ehrliche Beschreibung; Oracle-Korpus um die aktuellen FreeSynergy-Vertraege erweitert (34 Schemas, inhaltsgleich,
+  (Deutsch: ehrliche Beschreibung; Oracle-Korpus um die aktuellen FreeSynergy-Vertraege erweitert (37 Schemas, inhaltsgleich,
   Segmentierung verschieden); `deny.toml` und Lizenzliste in `NOTICE`.)
 - Changed (breaking for `default-features = false`): the feature `cli` (default) holds the command lines and the
   dependency `capnpc`; `capnp-compiler = { default-features = false }` is the library without `capnpc`, and has no
@@ -48,7 +48,7 @@ CI, Upload erst nach dem Ja des Eigentuemers.)
   (Deutsch: neu: Generator `mcpgen` fuer Tool-Tabellen aus einer Schnittstelle, standardmaessig aus, KI-Kennzeichnung je Tool;
   Binary `capnpc-mcp` und Option `compile --mcp <dir>`.)
 
-### Earlier entries of this unreleased section (before the move)
+### Earlier entries of this section (before the move)
 
 - Workspace crate `capnpc-cli` (now the module `cligen`, see above; with the test crate `capnpc-cli-fixtures`, now `cligen-fixtures`): a Cap'n Proto generator plugin that
   writes command line code (command tables and typed call functions) for an interface.
