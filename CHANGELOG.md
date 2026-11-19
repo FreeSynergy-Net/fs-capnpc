@@ -1,11 +1,18 @@
 # Changelog
 
-Versions: the published truth is `capnp-compiler` 0.2.0 on crates.io (uploaded by the owner on 2026-11-19; 0.1.1 before it, 2026-11-06;
-0.1.0 was never uploaded, its content is part of 0.1.1). All crates of the workspace share one version (0.2.1 now), and the version
-equals the tag. The tag `v0.2.1` comes after the review and a green CI on the exact head, the upload to crates.io only after the owner
-says yes. The old tag `v0.0.1` is from the reset of the numbers (ADR 0064) and lies below the published versions.
-(Deutsch: Wahrheit ist 0.2.0 auf crates.io; Version = Tag; Tag v0.2.1 nach Review und gruener CI, Upload erst nach dem Ja des
-Eigentuemers.)
+Versions: the version published on crates.io is the one the badge in the README shows. All crates of the workspace share one version, and the
+version equals the tag. The old tag `v0.0.1` is from the reset of the numbers (ADR 0064) and lies below the published versions.
+(Deutsch: veroeffentlicht ist die Version, die das Badge im README zeigt; Version = Tag.)
+
+## 0.2.2 — 2026-11-19
+
+- Release only: no code change against 0.2.1, only metadata (`documentation` = docs.rs, `homepage` = GitHub, crates.io badge in the README), the
+  texts of README and CHANGELOG without a statement that goes stale, and the version in the generated heads (`capnpc-cli 0.2.2` /
+  `capnpc-mcp 0.2.2`; every golden file carries the new version in its first line and nothing else changed).
+- Honest history: 0.2.1 was NOT uploaded to crates.io (the tag `v0.2.1` exists only in git). 0.2.2 is the first upload with everything below
+  from 0.2.1: the fix of the documentation indexing (the comment of a member by its position in the list, not by `codeOrder`), the annotation
+  `$Cli.sensitive` and `capnp_compiler::SCHEMA_DIR`. The 0.2.0 on crates.io has the indexing error. (Deutsch: 0.2.1 wurde nie hochgeladen;
+  0.2.2 ist die erste Fassung mit dem Fix, `$Cli.sensitive` und `SCHEMA_DIR`.)
 
 ## 0.2.1 — 2026-11-19
 

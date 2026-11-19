@@ -8,7 +8,7 @@ What is different here: we do not ask you to trust it. Its output is compared wi
 
 ## What it can do today
 
-Published on crates.io: `capnp-compiler` 0.2.0 (2026-11-19, uploaded by the owner; 0.1.1 before it). This tree is version 0.2.1 (tag `v0.2.1`, not uploaded to crates.io yet).
+[![crates.io](https://img.shields.io/crates/v/capnp-compiler)](https://crates.io/crates/capnp-compiler) The version on crates.io is the one the badge shows; every version in this tree equals its tag (see the CHANGELOG for what each one changed).
 
 - A command line, `capnp-compiler compile`, with output folder, import paths and source prefix.
 - A library with a builder, so schemas can come from memory and errors can be collected elsewhere.

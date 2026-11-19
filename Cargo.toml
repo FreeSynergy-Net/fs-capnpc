@@ -1,12 +1,14 @@
 [package]
 name = "capnp-compiler"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2024"
 rust-version = "1.88"
 authors = ["FreeSynergy contributors <support@freesynergy.net>"]
 description = "Cap'n Proto parser and compiler in pure Rust (schema to CodeGeneratorRequest); Rust code via capnpc; generators for command line code and MCP tool tables"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/FreeSynergy/fs-capnpc"
+homepage = "https://github.com/FreeSynergy/fs-capnpc"
+documentation = "https://docs.rs/capnp-compiler"
 readme = "README.md"
 include = ["/src/**", "/std/**", "/examples/**", "/Cargo.toml", "/README.md", "/DESIGN.md", "/CHANGELOG.md", "/NOTICE", "/LICENSE-MIT", "/LICENSE-APACHE"]
 keywords = ["capnp", "capnproto", "schema", "compiler", "codegen"]
