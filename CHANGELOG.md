@@ -23,8 +23,16 @@ Eigentuemers.)
 - Tests: `tests/annotations_sensitive.rs` (the directory alone compiles a contract with the annotations; the mark is in the schema and
   the meta where it stands and nowhere else; a secret wins; the marks of a program add an argument and only that one; the command code
   does not carry it), the golden file `sensitive_mcp.rs` (fixture `sensitive.capnp`).
+- Fixed: the comment of a member (a field, or a method) is the comment behind it also when the ordinals are not in the order they
+  are written in the file. `sourceInfo.members` follows the LIST of the node (`struct.fields`, `interface.methods`); the reader indexed it
+  with the `codeOrder` of the member, so a schema that declares `nested @4` before `secret @3` gave a tool and a command the comment of
+  another member (wrong `description` and `title` of tools, wrong help of the command line). The error is in `cligen` since it was written
+  (`git log -S get_code_order`: the move into this crate, first released as 0.2.0), so it is also in the published 0.2.0. The golden file
+  of the older fixture `features` had the wrong comment baked in (`createAt` carried the comment of `watchTwo`) and is corrected.
+  New tests: `cligen_member_order.rs` (fixture `order.capnp`), the title of `sensitive.nested`. (Deutsch: behoben: der Kommentar eines
+  Mitglieds war der eines anderen, wenn die Ordnungszahlen nicht in der Schreibreihenfolge stehen; auch in 0.2.0 enthalten.)
 - The generated heads name `capnpc-cli 0.2.1` / `capnpc-mcp 0.2.1` (every golden file carries the new version in its first line and nothing else changed); the published 0.2.0 on crates.io is untouched.
-- Fixed in the review: the marks of a program (`MarkSource::sensitive`) are for the arguments and set `sensitive` in the `_meta`; inside a NAMED struct (shared in `$defs`) a mark by path sets only the `_meta`, not `x-fs-sensitive` at the place (the struct is shared): mark such a field with the annotation `$Cli.sensitive` in the contract.
+- Documented (review): the marks of a program (`MarkSource::sensitive`) are for the arguments and set `sensitive` in the `_meta`; inside a NAMED struct (shared in `$defs`) a mark by path sets only the `_meta`, not `x-fs-sensitive` at the place (the struct is shared): mark such a field with the annotation `$Cli.sensitive` in the contract.
 
 ## 0.2.0 — 2026-11-19
 

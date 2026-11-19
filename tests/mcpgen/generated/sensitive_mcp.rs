@@ -57,8 +57,8 @@ pub const TOOLS: &[ToolSpec] = &[
     },
     ToolSpec {
         name: "sensitive.nested",
-        title: "A secret wins: no tool.",
-        description: "A secret wins: no tool.",
+        title: "Only a nested result field is sensitive.",
+        description: "Only a nested result field is sensitive.",
         key: "sensitive/Records.nested",
         member: None,
         words: &["nested"],

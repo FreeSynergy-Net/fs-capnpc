@@ -200,7 +200,7 @@ pub const COMMANDS: &[Command] = &[
         ],
         watch: false,
         renamed: false,
-        doc: "two listeners: the counters add up",
+        doc: "",
         annotations: &[],
     },
     Command {
@@ -214,7 +214,7 @@ pub const COMMANDS: &[Command] = &[
         ],
         watch: true,
         renamed: false,
-        doc: "",
+        doc: "two listeners: the counters add up",
         annotations: &[],
     },
 ];
@@ -375,7 +375,7 @@ pub async fn run_features_reserved_ok(root: &crate::features_capnp::features::Cl
     Ok(Outcome::none())
 }
 
-/// `features/Features.createAt` two listeners: the counters add up
+/// `features/Features.createAt`
 pub async fn run_features_create_at(root: &crate::features_capnp::features::Client, inp: &mut dyn Input, out: &mut dyn Output) -> Result<Outcome, CallError> {
     let mut req = root.create_at_request();
     set_features_capnp_features_create_at_params(req.get(), inp, "")?;
@@ -384,7 +384,7 @@ pub async fn run_features_create_at(root: &crate::features_capnp::features::Clie
     Ok(Outcome::none())
 }
 
-/// `features/Features.watchTwo`
+/// `features/Features.watchTwo` two listeners: the counters add up
 pub async fn run_features_watch_two(root: &crate::features_capnp::features::Client, inp: &mut dyn Input, out: &mut dyn Output) -> Result<Outcome, CallError> {
     let mut req = root.watch_two_request();
     set_features_capnp_features_watch_two_params(req.get(), inp, "")?;

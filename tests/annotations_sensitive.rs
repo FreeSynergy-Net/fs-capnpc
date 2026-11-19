@@ -185,3 +185,20 @@ fn a_nested_result_field_alone_makes_the_tool_sensitive() {
         "{nested}"
     );
 }
+
+#[test]
+fn the_title_of_a_tool_is_its_own_comment_also_when_ordinals_are_not_in_the_order_written() {
+    // `nested @4` stands in the file before `secret @3`; the comment of `nested` must not be the one of `secret`
+    let t = text(None);
+    let nested = tool(&t, "sensitive.nested");
+    assert!(
+        nested.contains("title: \"Only a nested result field is sensitive.\""),
+        "{nested}"
+    );
+    assert!(
+        nested.contains("description: \"Only a nested result field is sensitive.\""),
+        "{nested}"
+    );
+    let share = tool(&t, "sensitive.share");
+    assert!(share.contains("title: \"Share a detail.\""), "{share}");
+}

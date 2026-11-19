@@ -125,16 +125,17 @@ impl Model {
         let display = text(n.get_display_name())?.replace('\\', "/");
         let (file_part, nice) = display.split_once(':').unwrap_or(("", &display));
         let file = stem_of(file_part);
-        // `sourceInfo.members` is indexed by the code order of the member
-        let doc_of = |code_order: u16| {
+        // `sourceInfo.members` has the order of the list of the node (`struct.fields`, `interface.methods`): the POSITION in
+        // that list, not the `codeOrder` (the order in the source file, which differs when ordinals are not in the order written)
+        let doc_of = |position: usize| {
             docs.get(&id)
-                .and_then(|d| d.1.get(usize::from(code_order)).cloned())
+                .and_then(|d| d.1.get(position).cloned())
                 .unwrap_or_default()
         };
         match n.which()? {
             node::Which::Struct(s) => {
                 let mut fields = Vec::new();
-                for f in s.get_fields()? {
+                for (position, f) in s.get_fields()?.iter().enumerate() {
                     let kind = match f.which()? {
                         field::Which::Slot(sl) => FieldKind::Slot(ty(sl.get_type()?, nodes)?),
                         field::Which::Group(g) => FieldKind::Group(g.get_type_id()),
@@ -144,7 +145,7 @@ impl Model {
                         f.get_code_order(),
                         Field {
                             name: text(f.get_name())?,
-                            doc: doc_of(f.get_code_order()),
+                            doc: doc_of(position),
                             union_member: (disc != 0xffff).then_some(disc),
                             kind,
                             annotations: read_all(f.get_annotations()?)?,
@@ -180,7 +181,7 @@ impl Model {
                         ordinal: u16::try_from(ix)
                             .map_err(|_| capnp::Error::failed("too many methods".into()))?,
                         name: text(me.get_name())?,
-                        doc: doc_of(me.get_code_order()),
+                        doc: doc_of(ix),
                         params: me.get_param_struct_type(),
                         results: me.get_result_struct_type(),
                         streaming: me.get_result_struct_type() == STREAM_RESULT_ID,

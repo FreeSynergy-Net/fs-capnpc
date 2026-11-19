@@ -135,8 +135,8 @@ pub const TOOLS: &[ToolSpec] = &[
     },
     ToolSpec {
         name: "features.create-at",
-        title: "two listeners: the counters add up",
-        description: "two listeners: the counters add up",
+        title: "features.create-at",
+        description: "No description in the contract.",
         key: "features/Features.createAt",
         member: None,
         words: &["create-at"],
