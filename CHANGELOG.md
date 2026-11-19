@@ -1,13 +1,13 @@
 # Changelog
 
-Versions: the published truth is `capnp-compiler` 0.1.1 on crates.io (2026-11-06); 0.1.0 was never uploaded (its content is
-part of 0.1.1). All crates of the workspace share one version (0.2.0 now), and the version equals the tag. The tag `v0.2.0`
-comes after the review and a green CI on the exact head, the upload to crates.io only after the owner says yes. The old tag
-`v0.0.1` is from the reset of the numbers (ADR 0064) and lies below the published 0.1.1.
-(Deutsch: Wahrheit ist 0.1.1 auf crates.io; 0.1.0 wurde nie hochgeladen; Version = Tag; Tag v0.2.0 nach Review und gruener
-CI, Upload erst nach dem Ja des Eigentuemers.)
+Versions: the published truth is `capnp-compiler` 0.2.0 on crates.io (uploaded by the owner on 2026-11-19; 0.1.1 before it, 2026-11-06;
+0.1.0 was never uploaded, its content is part of 0.1.1). All crates of the workspace share one version (0.2.1 now), and the version
+equals the tag. The tag `v0.2.1` comes after the review and a green CI on the exact head, the upload to crates.io only after the owner
+says yes. The old tag `v0.0.1` is from the reset of the numbers (ADR 0064) and lies below the published versions.
+(Deutsch: Wahrheit ist 0.2.0 auf crates.io; Version = Tag; Tag v0.2.1 nach Review und gruener CI, Upload erst nach dem Ja des
+Eigentuemers.)
 
-## Unreleased (0.2.1, no tag, no upload)
+## 0.2.1 — 2026-11-19
 
 - Added: the annotation `$Cli.sensitive` (field, param; id `0x8d8306a2e2dc31b6`) in `capnpc_cli.capnp`: sensitive data of a person (health
   data, a marked contact, a data protection category) that goes to an AI, and out in an export, only with an explicit release for each
@@ -23,7 +23,8 @@ CI, Upload erst nach dem Ja des Eigentuemers.)
 - Tests: `tests/annotations_sensitive.rs` (the directory alone compiles a contract with the annotations; the mark is in the schema and
   the meta where it stands and nowhere else; a secret wins; the marks of a program add an argument and only that one; the command code
   does not carry it), the golden file `sensitive_mcp.rs` (fixture `sensitive.capnp`).
-- The version stays 0.2.0 in `Cargo.toml` until the tag (version = tag); `capnp-compiler` 0.2.0 on crates.io is untouched.
+- The generated heads name `capnpc-cli 0.2.1` / `capnpc-mcp 0.2.1` (every golden file carries the new version in its first line and nothing else changed); the published 0.2.0 on crates.io is untouched.
+- Fixed in the review: the marks of a program (`MarkSource::sensitive`) are for the arguments and set `sensitive` in the `_meta`; inside a NAMED struct (shared in `$defs`) a mark by path sets only the `_meta`, not `x-fs-sensitive` at the place (the struct is shared): mark such a field with the annotation `$Cli.sensitive` in the contract.
 
 ## 0.2.0 — 2026-11-19
 

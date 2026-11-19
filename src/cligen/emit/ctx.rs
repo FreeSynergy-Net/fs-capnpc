@@ -17,7 +17,9 @@ pub trait MarkSource {
         false
     }
     /// Is the parameter `path` of the command `key` sensitive data (a person's health data, a marked contact)? Adds to the
-    /// `sensitive` annotation of the schema; used by `capnpc-mcp` for the arguments of the command.
+    /// `sensitive` annotation of the schema; used by `capnpc-mcp` for the arguments of the command. The path is the one `cligen`
+    /// uses (`filter.due-from`). A field INSIDE a named struct is shared by every place that uses the struct, so a mark by path there
+    /// sets only `sensitive` in the `_meta` of the tool, not `x-fs-sensitive` in the shared schema: mark such a field in the contract.
     fn sensitive(&self, _key: &str, _path: &str) -> bool {
         false
     }

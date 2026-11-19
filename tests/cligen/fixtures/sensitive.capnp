@@ -9,5 +9,6 @@ interface Records {
   diagnose @0 () -> (finding :Finding, note :Text $Cli.sensitive) $Cli.risk(read);   # Read the finding.
   share    @1 (with :Text, detail :Text $Cli.sensitive) -> () $Cli.risk(add);         # Share a detail.
   plain    @2 (name :Text) -> (count :UInt32, name :Text) $Cli.risk(read);            # Nothing marked.
+  nested   @4 () -> (finding :Finding) $Cli.risk(read);                              # Only a nested result field is sensitive.
   secret   @3 () -> (key :Text $Cli.secret, hint :Text $Cli.sensitive) $Cli.risk(read);   # A secret wins: no tool.
 }

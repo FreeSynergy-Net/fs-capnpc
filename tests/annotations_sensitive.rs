@@ -155,7 +155,7 @@ fn the_command_code_is_not_changed_by_the_mark() {
 struct ResultMarks;
 impl MarkSource for ResultMarks {
     fn sensitive(&self, key: &str, path: &str) -> bool {
-        // a path that only a RESULT has (`count`) and one that both have (`name`): the marks speak of the arguments only
+        // a path that only a RESULT has (`count`), and the nested path `name.x` that nothing has: the marks speak of the arguments only
         key == "sensitive/Records.plain" && (path == "count" || path == "name.x")
     }
 }
@@ -167,5 +167,21 @@ fn the_marks_of_a_program_do_not_reach_the_results() {
     assert!(
         !plain.contains("\"sensitive\":") && !plain.contains("x-fs-sensitive"),
         "{plain}"
+    );
+}
+
+#[test]
+fn a_nested_result_field_alone_makes_the_tool_sensitive() {
+    let t = text(None);
+    let nested = tool(&t, "sensitive.nested");
+    assert!(nested.contains("\"sensitive\":true"), "{nested}");
+    assert_eq!(
+        nested.matches("x-fs-sensitive").count(),
+        1,
+        "the `diagnosis` of the shared struct: {nested}"
+    );
+    assert!(
+        nested.contains("\"diagnosis\":{\"type\":\"string\",\"x-fs-sensitive\":true}"),
+        "{nested}"
     );
 }
