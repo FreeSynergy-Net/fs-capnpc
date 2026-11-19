@@ -63,6 +63,11 @@
     reason = "Cap'n Proto layout arithmetic uses fixed-width fields"
 )]
 
+/// The directory that holds `capnpc_cli.capnp` (the annotations `secret`, `sensitive`, `risk`, `resource`, `reason`, `kind`) in this
+/// crate's source tree (a dependent crate that reads this crate from a git checkout gets the path of that checkout). Use it as
+/// the import path of a schema compiler, with `using Cli = import "/capnpc_cli.capnp";` in the schema that carries the marks.
+pub const SCHEMA_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/src/cligen");
+
 pub mod ast;
 #[cfg(feature = "cli")]
 pub mod cli;

@@ -9,7 +9,9 @@ mod read;
 mod scope;
 mod types;
 
-pub use annotation::{Annotation, KIND_ANNOTATION, RISK_ANNOTATION, SECRET_ANNOTATION};
+pub use annotation::{
+    Annotation, KIND_ANNOTATION, RISK_ANNOTATION, SECRET_ANNOTATION, SENSITIVE_ANNOTATION,
+};
 pub use names::{capitalize, kebab, module_name, snake};
 pub use types::{
     EnumNode, Field, FieldKind, InterfaceNode, Method, Model, RequestedFile, STREAM_RESULT_ID,

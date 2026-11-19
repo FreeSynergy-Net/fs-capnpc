@@ -138,38 +138,50 @@ fn skip_reason(
     marks: &dyn MarkSource,
     t: &Tree,
     c: &Command,
-) -> (Option<&'static str>, bool) {
+) -> (Option<&'static str>, bool, bool) {
     if c.method.streaming {
-        return (Some("stream"), false);
+        return (Some("stream"), false, false);
     }
     if c.watch {
-        return (Some("listener"), false);
+        return (Some("listener"), false, false);
     }
     if excluded(m, marks, t, c) {
-        return (Some("excluded"), false);
+        return (Some("excluded"), false, false);
     }
     let input = scan(m, marks, &c.key, c.method.params, true);
     if input.reason.is_some() {
-        return (input.reason, false);
+        return (input.reason, false, false);
     }
     let output = scan(m, marks, &c.key, c.method.results, false);
-    (output.reason, input.free)
+    (
+        output.reason,
+        input.free,
+        input.sensitive || output.sensitive,
+    )
 }
 
-fn meta(key: &str, member: Option<&str>, risk: Option<&str>, free: bool) -> String {
+fn meta(
+    key: &str,
+    member: Option<&str>,
+    risk: Option<&str>,
+    free: bool,
+    sensitive: bool,
+) -> String {
     let source = member.map_or_else(|| key.to_owned(), |mb| format!("{key}#{mb}"));
-    obj([(
-        META_KEY,
-        obj([
-            ("actor", s("ai")),
-            ("risk", s(risk.unwrap_or("unknown"))),
-            ("needsRelease", Json::Bool(true)),
-            ("unmarked", Json::Bool(risk.is_none())),
-            ("source", Json::Str(source)),
-            ("freeContent", Json::Bool(free)),
-        ]),
-    )])
-    .text()
+    let mut fields = vec![
+        ("actor", s("ai")),
+        ("risk", s(risk.unwrap_or("unknown"))),
+        ("needsRelease", Json::Bool(true)),
+        ("unmarked", Json::Bool(risk.is_none())),
+        ("source", Json::Str(source)),
+        ("freeContent", Json::Bool(free)),
+    ];
+    // only when true: a table without a sensitive field is byte-for-byte what it was
+    if sensitive {
+        fields.push(("sensitive", Json::Bool(true)));
+    }
+    let inner = Json::Obj(fields.into_iter().map(|(k, v)| (k.to_owned(), v)).collect());
+    obj([(META_KEY, inner)]).text()
 }
 
 /// The tools of a tree; `prefix` starts every name (`tasks`).
@@ -180,7 +192,7 @@ pub fn build(m: &Model, marks: &dyn MarkSource, t: &Tree, prefix: &str) -> capnp
     let mut table = Table::default();
     let mut names = BTreeSet::new();
     for c in &t.commands {
-        let (reason, free) = skip_reason(m, marks, t, c);
+        let (reason, free, sensitive) = skip_reason(m, marks, t, c);
         if let Some(r) = reason {
             table.left.push((c.key.clone(), r));
             continue;
@@ -239,7 +251,7 @@ pub fn build(m: &Model, marks: &dyn MarkSource, t: &Tree, prefix: &str) -> capnp
                     .root(c.method.params, member)
                     .text(),
                 output: output.clone(),
-                meta: meta(&c.key, member, risk_value.as_deref(), free),
+                meta: meta(&c.key, member, risk_value.as_deref(), free, sensitive),
                 risk: danger,
                 free,
                 name,

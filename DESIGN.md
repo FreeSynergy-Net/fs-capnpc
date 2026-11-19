@@ -151,3 +151,12 @@ nothing copied). What the generator and `rt` rely on:
   older than this revision and not in it.)
 - `$ref` must not be dereferenced over the network; we only write local `#/$defs/...` references.
 - `tools/list` returns the same set for every connection and in a deterministic order: the table is in walk order.
+
+## The annotation `sensitive` (unreleased)
+
+Two stages of what must not travel (decision of the strategy, 19.11.2026): a SECRET (credentials, keys, tokens: `$Cli.secret`) never leaves,
+not even with a release, so a tool with one is no tool; SENSITIVE data (`$Cli.sensitive`: health data, marked contacts, data protection
+categories) leaves only for a receiver with an explicit release, so the tool stays a tool and the table says where the data is
+(`x-fs-sensitive` in the schema, `sensitive` in `_meta`). The generator only says; WHO may receive is the decision of the program that serves
+the tools, from the key of the connection and never from a label that the client writes about itself. `SCHEMA_DIR` is how a contract finds
+`capnpc_cli.capnp` without a copy.

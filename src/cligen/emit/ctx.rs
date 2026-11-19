@@ -16,6 +16,11 @@ pub trait MarkSource {
     fn secret(&self, _key: &str, _path: &str) -> bool {
         false
     }
+    /// Is the parameter `path` of the command `key` sensitive data (a person's health data, a marked contact)? Adds to the
+    /// `sensitive` annotation of the schema; used by `capnpc-mcp` for the arguments of the command.
+    fn sensitive(&self, _key: &str, _path: &str) -> bool {
+        false
+    }
     /// A hint for the basic type of the parameter `path` of the command `key`.
     fn kind(&self, _key: &str, _path: &str) -> Option<String> {
         None

@@ -6,6 +6,8 @@ use capnp::schema_capnp::{annotation, value};
 
 /// Annotation id of `secret` in `capnpc_cli.capnp`.
 pub const SECRET_ANNOTATION: u64 = 0xefac_3d50_46ac_feb0;
+/// Annotation id of `sensitive` in `capnpc_cli.capnp`.
+pub const SENSITIVE_ANNOTATION: u64 = 0x8d83_06a2_e2dc_31b6;
 /// Annotation id of `kind` in `capnpc_cli.capnp`.
 pub const KIND_ANNOTATION: u64 = 0xe63f_c325_3809_b912;
 /// Annotation id of `risk` in `capnpc_cli.capnp`.
@@ -77,6 +79,12 @@ impl Annotation {
     #[must_use]
     pub fn is_kind(&self) -> bool {
         self.id == KIND_ANNOTATION
+    }
+
+    /// Is it the `sensitive` mark?
+    #[must_use]
+    pub fn is_sensitive(&self) -> bool {
+        self.id == SENSITIVE_ANNOTATION
     }
 
     /// Is it the `secret` mark?

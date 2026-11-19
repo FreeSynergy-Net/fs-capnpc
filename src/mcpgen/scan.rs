@@ -13,6 +13,8 @@ pub struct Scan {
     pub reason: Option<&'static str>,
     /// A text or bytes field without a `kind` hint: it can hold what a person wrote.
     pub free: bool,
+    /// A field marked `sensitive` (by the annotation, or for a parameter by the marks of the program).
+    pub sensitive: bool,
 }
 
 struct Walk<'a> {
@@ -62,6 +64,11 @@ impl Walk<'_> {
                 || (self.params && self.marks.secret(self.key, &path));
             if secret {
                 self.hit("secret");
+            }
+            if f.annotations.iter().any(Annotation::is_sensitive)
+                || (self.params && self.marks.sensitive(self.key, &path))
+            {
+                self.out.sensitive = true;
             }
             let kinded = f.annotations.iter().any(Annotation::is_kind)
                 || (self.params && self.marks.kind(self.key, &path).is_some());

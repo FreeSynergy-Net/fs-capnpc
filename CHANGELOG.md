@@ -7,6 +7,24 @@ comes after the review and a green CI on the exact head, the upload to crates.io
 (Deutsch: Wahrheit ist 0.1.1 auf crates.io; 0.1.0 wurde nie hochgeladen; Version = Tag; Tag v0.2.0 nach Review und gruener
 CI, Upload erst nach dem Ja des Eigentuemers.)
 
+## Unreleased (0.2.1, no tag, no upload)
+
+- Added: the annotation `$Cli.sensitive` (field, param; id `0x8d8306a2e2dc31b6`) in `capnpc_cli.capnp`: sensitive data of a person (health
+  data, a marked contact, a data protection category) that goes to an AI, and out in an export, only with an explicit release for each
+  receiver. It is NOT a secret: `$Cli.secret` stays "never out, with no release at all", and wins when both stand on one tool.
+  `capnpc-mcp` writes `"x-fs-sensitive": true` at the place in the `inputSchema`/`outputSchema` and `"sensitive": true` into the `_meta`
+  of the tool (only when true: a table without the mark is byte-for-byte what it was; every golden file of the older fixtures is
+  unchanged); a tool stays a tool. New method `MarkSource::sensitive(key, path)` (default `false`): a program can mark an argument that
+  the contract does not. `cligen` (the command line code) does not know the mark and writes the same text. (Deutsch: neue Annotation
+  `$Cli.sensitive`; Werkzeug-Tabellen schreiben `x-fs-sensitive` ins Schema und `sensitive` in `_meta`; bleibt ein Werkzeug; `secret` gewinnt.)
+- Added: `capnp_compiler::SCHEMA_DIR`, the directory that holds `capnpc_cli.capnp` (like `fs_types::SCHEMA_DIR`): a contract that imports
+  `using Cli = import "/capnpc_cli.capnp";` takes it as its import path, so no program has to copy the file or declare the ids again
+  (a copy drifts). The file is part of the published package (`include` has `/src/**`).
+- Tests: `tests/annotations_sensitive.rs` (the directory alone compiles a contract with the annotations; the mark is in the schema and
+  the meta where it stands and nowhere else; a secret wins; the marks of a program add an argument and only that one; the command code
+  does not carry it), the golden file `sensitive_mcp.rs` (fixture `sensitive.capnp`).
+- The version stays 0.2.0 in `Cargo.toml` until the tag (version = tag); `capnp-compiler` 0.2.0 on crates.io is untouched.
+
 ## 0.2.0 — 2026-11-19
 
 - Added: the command line code generator `capnp_compiler::cligen` (moved here from the workspace crate `capnpc-cli`,

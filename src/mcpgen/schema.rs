@@ -8,7 +8,7 @@ use std::collections::BTreeMap;
 
 use super::json::{Json, obj, s};
 use crate::cligen::MarkSource;
-use crate::cligen::model::{Field, FieldKind, Model, Ty, kebab};
+use crate::cligen::model::{Annotation, Field, FieldKind, Model, Ty, kebab};
 
 /// The `format` of a text that carries a `kind` hint; any other hint is passed on as `x-fs-kind`.
 fn format_of(kind: &str) -> Option<&'static str> {
@@ -187,6 +187,13 @@ impl<'a> Schema<'a> {
                 Some(fmt) => j.put("format", s(fmt)),
                 None => j.put("x-fs-kind", Json::Str(k)),
             }
+        }
+        // sensitive data of a person: the program that serves the tools lets it out only to a receiver with a release
+        let marked = fp
+            .as_deref()
+            .is_some_and(|p| self.closed && self.marks.sensitive(self.key, p));
+        if marked || f.annotations.iter().any(Annotation::is_sensitive) {
+            j.put("x-fs-sensitive", Json::Bool(true));
         }
         if !f.doc.trim().is_empty() {
             j.put("description", s(f.doc.trim()));

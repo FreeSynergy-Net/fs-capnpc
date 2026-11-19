@@ -6,6 +6,12 @@
 # A value that must never travel in a command line argument or a tool description (a password, a token).
 annotation secret @0xefac3d5046acfeb0 (field, param) :Void;
 
+# Sensitive data of a person (health data, a marked contact, a category of data protection): it goes to an AI, and out in an
+# export, only with an explicit release for each receiver. Not a secret: a secret never goes out, with no release at all.
+# The generator of tools writes `"x-fs-sensitive": true` at the place in the schema and `"sensitive": true` into the `_meta`
+# of the tool; the program that serves the tools decides who may receive it.
+annotation sensitive @0x8d8306a2e2dc31b6 (field, param) :Void;
+
 # What a call does to the data of people; the tools of a program use it to decide what is offered.
 enum Danger {
   read        @0;

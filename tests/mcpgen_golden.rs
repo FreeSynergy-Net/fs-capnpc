@@ -73,3 +73,8 @@ fn golden_features() {
 fn golden_mcp_cases() {
     check(&["mcp.capnp", "capnpc_cli.capnp"], "mcp_mcp.rs");
 }
+
+#[test]
+fn golden_sensitive() {
+    check(&["sensitive.capnp", "capnpc_cli.capnp"], "sensitive_mcp.rs");
+}
