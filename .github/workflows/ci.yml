@@ -9,6 +9,6 @@ permissions:
 
 jobs:
   ci:
-    uses: FreeSynergy/fs-release/.github/workflows/ci.yml@v0.0.15
+    uses: FreeSynergy-Net/fs-release/.github/workflows/ci.yml@15935ed0d847d522fcb43d93e340ad1b14809639
     with:
       msrv: "1.88"
