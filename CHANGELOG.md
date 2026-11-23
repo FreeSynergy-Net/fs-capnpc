@@ -4,6 +4,21 @@ Versions: the version published on crates.io is the one the badge in the README 
 version equals the tag. The old tag `v0.0.1` is from the reset of the numbers (ADR 0064) and lies below the published versions.
 (Deutsch: veroeffentlicht ist die Version, die das Badge im README zeigt; Version = Tag.)
 
+## 0.2.3 — 2026-11-23
+
+- Fixed: the enum readers of `cligen` (the private enum functions in the generated command code) had no arm for a value the program does not
+  know: a schema whose enum got a new variant (the owner compiled against a newer schema) did not compile into a program with `-D warnings`
+  and could not report the unknown value. Now the reader has a catch-all arm `_ => Value::UnknownEnum(v as u16)` (the existing variant that the
+  getter error path already uses; no panic, nothing is swallowed), with `#[allow(unreachable_patterns)]` on that arm only (not on the module),
+  so a complete variant list stays free of warnings. (Deutsch: behoben: der Enum-Leser kannte keinen Auffangzweig; unbekannter Wert wird als
+  `Value::UnknownEnum` gemeldet, das Allow steht nur am Zweig.)
+- Generator output changes: the private enum functions return `Value<'static>` instead of `&'static str` (the arms are `Value::Enum("..")`).
+  Consumers regenerate their command code (`fs-interfaces` is regenerated against this version). Every golden file carries the new head
+  `capnpc-cli 0.2.3` / `capnpc-mcp 0.2.3`; the three goldens `features`, `tasks`, `tasks_fs_types` differ in the enum functions as well.
+  (Deutsch: Erzeuger-Ausgabe ändert sich: `Value<'static>` statt `&'static str`; Verbraucher regenerieren, `fs-interfaces` wird neu erzeugt.)
+- Tests: `tests/cligen_enum_fallback.rs` compiles the generated reader with rustc under `-D warnings` and runs it: (a) with an owner enum that
+  has one more variant it reports `UnknownEnum(3)`, (b) with the complete list it compiles without a warning.
+
 ## 0.2.2 — 2026-11-19
 
 - Release only: no code change against 0.2.1, only metadata (`documentation` = docs.rs, `homepage` = GitHub, crates.io badge in the README), the

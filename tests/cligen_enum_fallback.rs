@@ -42,8 +42,17 @@ fn complete_enum_compiles_under_deny_warnings() {
 
 /// Compile (with `-D warnings`) and run the generated reader against an owner enum with the extra variants `extra`.
 fn run(tag: &str, extra: &str, check: &str) {
-    let dir = PathBuf::from(env!("CARGO_TARGET_TMPDIR"))
-        .join(format!("enum-fallback-{tag}-{}", std::process::id()));
+    // 2021 (the compile step of this test) and 2024 (the edition of the consumers, e.g. `fs-interfaces`).
+    for edition in ["2021", "2024"] {
+        run_edition(edition, tag, extra, check);
+    }
+}
+
+fn run_edition(edition: &str, tag: &str, extra: &str, check: &str) {
+    let dir = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(format!(
+        "enum-fallback-{tag}-{edition}-{}",
+        std::process::id()
+    ));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
     // The owner crate has one variant more than the schema of the generation (`Newer`).
@@ -70,7 +79,7 @@ fn main() {{
     let rustc = std::env::var_os("RUSTC").unwrap_or_else(|| "rustc".into());
     let bin = dir.join("prog");
     let built = Command::new(rustc)
-        .args(["--edition", "2021", "-D", "warnings", "-o"])
+        .args(["--edition", edition, "-D", "warnings", "-o"])
         .arg(&bin)
         .arg(&src)
         .output()
