@@ -788,7 +788,7 @@ fn out_features_capnp_features_raw_value_results(r: crate::features_capnp::featu
 fn out_features_capnp_features_reserved_ok_results(r: crate::features_capnp::features::reserved_ok_results::Reader<'_>, name: &str, out: &mut dyn Output) -> Result<(), CallError> {
     out.begin_struct(name, "");
     out.field("version", Value::Uint(u64::from(r.get_version())));
-    out.field("kinds", match r.get_kinds() { Ok(v) => Value::Enum(enum_features_capnp_colour(v)), Err(x) => Value::UnknownEnum(x.0) });
+    out.field("kinds", match r.get_kinds() { Ok(v) => enum_features_capnp_colour(v), Err(x) => Value::UnknownEnum(x.0) });
     out.end();
     Ok(())
 }
@@ -903,10 +903,12 @@ fn out_features_capnp_sink_event_params(r: crate::features_capnp::sink::event_pa
     Ok(())
 }
 
-fn enum_features_capnp_colour(v: crate::features_capnp::Colour) -> &'static str {
+fn enum_features_capnp_colour(v: crate::features_capnp::Colour) -> Value {
     match v {
-        crate::features_capnp::Colour::Red => "red",
-        crate::features_capnp::Colour::DeepBlue => "deep-blue",
-        crate::features_capnp::Colour::Green => "green",
+        crate::features_capnp::Colour::Red => Value::Enum("red"),
+        crate::features_capnp::Colour::DeepBlue => Value::Enum("deep-blue"),
+        crate::features_capnp::Colour::Green => Value::Enum("green"),
+        #[allow(unreachable_patterns)]
+        _ => Value::UnknownEnum(v as u16),
     }
 }

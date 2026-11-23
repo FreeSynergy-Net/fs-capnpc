@@ -1266,7 +1266,7 @@ fn out_tasks_capnp_items_readiness_results(r: crate::tasks_capnp::items::readine
 #[allow(unused_variables, unused_mut)]
 fn out_tasks_capnp_readiness_report(r: crate::tasks_capnp::readiness_report::Reader<'_>, name: &str, out: &mut dyn Output) -> Result<(), CallError> {
     out.begin_struct(name, "ReadinessReport");
-    out.field("readiness", match r.get_readiness() { Ok(v) => Value::Enum(enum_tasks_capnp_readiness(v)), Err(x) => Value::UnknownEnum(x.0) });
+    out.field("readiness", match r.get_readiness() { Ok(v) => enum_tasks_capnp_readiness(v), Err(x) => Value::UnknownEnum(x.0) });
     {
         let l = r.get_by()?;
         out.begin_list("by", "Text");
@@ -1333,7 +1333,7 @@ fn out_tasks_capnp_tasks_support_report_results(r: crate::tasks_capnp::tasks::su
 fn out_types_capnp_command_description(r: crate::types_capnp::command_description::Reader<'_>, name: &str, out: &mut dyn Output) -> Result<(), CallError> {
     out.begin_struct(name, "CommandDescription");
     out.field("name", Value::Text(r.get_name()?.to_str()?));
-    out.field("kind", match r.get_kind() { Ok(v) => Value::Enum(enum_types_capnp_command_kind(v)), Err(x) => Value::UnknownEnum(x.0) });
+    out.field("kind", match r.get_kind() { Ok(v) => enum_types_capnp_command_kind(v), Err(x) => Value::UnknownEnum(x.0) });
     out.field("label", Value::Text(r.get_label()?.to_str()?));
     {
         let l = r.get_input()?;
@@ -1360,7 +1360,7 @@ fn out_types_capnp_command_description(r: crate::types_capnp::command_descriptio
 fn out_types_capnp_field_description(r: crate::types_capnp::field_description::Reader<'_>, name: &str, out: &mut dyn Output) -> Result<(), CallError> {
     out.begin_struct(name, "FieldDescription");
     out.field("name", Value::Text(r.get_name()?.to_str()?));
-    out.field("basic", match r.get_basic() { Ok(v) => Value::Enum(enum_types_capnp_basic_type(v)), Err(x) => Value::UnknownEnum(x.0) });
+    out.field("basic", match r.get_basic() { Ok(v) => enum_types_capnp_basic_type(v), Err(x) => Value::UnknownEnum(x.0) });
     out.field("required", Value::Bool(r.get_required()));
     out.field("multiple", Value::Bool(r.get_multiple()));
     out.field("label", Value::Text(r.get_label()?.to_str()?));
@@ -1420,48 +1420,54 @@ fn out_types_capnp_type_description(r: crate::types_capnp::type_description::Rea
     Ok(())
 }
 
-fn enum_tasks_capnp_readiness(v: crate::tasks_capnp::Readiness) -> &'static str {
+fn enum_tasks_capnp_readiness(v: crate::tasks_capnp::Readiness) -> Value {
     match v {
-        crate::tasks_capnp::Readiness::Ready => "ready",
-        crate::tasks_capnp::Readiness::Blocked => "blocked",
-        crate::tasks_capnp::Readiness::Done => "done",
-        crate::tasks_capnp::Readiness::Unknown => "unknown",
-        crate::tasks_capnp::Readiness::DependencyCancelled => "dependency-cancelled",
-        crate::tasks_capnp::Readiness::Conflict => "conflict",
+        crate::tasks_capnp::Readiness::Ready => Value::Enum("ready"),
+        crate::tasks_capnp::Readiness::Blocked => Value::Enum("blocked"),
+        crate::tasks_capnp::Readiness::Done => Value::Enum("done"),
+        crate::tasks_capnp::Readiness::Unknown => Value::Enum("unknown"),
+        crate::tasks_capnp::Readiness::DependencyCancelled => Value::Enum("dependency-cancelled"),
+        crate::tasks_capnp::Readiness::Conflict => Value::Enum("conflict"),
+        #[allow(unreachable_patterns)]
+        _ => Value::UnknownEnum(v as u16),
     }
 }
 
-fn enum_types_capnp_basic_type(v: crate::types_capnp::BasicType) -> &'static str {
+fn enum_types_capnp_basic_type(v: crate::types_capnp::BasicType) -> Value {
     match v {
-        crate::types_capnp::BasicType::Unknown => "unknown",
-        crate::types_capnp::BasicType::Text => "text",
-        crate::types_capnp::BasicType::MultilineText => "multiline-text",
-        crate::types_capnp::BasicType::Email => "email",
-        crate::types_capnp::BasicType::Phone => "phone",
-        crate::types_capnp::BasicType::Name => "name",
-        crate::types_capnp::BasicType::Address => "address",
-        crate::types_capnp::BasicType::Place => "place",
-        crate::types_capnp::BasicType::Date => "date",
-        crate::types_capnp::BasicType::DateTime => "date-time",
-        crate::types_capnp::BasicType::Language => "language",
-        crate::types_capnp::BasicType::Link => "link",
-        crate::types_capnp::BasicType::Image => "image",
-        crate::types_capnp::BasicType::Key => "key",
-        crate::types_capnp::BasicType::Choice => "choice",
-        crate::types_capnp::BasicType::Keywords => "keywords",
-        crate::types_capnp::BasicType::Reference => "reference",
+        crate::types_capnp::BasicType::Unknown => Value::Enum("unknown"),
+        crate::types_capnp::BasicType::Text => Value::Enum("text"),
+        crate::types_capnp::BasicType::MultilineText => Value::Enum("multiline-text"),
+        crate::types_capnp::BasicType::Email => Value::Enum("email"),
+        crate::types_capnp::BasicType::Phone => Value::Enum("phone"),
+        crate::types_capnp::BasicType::Name => Value::Enum("name"),
+        crate::types_capnp::BasicType::Address => Value::Enum("address"),
+        crate::types_capnp::BasicType::Place => Value::Enum("place"),
+        crate::types_capnp::BasicType::Date => Value::Enum("date"),
+        crate::types_capnp::BasicType::DateTime => Value::Enum("date-time"),
+        crate::types_capnp::BasicType::Language => Value::Enum("language"),
+        crate::types_capnp::BasicType::Link => Value::Enum("link"),
+        crate::types_capnp::BasicType::Image => Value::Enum("image"),
+        crate::types_capnp::BasicType::Key => Value::Enum("key"),
+        crate::types_capnp::BasicType::Choice => Value::Enum("choice"),
+        crate::types_capnp::BasicType::Keywords => Value::Enum("keywords"),
+        crate::types_capnp::BasicType::Reference => Value::Enum("reference"),
+        #[allow(unreachable_patterns)]
+        _ => Value::UnknownEnum(v as u16),
     }
 }
 
-fn enum_types_capnp_command_kind(v: crate::types_capnp::CommandKind) -> &'static str {
+fn enum_types_capnp_command_kind(v: crate::types_capnp::CommandKind) -> Value {
     match v {
-        crate::types_capnp::CommandKind::Unknown => "unknown",
-        crate::types_capnp::CommandKind::Create => "create",
-        crate::types_capnp::CommandKind::Change => "change",
-        crate::types_capnp::CommandKind::Find => "find",
-        crate::types_capnp::CommandKind::Delete => "delete",
-        crate::types_capnp::CommandKind::Check => "check",
-        crate::types_capnp::CommandKind::Suggest => "suggest",
-        crate::types_capnp::CommandKind::Other => "other",
+        crate::types_capnp::CommandKind::Unknown => Value::Enum("unknown"),
+        crate::types_capnp::CommandKind::Create => Value::Enum("create"),
+        crate::types_capnp::CommandKind::Change => Value::Enum("change"),
+        crate::types_capnp::CommandKind::Find => Value::Enum("find"),
+        crate::types_capnp::CommandKind::Delete => Value::Enum("delete"),
+        crate::types_capnp::CommandKind::Check => Value::Enum("check"),
+        crate::types_capnp::CommandKind::Suggest => Value::Enum("suggest"),
+        crate::types_capnp::CommandKind::Other => Value::Enum("other"),
+        #[allow(unreachable_patterns)]
+        _ => Value::UnknownEnum(v as u16),
     }
 }

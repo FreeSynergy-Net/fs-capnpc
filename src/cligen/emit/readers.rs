@@ -71,7 +71,7 @@ pub fn value(ctx: &mut Ctx<'_>, w: &mut Text, ty: &Ty, e: &str, n: &str, direct_
         Ty::Enum(id) => {
             let f = ctx.enum_fn(*id);
             w.line(format!(
-                "out.field({n}, match {e} {{ Ok(v) => Value::Enum({f}(v)), Err(x) => Value::UnknownEnum(x.0) }});"
+                "out.field({n}, match {e} {{ Ok(v) => {f}(v), Err(x) => Value::UnknownEnum(x.0) }});"
             ));
         }
         Ty::Struct(id) => {
@@ -123,16 +123,24 @@ pub fn elem_name(ctx: &Ctx<'_>, el: &Ty) -> String {
     }
 }
 
-/// `enum_<enum>(v) -> &'static str`: the enumerant as a command line word.
+/// `enum_<enum>(v) -> Value`: the enumerant as a command line word (`Value::Enum`). A variant the schema of the
+/// generation did not know (the enum grew in the crate that owns it) comes out as `Value::UnknownEnum(number)`: the same
+/// visible answer the getter gives for a number outside the schema, never a panic and never a silent drop.
 pub fn enum_fn(ctx: &Ctx<'_>, id: u64) -> String {
     let path = ctx.m.path(id);
     let name = ctx.ident("enum", id);
     let mut w = Text::default();
-    w.open(format!("fn {name}(v: {path}) -> &'static str {{"));
+    w.open(format!("fn {name}(v: {path}) -> Value {{"));
     w.open("match v {");
     for n in &ctx.m.enums[&id].names {
-        w.line(format!("{path}::{} => {},", capitalize(n), lit(&kebab(n))));
+        w.line(format!(
+            "{path}::{} => Value::Enum({}),",
+            capitalize(n),
+            lit(&kebab(n))
+        ));
     }
+    w.line("#[allow(unreachable_patterns)]");
+    w.line("_ => Value::UnknownEnum(v as u16),");
     w.close("}");
     w.close("}");
     w.finish()
