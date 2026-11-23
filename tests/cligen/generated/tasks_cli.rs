@@ -1420,7 +1420,7 @@ fn out_types_capnp_type_description(r: crate::types_capnp::type_description::Rea
     Ok(())
 }
 
-fn enum_tasks_capnp_readiness(v: crate::tasks_capnp::Readiness) -> Value {
+fn enum_tasks_capnp_readiness(v: crate::tasks_capnp::Readiness) -> Value<'static> {
     match v {
         crate::tasks_capnp::Readiness::Ready => Value::Enum("ready"),
         crate::tasks_capnp::Readiness::Blocked => Value::Enum("blocked"),
@@ -1433,7 +1433,7 @@ fn enum_tasks_capnp_readiness(v: crate::tasks_capnp::Readiness) -> Value {
     }
 }
 
-fn enum_types_capnp_basic_type(v: crate::types_capnp::BasicType) -> Value {
+fn enum_types_capnp_basic_type(v: crate::types_capnp::BasicType) -> Value<'static> {
     match v {
         crate::types_capnp::BasicType::Unknown => Value::Enum("unknown"),
         crate::types_capnp::BasicType::Text => Value::Enum("text"),
@@ -1457,7 +1457,7 @@ fn enum_types_capnp_basic_type(v: crate::types_capnp::BasicType) -> Value {
     }
 }
 
-fn enum_types_capnp_command_kind(v: crate::types_capnp::CommandKind) -> Value {
+fn enum_types_capnp_command_kind(v: crate::types_capnp::CommandKind) -> Value<'static> {
     match v {
         crate::types_capnp::CommandKind::Unknown => Value::Enum("unknown"),
         crate::types_capnp::CommandKind::Create => Value::Enum("create"),

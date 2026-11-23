@@ -903,7 +903,7 @@ fn out_features_capnp_sink_event_params(r: crate::features_capnp::sink::event_pa
     Ok(())
 }
 
-fn enum_features_capnp_colour(v: crate::features_capnp::Colour) -> Value {
+fn enum_features_capnp_colour(v: crate::features_capnp::Colour) -> Value<'static> {
     match v {
         crate::features_capnp::Colour::Red => Value::Enum("red"),
         crate::features_capnp::Colour::DeepBlue => Value::Enum("deep-blue"),

@@ -130,7 +130,7 @@ pub fn enum_fn(ctx: &Ctx<'_>, id: u64) -> String {
     let path = ctx.m.path(id);
     let name = ctx.ident("enum", id);
     let mut w = Text::default();
-    w.open(format!("fn {name}(v: {path}) -> Value {{"));
+    w.open(format!("fn {name}(v: {path}) -> Value<'static> {{"));
     w.open("match v {");
     for n in &ctx.m.enums[&id].names {
         w.line(format!(

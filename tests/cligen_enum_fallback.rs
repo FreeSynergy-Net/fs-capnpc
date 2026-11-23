@@ -22,31 +22,45 @@ fn enum_fn_text() -> String {
 #[test]
 fn enum_reader_has_a_visible_catch_all() {
     let f = enum_fn_text();
-    assert!(f.contains("-> Value"), "{f}");
+    assert!(f.contains("-> Value<'static>"), "{f}");
     assert!(f.contains("Value::UnknownEnum("), "{f}");
 }
 
 #[test]
 fn grown_enum_compiles_and_reports_the_unknown_variant() {
+    run(
+        "grown",
+        ", Newer",
+        "assert_eq!(enum_features_capnp_colour(Colour::Newer), Value::UnknownEnum(3));",
+    );
+}
+
+#[test]
+fn complete_enum_compiles_under_deny_warnings() {
+    run("complete", "", "");
+}
+
+/// Compile (with `-D warnings`) and run the generated reader against an owner enum with the extra variants `extra`.
+fn run(tag: &str, extra: &str, check: &str) {
     let dir = PathBuf::from(env!("CARGO_TARGET_TMPDIR"))
-        .join(format!("enum-fallback-{}", std::process::id()));
+        .join(format!("enum-fallback-{tag}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
     // The owner crate has one variant more than the schema of the generation (`Newer`).
     let program = format!(
         r#"#![allow(dead_code)]
 #[derive(Debug, PartialEq)]
-pub enum Value {{ Enum(&'static str), UnknownEnum(u16) }}
+pub enum Value<'a> {{ Enum(&'static str), UnknownEnum(u16), Text(&'a str) }}
 mod features_capnp {{
     #[repr(u16)]
     #[derive(Clone, Copy)]
-    pub enum Colour {{ Red, DeepBlue, Green, Newer }}
+    pub enum Colour {{ Red, DeepBlue, Green{extra} }}
 }}
 {}
 fn main() {{
     use features_capnp::Colour;
     assert_eq!(enum_features_capnp_colour(Colour::DeepBlue), Value::Enum("deep-blue"));
-    assert_eq!(enum_features_capnp_colour(Colour::Newer), Value::UnknownEnum(3));
+    {check}
 }}
 "#,
         enum_fn_text()
