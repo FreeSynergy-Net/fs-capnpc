@@ -1,0 +1,55 @@
+# cargo-nextest profiles for fs-capnpc (workflow testlauf, CLAUDE.md §4: little but often).
+# Checked with `cargo nextest list --workspace --all-features --profile P --message-format oneline` (counts in the commit message).
+#
+# Run:  cargo nextest run --workspace --all-features --profile <quick|time|security|platform|release>
+# Levels: `quick` while working on a finished module (seconds); `time` for the hang-watchdog tests (10x rule: add --stress-count 10);
+# `security` for the `sensitive` / `secret` marks before a release; `platform` for tests that run an outside program or the
+# own binaries, and for the unix-only test; `release` = everything (CI only). There is no picture level: the repo draws nothing.
+#
+# NAME CONVENTION (the filtersets below read it; a new test follows it so it lands in the right level):
+#   platform : test file name ends in `_bins` (starts the real `capnp-compiler` / `capnpc-cli` / `capnpc-mcp` binaries as child
+#              processes), starts with `oracle_` (runs the official `capnp` compiler and compares), is `cligen_enum_fallback`
+#              (runs `rustc` on generated code), or the test is `cfg(unix)` / `cfg(windows)` (now: `a_unix_host_...`).
+#   time     : the fixture tests that guard a hang with a 60 s watchdog thread: files `lost` and `wait_error` (crate
+#              `capnp-compiler-cligen-fixtures`). A new test with sleep/Instant/watchdog: put it in such a file or name it `*_time`.
+#   security : file `annotations_sensitive`, or the test name contains `sensitive` / `secret` (the annotation `sensitive` and the
+#              `secret` rule: a marked tool never loses the mark, a secret is never a tool). New such test: say so in its name.
+#   everything else = unit / model / golden test: level quick.
+# Binary ids look like `<crate>::<test-file>` (unit tests: `<crate>`).
+
+[profile.default]
+fail-fast = false
+
+# Level 1: unit, model and golden tests only. No child-process/outside-program, watchdog or security tests; stops at the first failure.
+[profile.quick]
+default-filter = "not (binary_id(/::(\\w+_bins|oracle_\\w+|cligen_enum_fallback)$/) | test(/a_unix_host_|a_windows_host_/) | binary_id(/-cligen-fixtures::(lost|wait_error)$/) | binary_id(/::annotations_sensitive$/) | test(/sensitive|secret/))"
+fail-fast = true
+retries = 0
+slow-timeout = { period = "30s", terminate-after = 4 }
+
+# Level 2: hang-watchdog tests. The 10x rule: run with `--stress-count 10`; a flaky test is an error, so NO retries hide it.
+[profile.time]
+default-filter = "binary_id(/-cligen-fixtures::(lost|wait_error)$/)"
+fail-fast = false
+retries = 0
+slow-timeout = { period = "60s", terminate-after = 5 }
+
+# Security: the `sensitive` annotation and the `secret` rule. Full run before a release (CLAUDE.md §4 hard limit 2).
+[profile.security]
+default-filter = "binary_id(/::annotations_sensitive$/) | test(/sensitive|secret/)"
+fail-fast = false
+retries = 0
+slow-timeout = { period = "60s", terminate-after = 5 }
+
+# Platform differences (Linux vs Windows): own binaries as child processes, official `capnp`, `rustc`, path rules of the host.
+[profile.platform]
+default-filter = "binary_id(/::(\\w+_bins|oracle_\\w+|cligen_enum_fallback)$/) | test(/a_unix_host_|a_windows_host_/)"
+fail-fast = false
+retries = 0
+slow-timeout = { period = "60s", terminate-after = 5 }
+
+# Everything (release gate, CI): no filter, no retries, no fail-fast so the whole list of failures is seen.
+[profile.release]
+fail-fast = false
+retries = 0
+slow-timeout = { period = "60s", terminate-after = 10 }
